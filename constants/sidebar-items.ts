@@ -59,7 +59,7 @@ export const cmsMenuItems = [
     },
     {
         title: "FAQ",
-        url: "#",
+        url: "/faq",
         icon: TableOfContents,
     },
     {
