@@ -6,9 +6,9 @@ import {
     SidebarFooter,
     SidebarHeader,
 } from "@/components/ui/sidebar"
-import { SidebarLogo } from "@/components/sidebar/sidebar-logo"
-import { SidebarMenuList } from "@/components/sidebar/sidebar-menu-list"
-import { SidebarUser } from "@/components/sidebar/sidebar-user"
+import { SidebarLogo } from "@/components/sidebar/SidebarLogo"
+import { SidebarMenuList } from "@/components/sidebar/SidebarMenuList"
+import { SidebarUser } from "@/components/sidebar/SidebarUser"
 import { mainMenuItems, cmsMenuItems } from "@/constants/sidebar-items"
 
 // Mock user data - in a real app this would likely come from auth props or context

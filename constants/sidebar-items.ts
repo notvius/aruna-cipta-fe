@@ -14,7 +14,7 @@ import {
 export const mainMenuItems = [
     {
         title: "Overview",
-        url: "#",
+        url: "/",
         icon: LayoutDashboard,
     },
     {
@@ -54,7 +54,7 @@ export const mainMenuItems = [
 export const cmsMenuItems = [
     {
         title: "Article",
-        url: "#",
+        url: "/article",
         icon: Newspaper,
     },
     {

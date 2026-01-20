@@ -1,6 +1,6 @@
 "use client";
 
-import { TopArticlesChart, type ArticleData } from "@/components/charts/top-articles-chart";
+import { TopArticlesChart, type ArticleData } from "@/components/charts/TopArticleChart";
 import IndonesiaMap from "@/components/ui/world-map";
 
 interface AnalyticsSectionProps {

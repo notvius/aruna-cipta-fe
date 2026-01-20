@@ -1,7 +1,7 @@
 "use client";
 
 import ItemHeaderDemo from "@/components/item-header";
-import { AnalyticsSection } from "@/components/dashboard/analytics-section";
+import { AnalyticsSection } from "@/components/dashboard/AnalyticSection";
 
 const articlesData = [
     { article: "How to use AI", views: 1250 },

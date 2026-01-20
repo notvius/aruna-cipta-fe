@@ -11,16 +11,27 @@ export default function Heading() {
             ...mainMenuItems,
             ...cmsMenuItems,
             ...mainMenuItems.flatMap(item => item.items || []),
-            ...cmsMenuItems.flatMap(item => item || [])
         ]
 
         if (pathname === "/") return "Overview"
 
-        const activeItem = allItems.find(item =>
-            item.url !== "#" && item.url === pathname
+        // Try exact match first
+        const exactMatch = allItems.find(item => item.url !== "#" && item.url === pathname)
+        if (exactMatch) return exactMatch.title
+
+        // Try parent match for sub-paths (e.g., /article/create)
+        const parentMatch = allItems.find(item =>
+            item.url !== "#" && item.url !== "/" && pathname.startsWith(item.url + "/")
         )
 
-        return activeItem ? activeItem.title : "Overview"
+        if (parentMatch) {
+            // Check for common sub-paths
+            if (pathname.endsWith("/create")) return `Create ${parentMatch.title}`
+            if (pathname.includes("/edit/")) return `Edit ${parentMatch.title}`
+            return parentMatch.title
+        }
+
+        return "Overview"
     }
 
     return (

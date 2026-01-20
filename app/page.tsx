@@ -1,9 +1,9 @@
-import OverviewPage from "./Overview/page";
+import OverviewPage from "./overview/page";
 
 export default function Home() {
   return (
     <div>
-      <OverviewPage/>
+      <OverviewPage />
     </div>
   );
 }

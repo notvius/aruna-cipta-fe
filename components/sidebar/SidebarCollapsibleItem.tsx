@@ -1,5 +1,4 @@
-"use client"
-
+import { usePathname } from "next/navigation"
 import { ChevronRight, type LucideIcon } from "lucide-react"
 import {
     Collapsible,
@@ -29,12 +28,20 @@ interface SidebarItemProps {
 }
 
 export function SidebarCollapsibleItem({ item }: SidebarItemProps) {
+    const pathname = usePathname()
+    const isAnyChildActive = item.items?.some((subItem) =>
+        subItem.url !== "#" && (
+            pathname === subItem.url || (subItem.url !== "/" && pathname.startsWith(subItem.url + "/"))
+        )
+    )
+
     return (
         <Collapsible
             className="group/collapsible"
+            defaultOpen={isAnyChildActive}
         >
             <CollapsibleTrigger asChild>
-                <SidebarMenuButton>
+                <SidebarMenuButton isActive={isAnyChildActive}>
                     <item.icon />
                     <span>{item.title}</span>
                     <ChevronRight className="ml-auto transition-transform duration-500 group-data-[state=open]/collapsible:rotate-90" />
@@ -42,15 +49,18 @@ export function SidebarCollapsibleItem({ item }: SidebarItemProps) {
             </CollapsibleTrigger>
             <CollapsibleContent className="overflow-hidden data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down">
                 <SidebarMenuSub>
-                    {item.items?.map((subItem) => (
-                        <SidebarMenuSubItem key={subItem.title}>
-                            <SidebarMenuSubButton asChild>
-                                <a href={subItem.url}>
-                                    <span>{subItem.title}</span>
-                                </a>
-                            </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                    ))}
+                    {item.items?.map((subItem) => {
+                        const isSubActive = pathname === subItem.url
+                        return (
+                            <SidebarMenuSubItem key={subItem.title}>
+                                <SidebarMenuSubButton asChild isActive={isSubActive}>
+                                    <a href={subItem.url}>
+                                        <span>{subItem.title}</span>
+                                    </a>
+                                </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                        )
+                    })}
                 </SidebarMenuSub>
             </CollapsibleContent>
         </Collapsible>
