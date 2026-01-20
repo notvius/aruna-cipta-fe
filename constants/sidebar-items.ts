@@ -79,7 +79,7 @@ export const cmsMenuItems = [
     },
     {
         title: "Testimonial",
-        url: "#",
+        url: "/testmonial",
         icon: Star,
     },
 ]

@@ -1,7 +1,8 @@
-export interface Faq {
+export interface Testimonial {
     id: string;
-    question: string;
-    answer: string;
+    clientName: string;
+    clientTitle: string;
+    content: string;
     status: "Published" | "Unpublished";
     createdAt: string;
     updatedAt: string;

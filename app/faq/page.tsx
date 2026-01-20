@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { useRouter } from "next/navigation";
 import { DataTable } from "@/components/data-table/DataTable";
 import { columns } from "@/components/organisms/faq/FaqColumns";
 import { type Faq } from "@/constants/faqs";
@@ -9,7 +8,6 @@ import { getFaqs, saveFaqs } from "@/utils/faq-storage";
 import { CreateFaqModal } from "@/components/organisms/faq/CreateFaqModal";
 
 export default function FAQPage() {
-    const router = useRouter();
     const [faqs, setFaqs] = React.useState<Faq[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
 

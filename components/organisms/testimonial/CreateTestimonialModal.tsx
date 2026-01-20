@@ -12,48 +12,54 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { addFaq } from "@/utils/faq-storage";
-import { type Faq } from "@/constants/faqs";
+import { addTestimonial } from "@/utils/testimonial-storage";
+import { type Testimonial } from "@/constants/testimonials";
 import { Loader2 } from "lucide-react";
 
-interface CreateFaqModalProps {
+interface CreateTestimonialModalProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
 }
 
-export function CreateFaqModal({
+export function CreateTestimonialModal({
     open,
     onOpenChange,
     onSuccess,
-}: CreateFaqModalProps) {
-    const [question, setQuestion] = React.useState("");
-    const [answer, setAnswer] = React.useState("");
+}: CreateTestimonialModalProps) {
+    const [clientName, setClientName] = React.useState("");
+    const [clientTitle, setClientTitle] = React.useState("");
+    const [content, setContent] = React.useState("");
+    const [status, setStatus] = React.useState("Unpublished");
     const [isSaving, setIsSaving] = React.useState(false);
 
     const handleSave = async () => {
-        if (!question.trim()) return alert("Please enter a question");
-        if (!answer.trim()) return alert("Please enter an answer");
+        if (!clientName.trim()) return alert("Please enter a client name");
+        if (!clientTitle.trim()) return alert("Please enter a client title");
+        if (!content.trim()) return alert("Please enter a content");
 
         setIsSaving(true);
 
         const now = new Date().toISOString();
-        const newFaq: Faq = {
-            id: `FAQ-${Date.now()}`,
-            question,
-            answer,
+        const newTestimonial: Testimonial = {
+            id: `Testimonial-${Date.now()}`,
+            clientName,
+            clientTitle,
+            content,
             status: "Unpublished",
             createdAt: now,
             updatedAt: now,
         };
 
-        addFaq(newFaq);
+        addTestimonial(newTestimonial);
 
         await new Promise((resolve) => setTimeout(resolve, 800));
 
         setIsSaving(false);
-        setQuestion("");
-        setAnswer("");
+        setClientName("");
+        setClientTitle("");
+        setContent("");
+        setStatus("Unpublished");
         onOpenChange(false);
         onSuccess();
     };
@@ -73,8 +79,8 @@ export function CreateFaqModal({
                         <Textarea
                             id="question"
                             placeholder="Type your question here..."
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
+                            value={clientName}
+                            onChange={(e) => setClientName(e.target.value)}
                             className="min-h-[100px]"
                         />
                     </div>
@@ -83,8 +89,18 @@ export function CreateFaqModal({
                         <Textarea
                             id="answer"
                             placeholder="Type the answer here..."
-                            value={answer}
-                            onChange={(e) => setAnswer(e.target.value)}
+                            value={clientTitle}
+                            onChange={(e) => setClientTitle(e.target.value)}
+                            className="min-h-[150px]"
+                        />
+                    </div>
+                    <div className="grid gap-2">
+                        <Label htmlFor="content">Content</Label>
+                        <Textarea
+                            id="content"
+                            placeholder="Type the content here..."
+                            value={content}
+                            onChange={(e) => setContent(e.target.value)}
                             className="min-h-[150px]"
                         />
                     </div>
@@ -104,7 +120,7 @@ export function CreateFaqModal({
                                 Saving...
                             </>
                         ) : (
-                            "Save FAQ"
+                            "Save Testimonial"
                         )}
                     </Button>
                 </DialogFooter>
