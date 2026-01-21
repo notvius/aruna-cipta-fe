@@ -64,7 +64,7 @@ export const cmsMenuItems = [
     },
     {
         title: "Gallery",
-        url: "#",
+        url: "/gallery",
         icon: BookImage,
     },
     {

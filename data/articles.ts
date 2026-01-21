@@ -1,14 +1,13 @@
-import logo from "@/public/images/logo_arcipta.png";
 import type { Article } from "@/constants/articles";
 export type { Article } from "@/constants/articles";
 
 export const articlesData: Article[] = [
     {
         id: "ART001",
-        thumbnail: logo.src,
-        title: "Understanding React Server Components",
-        category: "Development",
-        content: "React Server Components allow you to write UI that can be rendered on the server. This reduces the bundle size sent to the client and improves initial load performance. By fetching data directly on the server, we eliminate network waterfalls and create faster, more efficient applications...",
+        thumbnail: '/images/articles/alien.jpg',
+        title: "Is alien exist?",
+        category: "Science",
+        content: "Have you ever wondered if aliens exist? Well many people have wondered about this and there are many theories and speculations about it. Some people believe that aliens exist and that they have visited Earth, while others believe that aliens do not exist.",
         status: "Published",
         createdAt: "2024-01-01T10:00:00Z",
         updatedAt: "2024-01-02T10:00:00Z",
@@ -17,10 +16,10 @@ export const articlesData: Article[] = [
     },
     {
         id: "ART002",
-        thumbnail: logo.src,
-        title: "Mastering Tailwind CSS v4",
-        category: "Design",
-        content: "Tailwind CSS v4 introduces a new engine that is significantly faster and smaller. It supports CSS variables natively and includes powerful new features like container queries and 3D transforms. This guide explores how to migrate your existing projects and leverage the new capabilities...",
+        thumbnail: "/images/articles/evcars.jpg",
+        title: "BYD vs Tesla who will win?",
+        category: "Automotive",
+        content: "When we talk about electric vehicles, there are two companies that are always in the spotlight. These are BYD and Tesla. Both companies are known for their innovative technology and their commitment to sustainability. But who will win?",
         status: "Unpublished",
         createdAt: "2024-01-05T10:00:00Z",
         updatedAt: "2024-01-05T10:00:00Z",
@@ -28,10 +27,10 @@ export const articlesData: Article[] = [
     },
     {
         id: "ART003",
-        thumbnail: logo.src,
-        title: "The Future of Next.js",
-        category: "Technology",
-        content: "Next.js continues to evolve with features like Partial Prerendering and enhanced caching strategies. As the framework matures, it offers more robust solutions for enterprise-scale applications. We discuss the roadmap and what developers can expect in the coming years...",
+        thumbnail: '/images/articles/ai.jpg',
+        title: "The Future of AI",
+        category: "AI",
+        content: "AI is a rapidly evolving field, and it's changing the way we live and work. From self-driving cars to personalized medicine, AI is transforming the world. But what does the future hold for AI?",
         status: "Published",
         createdAt: "2024-01-10T10:00:00Z",
         updatedAt: "2024-01-12T10:00:00Z",
@@ -40,10 +39,10 @@ export const articlesData: Article[] = [
     },
     {
         id: "ART004",
-        thumbnail: "/images/logo_arcipta.png",
-        title: "Dotted Maps in React",
-        category: "Tutorial",
-        content: "Creating interactive maps in React can be challenging. In this tutorial, we learn how to implement a dotted map visualization using SVG and D3.js concepts. We'll cover projection mapping, coordinate systems, and how to animate paths between different geographical points...",
+        thumbnail: '/images/articles/trump.jpg',
+        title: "Trump: We try to save Venezuela",
+        category: "Politics",
+        content: "Donald Trump, the former President of the United States, has expressed his concern about the situation in Venezuela. He stated that the United States is trying to save Venezuela from the grip of the Maduro regime. Trump has called for the Venezuelan government to hold elections and for the opposition to unite against the Maduro regime.",
         status: "Unpublished",
         createdAt: "2024-01-15T10:00:00Z",
         updatedAt: "2024-01-15T10:00:00Z",
@@ -51,10 +50,10 @@ export const articlesData: Article[] = [
     },
     {
         id: "ART005",
-        thumbnail: "/images/logo_arcipta.png",
-        title: "Atomic Design Principles",
-        category: "Methodology",
-        content: "Atomic Design helps in creating robust design systems by breaking down interfaces into atoms, molecules, organisms, templates, and pages. This methodology ensures consistency and reusability across large projects. We'll examine how to structure your React components effectively...",
+        thumbnail: '/images/articles/pizza.jpg',
+        title: "How to make pizza",
+        category: "Food",
+        content: "Pizza is a popular Italian dish that is made with a flattened bread dough base, tomato sauce, cheese, and various ingredients such as meat, vegetables, and herbs. The dish is then baked in an oven to create a crispy crust and a melted cheese. Pizza is a popular dish that can be enjoyed as a meal or as a snack.",
         status: "Published",
         createdAt: "2024-01-20T10:00:00Z",
         updatedAt: "2024-01-21T10:00:00Z",

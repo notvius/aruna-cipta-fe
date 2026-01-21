@@ -3,19 +3,33 @@
 import { Article } from "@/constants/articles";
 import { articlesData as mockArticles } from "@/data/articles";
 
-const STORAGE_KEY = "aruna_articles";
+const STORAGE_KEY = "aruna_articles_v2"; 
 
 export const getArticles = (): Article[] => {
     if (typeof window === "undefined") return mockArticles;
 
     const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (localStorage.getItem("aruna_articles")) {
+        localStorage.removeItem("aruna_articles");
+    }
+
     if (!stored) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(mockArticles));
         return mockArticles;
     }
 
     try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored) as Article[];
+
+        const hasStalePaths = parsed.some(art => art.thumbnail?.startsWith("@/public"));
+
+        if (hasStalePaths) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(mockArticles));
+            return mockArticles;
+        }
+
+        return parsed;
     } catch (e) {
         console.error("Failed to parse articles from localStorage", e);
         return mockArticles;
