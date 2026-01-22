@@ -4,98 +4,92 @@ import * as React from "react";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { addFaq } from "@/utils/faq-storage";
-import { type Faq } from "@/constants/faqs";
 import { Loader2 } from "lucide-react";
+import { Faq } from "@/constants/faqs";
 
-interface CreateFaqModalProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSuccess: () => void;
+interface EditModalProps {
+    faq: Faq;
+    onSave: (updateFaq: Faq) => void;
 }
 
-export function CreateFaqModal({
-    open,
-    onOpenChange,
-    onSuccess,
-}: CreateFaqModalProps) {
-    const [question, setQuestion] = React.useState("");
-    const [answer, setAnswer] = React.useState("");
+export function EditFaqModal({ faq, onSave }: EditModalProps) {
+    const [question, setQuestion] = React.useState(faq.question);
+    const [answer, setAnswer] = React.useState(faq.answer);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
 
     const handleSave = async () => {
-        if (!question.trim()) return alert("Please enter a question");
-        if (!answer.trim()) return alert("Please enter an answer");
-
         setIsSaving(true);
 
-        const now = new Date();
-        const newFaq: Faq = {
-            id: `Faq-${Date.now()}`,
+        const updatedFaq: Faq = {
+            ...faq,
             question,
             answer,
-            created_at: now,
-            updated_at: now,
+            updated_at: new Date(),
         };
 
-        addFaq(newFaq);
+        onSave(updatedFaq);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((r) => setTimeout(r, 500));
 
         setIsSaving(false);
-        setQuestion("");
-        setAnswer("");
-        onOpenChange(false);
-        onSuccess();
+        setOpen(false);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px]">
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-arcipta-blue-primary"
+                >
+                    <Pencil className="h-4 w-4" />
+                </Button>
+            </DialogTrigger>
+
+            <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
-                    <DialogTitle>Add New FAQ</DialogTitle>
-                    <DialogDescription>
-                        Create a new entry for your FAQ section.
-                    </DialogDescription>
+                    <DialogTitle>Edit FAQ</DialogTitle>
                 </DialogHeader>
+
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="question">Question</Label>
+                        <Label>Question</Label>
                         <Textarea
-                            id="question"
-                            placeholder="Type your question here..."
                             value={question}
                             onChange={(e) => setQuestion(e.target.value)}
                             className="min-h-[30px]"
                         />
                     </div>
+
                     <div className="grid gap-2">
-                        <Label htmlFor="answer">Answer</Label>
+                        <Label>Answer</Label>
                         <Textarea
-                            id="answer"
-                            placeholder="Type the answer here..."
                             value={answer}
                             onChange={(e) => setAnswer(e.target.value)}
-                            className="min-h-[30px]"
+                            className="min-h-[100px]"
                         />
                     </div>
                 </div>
+
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
+                    <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90"
+                        className="bg-arcipta-blue-primary"
                     >
                         {isSaving ? (
                             <>
@@ -103,7 +97,7 @@ export function CreateFaqModal({
                                 Saving...
                             </>
                         ) : (
-                            "Save Testimonial"
+                            "Save Changes"
                         )}
                     </Button>
                 </DialogFooter>

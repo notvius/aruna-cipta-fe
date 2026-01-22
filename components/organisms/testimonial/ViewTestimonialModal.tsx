@@ -1,6 +1,5 @@
 "use client";
 
-
 import {
     Dialog,
     DialogContent,
@@ -52,11 +51,11 @@ export function ViewTestimonialModal({ testimonial }: ViewTestimonialModalProps)
                     <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Client Name</span>
-                            <p className="text-xs text-foreground">{testimonial.client_name || ""}</p>
+                            <p className="text-sm text-foreground">{testimonial.client_name || ""}</p>
                         </div>
                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Client Title</span>
-                            <p className="text-xs text-foreground">{testimonial.client_title || ""}</p>
+                            <p className="text-sm text-foreground">{testimonial.client_title || ""}</p>
                         </div>
                     </div>
 

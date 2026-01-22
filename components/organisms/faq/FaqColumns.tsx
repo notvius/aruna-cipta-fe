@@ -3,22 +3,12 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-    ArrowUpDown,
-    ChevronDown,
-} from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import { ArrowUpDown } from "lucide-react";
 import { type Faq } from "@/constants/faqs";
-import { EditModal } from "./EditModal";
+import { EditFaqModal } from "./EditFaqModal";
 import { ViewFaqModal } from "./ViewFaqModal";
 
-const truncateWords = (text: string | null | undefined, count: number) => {
+const truncateWords = (text: string, count: number) => {
     if (!text) return "";
     const words = text.split(" ");
     if (words.length <= count) return text;
@@ -45,43 +35,32 @@ export const columns: ColumnDef<Faq>[] = [
                 aria-label="Select row"
             />
         ),
+        size: 40, 
         enableSorting: false,
         enableHiding: false,
     },
     {
         accessorKey: "question",
         header: "Question",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center justify-between gap-2 max-w-[300px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("question"), 15)}
-                </div>
-                <EditModal
-                    initialContent={row.getValue("question")}
-                    onSave={(newQuestion) => table.options.meta?.updateData(row.index, "question", newQuestion)}
-                    title={`Edit Question: ${row.original.question}`}
-                />
+        size: 180, 
+        cell: ({ row }) => (
+            <div className="text-sm font-medium whitespace-normal break-words w-[180px] pr-">
+                {truncateWords(row.getValue("question"), 8)}
             </div>
         )
     },
     {
         accessorKey: "answer",
         header: "Answer",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center justify-between gap-2 max-w-[300px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("answer"), 15)}
-                </div>
-                <EditModal
-                    initialContent={row.getValue("answer")}
-                    onSave={(newAnswer) => table.options.meta?.updateData(row.index, "answer", newAnswer)}
-                    title={`Edit Answer: ${row.original.answer}`}
-                />
+        size: 300,
+        cell: ({ row }) => (
+            <div className="text-sm text-muted-foreground whitespace-normal break-words w-[300px] pr-4">
+                {truncateWords(row.getValue("answer"), 8)}
             </div>
         )
     },
     {
-        accessorKey: "createdAt",
+        accessorKey: "created_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -92,13 +71,14 @@ export const columns: ColumnDef<Faq>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        size: 140,
         cell: ({ row }) => {
-            const date = new Date(row.getValue("createdAt"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
+            const date = new Date(row.getValue("created_at"));
+            return <div className="px-4 text-sm w-[160px]">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "updatedAt",
+        accessorKey: "updated_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -109,67 +89,28 @@ export const columns: ColumnDef<Faq>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        size: 140,
         cell: ({ row }) => {
-            const dateValue = row.getValue("updatedAt");
-            if (!dateValue) return <div className="px-4 text-muted-foreground">-</div>;
+            const dateValue = row.getValue("updated_at");
+            if (!dateValue) return <div className="px-4 text-muted-foreground w-[140px]">-</div>;
             const date = new Date(dateValue as string);
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row, table }) => {
-            const status = row.getValue("status") as string;
-            const isPublished = status.toLowerCase() === "published";
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-fit p-0 hover:bg-transparent">
-                            <Badge
-                                className="cursor-pointer"
-                                variant={isPublished ? "default" : "secondary"}
-                                style={
-                                    isPublished
-                                        ? {
-                                            backgroundColor: "var(--arcipta-blue-primary)",
-                                            color: "white",
-                                        }
-                                        : undefined
-                                }
-                            >
-                                {status}
-                                <ChevronDown className="ml-1 h-3 w-3" />
-                            </Badge>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                        <DropdownMenuItem
-                            onClick={() => table.options.meta?.updateData(row.index, "status", "Published")}
-                            disabled={isPublished}
-                        >
-                            Published
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => table.options.meta?.updateData(row.index, "status", "Unpublished")}
-                            disabled={!isPublished}
-                        >
-                            Unpublished
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+            return <div className="px-4 text-sm w-[140px]">{date.toLocaleDateString()}</div>;
         },
     },
     {
         id: "actions",
         header: "Action",
+        size: 100,
         enableHiding: false,
-        cell: ({ row }) => {
+        cell: ({ row, table }) => {
             const faq = row.original;
             return (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-start gap-1">
                     <ViewFaqModal faq={faq} />
+                    <EditFaqModal
+                        faq={faq}
+                        onSave={(updatedFaq) => table.options.meta?.updateRow(row.index, updatedFaq)}
+                    />
                 </div>
             );
         },

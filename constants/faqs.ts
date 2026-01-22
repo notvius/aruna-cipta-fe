@@ -2,7 +2,6 @@ export interface Faq {
     id: string;
     question: string;
     answer: string;
-    status: "Published" | "Unpublished";
-    createdAt: string;
-    updatedAt: string;
+    created_at: Date;
+    updated_at: Date;
 }

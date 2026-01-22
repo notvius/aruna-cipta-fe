@@ -62,7 +62,7 @@ export const columns: ColumnDef<Testimonial>[] = [
     {
         accessorKey: "content",
         header: "Content",
-        size: 400, // Kolom ini diberikan ruang paling luas
+        size: 400, 
         cell: ({ row }) => (
             <div className="text-sm text-muted-foreground whitespace-normal break-words min-w-[250px] max-w-[450px]">
                 {truncateWords(row.getValue("content"), 20)}

@@ -1,30 +1,34 @@
-"use client";
-
+import { safeLocalStorageSet, cleanupOldStorage } from "./storage-utils";
 import { Faq } from "@/constants/faqs";
-import { faqsData as mockFaqs } from "@/data/faqs";
+import { faqsData } from "@/data/faqs";
 
-const STORAGE_KEY = "aruna_faqs";
+const STORAGE_KEY = "aruna_faqs_v2";
 
 export const getFaqs = (): Faq[] => {
-    if (typeof window === "undefined") return mockFaqs;
+    if (typeof window === "undefined") return [];
+
+    cleanupOldStorage();
 
     const stored = localStorage.getItem(STORAGE_KEY);
+
     if (!stored) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(mockFaqs));
-        return mockFaqs;
+        saveFaqs(faqsData);
+        return faqsData;
     }
 
     try {
-        return JSON.parse(stored);
+        const parsed = JSON.parse(stored);
+
+        return parsed;
     } catch (e) {
-        console.error("Failed to parse faqs from localStorage", e);
-        return mockFaqs;
+        console.error("Failed to parse faqs", e);
+        return [];
     }
 };
 
 export const saveFaqs = (faqs: Faq[]) => {
     if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(faqs));
+    safeLocalStorageSet(STORAGE_KEY, JSON.stringify(faqs));
 };
 
 export const addFaq = (newFaq: Faq) => {

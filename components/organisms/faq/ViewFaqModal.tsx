@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
     Dialog,
     DialogContent,
@@ -9,7 +8,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { type Faq } from "@/constants/faqs";
 
@@ -18,14 +16,19 @@ interface ViewFaqModalProps {
 }
 
 export function ViewFaqModal({ faq }: ViewFaqModalProps) {
-    const formatDate = (dateString: string | null | undefined) => {
-        if (!dateString) return "-";
-        return new Date(dateString).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
+    function formatDate(date: Date | string | null | undefined): string {
+        if (!date) return "—";
+        const parsedDate = date instanceof Date ? date : new Date(date);
+        if (isNaN(parsedDate.getTime())) return "Invalid date";
+
+        return parsedDate.toLocaleDateString("id-ID", {
             year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         });
-    };
+    }
 
     return (
         <Dialog>
@@ -40,50 +43,31 @@ export function ViewFaqModal({ faq }: ViewFaqModalProps) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Faq Details</DialogTitle>
+                    <DialogTitle className="text-xl font-bold">FAQ Details</DialogTitle>
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
-                    {/* Question */}
-                    <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Question</span>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                            {faq.question}
-                        </p>
+                    {/* Question & Answer */}
+                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Question</span>
+                            <p className="text-sm text-foreground">{faq.question || ""}</p>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Answer</span>
+                            <p className="text-sm text-foreground">{faq.answer || ""}</p>
+                        </div>
                     </div>
 
-                    {/* Answer */}
-                    <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Answer</span>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                            {faq.answer}
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                        {/* Status */}
+                    {/* Timestamps */}
+                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                         <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status</span>
-                            <div>
-                                <Badge
-                                    className={faq.status.toLowerCase() === 'published' ? 'bg-green-600' : ''}
-                                    variant={faq.status.toLowerCase() === 'published' ? 'default' : 'secondary'}
-                                >
-                                    {faq.status}
-                                </Badge>
-                            </div>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
+                            <p className="text-xs text-foreground">{formatDate(faq.created_at)}</p>
                         </div>
-
-                        {/* Updated At */}
                         <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
-                            <p className="text-sm">{formatDate(faq.updatedAt)}</p>
-                        </div>
-
-                        {/* Created At */}
-                        <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
-                            <p className="text-sm">{formatDate(faq.createdAt)}</p>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
+                            <p className="text-xs text-foreground">{formatDate(faq.updated_at)}</p>
                         </div>
                     </div>
                 </div>
