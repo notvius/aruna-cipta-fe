@@ -1,18 +1,13 @@
-"use client";
-
-import { Gallery } from "@/constants/galleries";
-import { galleriesData as mockGalleries } from "@/data/galleries";
+import { safeLocalStorageSet, cleanupOldStorage } from "./storage-utils";
 
 const STORAGE_KEY = "aruna_galleries_v2";
 
 export const getGalleries = (): Gallery[] => {
     if (typeof window === "undefined") return mockGalleries;
 
-    const stored = localStorage.getItem(STORAGE_KEY);
+    cleanupOldStorage();
 
-    if (localStorage.getItem("aruna_galleries")) {
-        localStorage.removeItem("aruna_galleries");
-    }
+    const stored = localStorage.getItem(STORAGE_KEY);
 
     if (!stored) {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(mockGalleries));
@@ -28,7 +23,7 @@ export const getGalleries = (): Gallery[] => {
         );
 
         if (hasStalePaths) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(mockGalleries));
+            safeLocalStorageSet(STORAGE_KEY, JSON.stringify(mockGalleries));
             return mockGalleries;
         }
 
@@ -41,7 +36,7 @@ export const getGalleries = (): Gallery[] => {
 
 export const saveGalleries = (galleries: Gallery[]) => {
     if (typeof window === "undefined") return;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(galleries));
+    safeLocalStorageSet(STORAGE_KEY, JSON.stringify(galleries));
 };
 
 export const addGallery = (newGallery: Gallery) => {

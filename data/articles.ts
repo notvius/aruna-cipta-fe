@@ -11,7 +11,6 @@ export const articlesData: Article[] = [
         status: "Published",
         createdAt: "2024-01-01T10:00:00Z",
         updatedAt: "2024-01-02T10:00:00Z",
-        publishedAt: "2024-01-02T10:00:00Z",
         views: 1250,
     },
     {
@@ -34,7 +33,6 @@ export const articlesData: Article[] = [
         status: "Published",
         createdAt: "2024-01-10T10:00:00Z",
         updatedAt: "2024-01-12T10:00:00Z",
-        publishedAt: "2024-01-11T10:00:00Z",
         views: 3100,
     },
     {
@@ -57,7 +55,6 @@ export const articlesData: Article[] = [
         status: "Published",
         createdAt: "2024-01-20T10:00:00Z",
         updatedAt: "2024-01-21T10:00:00Z",
-        publishedAt: "2024-01-21T10:00:00Z",
         views: 2150,
     },
 ];

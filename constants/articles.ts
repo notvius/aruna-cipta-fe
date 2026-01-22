@@ -7,6 +7,5 @@ export interface Article {
     status: "Published" | "Unpublished";
     createdAt: string;
     updatedAt: string;
-    publishedAt?: string;
     views: number;
 }

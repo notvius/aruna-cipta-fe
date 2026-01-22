@@ -69,12 +69,12 @@ export const cmsMenuItems = [
     },
     {
         title: "Portfolio",
-        url: "#",
+        url: "/portfolio",
         icon: BriefcaseBusiness,
     },
     {
         title: "Services",
-        url: "#",
+        url: "/service",
         icon: Handshake,
     },
     {
