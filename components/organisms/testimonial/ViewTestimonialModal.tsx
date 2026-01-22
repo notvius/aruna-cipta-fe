@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+
 import {
     Dialog,
     DialogContent,
@@ -9,7 +9,6 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { type Testimonial } from "@/constants/testimonials";
 
@@ -18,14 +17,19 @@ interface ViewTestimonialModalProps {
 }
 
 export function ViewTestimonialModal({ testimonial }: ViewTestimonialModalProps) {
-    const formatDate = (dateString: string | null | undefined) => {
-        if (!dateString) return "-";
-        return new Date(dateString).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
+    function formatDate(date: Date | string | null | undefined): string {
+        if (!date) return "—";
+        const parsedDate = date instanceof Date ? date : new Date(date);
+        if (isNaN(parsedDate.getTime())) return "Invalid date";
+
+        return parsedDate.toLocaleDateString("id-ID", {
             year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         });
-    };
+    }
 
     return (
         <Dialog>
@@ -44,54 +48,35 @@ export function ViewTestimonialModal({ testimonial }: ViewTestimonialModalProps)
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
-                    {/* Client Name */}
-                    <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Client Name</span>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                            {testimonial.clientName}
-                        </p>
-                    </div>
-
-                    {/* Client Title */}
-                    <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Client Title</span>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                            {testimonial.clientTitle}
-                        </p>
+                    {/* Client Name & Client Title */}
+                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Client Name</span>
+                            <p className="text-xs text-foreground">{testimonial.client_name || ""}</p>
+                        </div>
+                        <div className="flex flex-col gap-1">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Client Title</span>
+                            <p className="text-xs text-foreground">{testimonial.client_title || ""}</p>
+                        </div>
                     </div>
 
                     {/* Content */}
                     <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
                         <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
-                        <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                            {testimonial.content}
-                        </p>
+                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
+                            {testimonial.content || <span className="italic text-muted-foreground">No content provided</span>}
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-4 pt-2 border-t">
-                        {/* Status */}
+                    {/* Timestamps */}
+                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                         <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status</span>
-                            <div>
-                                <Badge
-                                    className={testimonial.status.toLowerCase() === 'published' ? 'bg-green-600' : ''}
-                                    variant={testimonial.status.toLowerCase() === 'published' ? 'default' : 'secondary'}
-                                >
-                                    {testimonial.status}
-                                </Badge>
-                            </div>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
+                            <p className="text-xs text-foreground">{formatDate(testimonial.created_at)}</p>
                         </div>
-
-                        {/* Updated At */}
                         <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
-                            <p className="text-sm">{formatDate(testimonial.updatedAt)}</p>
-                        </div>
-
-                        {/* Created At */}
-                        <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
-                            <p className="text-sm">{formatDate(testimonial.createdAt)}</p>
+                            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
+                            <p className="text-xs text-foreground">{formatDate(testimonial.updated_at)}</p>
                         </div>
                     </div>
                 </div>

@@ -54,11 +54,12 @@ export const columns: ColumnDef<Gallery>[] = [
         header: "Image",
         size: 140,
         cell: ({ row }) => (
-            <div className="flex items-center">
+            <div className="flex items-center justify-center md:justify-start md:w-24 md:h-16 
+                    transition-all duration-200">
                 <img
                     src={row.getValue("file_path")}
                     alt={row.getValue("alt_text")}
-                    className="rounded-md object-cover h-16 w-24"
+                    className="rounded-md object-cover h-14 w-24"
                 />
             </div>
         ),
@@ -84,7 +85,7 @@ export const columns: ColumnDef<Gallery>[] = [
         ),
     },
     {
-        accessorKey: "createdAt",
+        accessorKey: "created_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -97,12 +98,12 @@ export const columns: ColumnDef<Gallery>[] = [
         ),
         size: 150,
         cell: ({ row }) => {
-            const date = new Date(row.getValue("createdAt"));
+            const date = new Date(row.getValue("created_at"));
             return <div className="px-4">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "updatedAt",
+        accessorKey: "updated_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -115,7 +116,7 @@ export const columns: ColumnDef<Gallery>[] = [
         ),
         size: 150,
         cell: ({ row }) => {
-            const dateValue = row.getValue("updatedAt");
+            const dateValue = row.getValue("updated_at");
             if (!dateValue) return <div className="text-center text-muted-foreground">-</div>;
             const date = new Date(dateValue as string);
             return <div className="px-4">{date.toLocaleDateString()}</div>;

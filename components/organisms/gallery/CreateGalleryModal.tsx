@@ -46,9 +46,9 @@ export function CreateGalleryModal({
             caption,
             alt_text,
             is_published: false,
-            createdAt: now,
-            updatedAt: now,
-            deletedAt: null,
+            created_at: now,
+            updated_at: now,
+            deleted_at: null,
         };
 
         addGallery(newGallery);

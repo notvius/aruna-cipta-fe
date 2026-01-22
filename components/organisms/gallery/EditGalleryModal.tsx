@@ -36,7 +36,7 @@ export function EditGalleryModal({ gallery, onSave }: EditGalleryModalProps) {
             file_path: filePath,
             caption,
             alt_text: altText,
-            updatedAt: new Date(),
+            updated_at: new Date(),
         };
 
         onSave(updatedGallery);

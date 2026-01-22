@@ -4,9 +4,9 @@ export interface Gallery {
     caption: string;
     alt_text: string;
     is_published: boolean;
-    createdAt: Date;
-    updatedAt: Date;
-    deletedAt: Date | null;
+    created_at: Date;
+    updated_at: Date;
+    deleted_at: Date | null;
 }
 
 

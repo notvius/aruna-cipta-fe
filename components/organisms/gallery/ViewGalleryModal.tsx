@@ -97,16 +97,16 @@ export function ViewGalleryModal({ gallery }: ViewGalleryModalProps) {
                         <div className="grid grid-cols-2 gap-4 pt-2 border-t">
                             <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
-                                <p className="text-xs text-foreground">{formatDate(gallery.createdAt)}</p>
+                                <p className="text-xs text-foreground">{formatDate(gallery.created_at)}</p>
                             </div>
                             <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
-                                <p className="text-xs text-foreground">{formatDate(gallery.updatedAt)}</p>
+                                <p className="text-xs text-foreground">{formatDate(gallery.updated_at)}</p>
                             </div>
-                            {gallery.deletedAt && (
+                            {gallery.deleted_at && (
                                 <div className="flex flex-col gap-1 col-span-2">
                                     <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-red-500">Deleted At</span>
-                                    <p className="text-xs text-red-500 italic">{formatDate(gallery.deletedAt)}</p>
+                                    <p className="text-xs text-red-500 italic">{formatDate(gallery.deleted_at)}</p>
                                 </div>
                             )}
                         </div>

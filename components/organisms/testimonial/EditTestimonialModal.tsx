@@ -4,112 +4,103 @@ import * as React from "react";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { addTestimonial } from "@/utils/testimonial-storage";
-import { type Testimonial } from "@/constants/testimonials";
 import { Loader2 } from "lucide-react";
+import { Testimonial } from "@/constants/testimonials";
 
-interface CreateTestimonialModalProps {
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
-    onSuccess: () => void;
+interface EditTestimonialModalProps {
+    testimonial: Testimonial;
+    onSave: (updateTestimonial: Testimonial) => void;
 }
 
-export function CreateTestimonialModal({
-    open,
-    onOpenChange,
-    onSuccess,
-}: CreateTestimonialModalProps) {
-    const [clientName, setClientName] = React.useState("");
-    const [clientTitle, setClientTitle] = React.useState("");
-    const [content, setContent] = React.useState("");
+export function EditTestimonialModal({ testimonial, onSave }: EditTestimonialModalProps) {
+    const [clientName, setClientName] = React.useState(testimonial.client_name);
+    const [clientTitle, setClientTitle] = React.useState(testimonial.client_title);
+    const [content, setContent] = React.useState(testimonial.content);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [open, setOpen] = React.useState(false);
 
     const handleSave = async () => {
-        if (!clientName.trim()) return alert("Please enter a client name");
-        if (!clientTitle.trim()) return alert("Please enter a client title");
-        if (!content.trim()) return alert("Please enter a content");
-
         setIsSaving(true);
 
-        const now = new Date();
-        const newTestimonial: Testimonial = {
-            id: `Testimonial-${Date.now()}`,
+        const updatedTestimonial: Testimonial = {
+            ...testimonial,
             client_name: clientName,
             client_title: clientTitle,
             content,
-            created_at: now,
-            updated_at: now,
+            updated_at: new Date(),
         };
 
-        addTestimonial(newTestimonial);
+        onSave(updatedTestimonial);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((r) => setTimeout(r, 500));
 
         setIsSaving(false);
-        setClientName("");
-        setClientTitle("");
-        setContent("");
-        onOpenChange(false);
-        onSuccess();
+        setOpen(false);
     };
 
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px]">
+        <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-arcipta-blue-primary"
+                >
+                    <Pencil className="h-4 w-4" />
+                </Button>
+            </DialogTrigger>
+
+            <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
-                    <DialogTitle>Add New Testimonial</DialogTitle>
-                    <DialogDescription>
-                        Create a new entry for your testimonial section.
-                    </DialogDescription>
+                    <DialogTitle>Edit Testimonial</DialogTitle>
                 </DialogHeader>
+
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="client_name">Client Name</Label>
+                        <Label>Client Name</Label>
                         <Textarea
-                            id="client_name"
-                            placeholder="Type your client name here..."
                             value={clientName}
                             onChange={(e) => setClientName(e.target.value)}
                             className="min-h-[30px]"
                         />
                     </div>
+
                     <div className="grid gap-2">
-                        <Label htmlFor="client_title">Client Title</Label>
+                        <Label>Client Title</Label>
                         <Textarea
-                            id="client_title"
-                            placeholder="Type the client title here..."
                             value={clientTitle}
                             onChange={(e) => setClientTitle(e.target.value)}
                             className="min-h-[30px]"
                         />
                     </div>
+
                     <div className="grid gap-2">
-                        <Label htmlFor="content">Content</Label>
+                        <Label>Content</Label>
                         <Textarea
-                            id="content"
-                            placeholder="Type the content here..."
                             value={content}
                             onChange={(e) => setContent(e.target.value)}
                             className="min-h-[100px]"
                         />
                     </div>
                 </div>
+
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
+                    <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSave}
                         disabled={isSaving}
-                        className="bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90"
+                        className="bg-arcipta-blue-primary"
                     >
                         {isSaving ? (
                             <>
@@ -117,7 +108,7 @@ export function CreateTestimonialModal({
                                 Saving...
                             </>
                         ) : (
-                            "Save Testimonial"
+                            "Save Changes"
                         )}
                     </Button>
                 </DialogFooter>

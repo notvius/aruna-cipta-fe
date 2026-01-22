@@ -3,22 +3,13 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import {
-    ArrowUpDown,
-    ChevronDown,
-} from "lucide-react";
-import {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
+import { ArrowUpDown } from "lucide-react";
 import { type Testimonial } from "@/constants/testimonials";
-import { EditContentModal } from "./EditContentModal";
+import { EditTestimonialModal } from "./EditTestimonialModal";
 import { ViewTestimonialModal } from "./ViewTestimonialModal";
 
 const truncateWords = (text: string, count: number) => {
+    if (!text) return "";
     const words = text.split(" ");
     if (words.length <= count) return text;
     return words.slice(0, count).join(" ") + "...";
@@ -44,59 +35,42 @@ export const columns: ColumnDef<Testimonial>[] = [
                 aria-label="Select row"
             />
         ),
+        size: 40, 
         enableSorting: false,
         enableHiding: false,
     },
     {
-        accessorKey: "clientName",
+        accessorKey: "client_name",
         header: "Client Name",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center justify-between gap-2 max-w-[300px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("clientName"), 15)}
-                </div>
-                <EditContentModal
-                    initialContent={row.getValue("clientName")}
-                    onSave={(newClientName) => table.options.meta?.updateData(row.index, "clientName", newClientName)}
-                    title={`Edit Client Name: ${row.original.clientName}`}
-                />
+        size: 180, 
+        cell: ({ row }) => (
+            <div className="text-sm font-medium whitespace-normal break-words w-[180px] pr-">
+                {truncateWords(row.getValue("client_name"), 8)}
             </div>
         )
     },
     {
-        accessorKey: "clientTitle",
+        accessorKey: "client_title",
         header: "Client Title",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center justify-between gap-2 max-w-[300px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("clientTitle"), 15)}
-                </div>
-                <EditContentModal
-                    initialContent={row.getValue("clientTitle")}
-                    onSave={(newClientTitle) => table.options.meta?.updateData(row.index, "clientTitle", newClientTitle)}
-                    title={`Edit Client Title: ${row.original.clientTitle}`}
-                />
+        size: 150,
+        cell: ({ row }) => (
+            <div className="text-sm text-muted-foreground whitespace-normal break-words w-[150px] pr-4">
+                {truncateWords(row.getValue("client_title"), 8)}
             </div>
         )
     },
     {
         accessorKey: "content",
         header: "Content",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center justify-between gap-2 max-w-[300px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("content"), 15)}
-                </div>
-                <EditContentModal
-                    initialContent={row.getValue("content")}
-                    onSave={(newContent) => table.options.meta?.updateData(row.index, "content", newContent)}
-                    title={`Edit Content: ${row.original.content}`}
-                />
+        size: 400, // Kolom ini diberikan ruang paling luas
+        cell: ({ row }) => (
+            <div className="text-sm text-muted-foreground whitespace-normal break-words min-w-[250px] max-w-[450px]">
+                {truncateWords(row.getValue("content"), 20)}
             </div>
         )
     },
     {
-        accessorKey: "createdAt",
+        accessorKey: "created_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -107,13 +81,14 @@ export const columns: ColumnDef<Testimonial>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        size: 160,
         cell: ({ row }) => {
-            const date = new Date(row.getValue("createdAt"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
+            const date = new Date(row.getValue("created_at"));
+            return <div className="px-4 text-sm w-[160px]">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "updatedAt",
+        accessorKey: "updated_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -124,67 +99,28 @@ export const columns: ColumnDef<Testimonial>[] = [
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        size: 160,
         cell: ({ row }) => {
-            const dateValue = row.getValue("updatedAt");
-            if (!dateValue) return <div className="px-4 text-muted-foreground">-</div>;
+            const dateValue = row.getValue("updated_at");
+            if (!dateValue) return <div className="px-4 text-muted-foreground w-[160px]">-</div>;
             const date = new Date(dateValue as string);
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "status",
-        header: "Status",
-        cell: ({ row, table }) => {
-            const status = row.getValue("status") as string;
-            const isPublished = status.toLowerCase() === "published";
-            return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-fit p-0 hover:bg-transparent">
-                            <Badge
-                                className="cursor-pointer"
-                                variant={isPublished ? "default" : "secondary"}
-                                style={
-                                    isPublished
-                                        ? {
-                                            backgroundColor: "var(--arcipta-blue-primary)",
-                                            color: "white",
-                                        }
-                                        : undefined
-                                }
-                            >
-                                {status}
-                                <ChevronDown className="ml-1 h-3 w-3" />
-                            </Badge>
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start">
-                        <DropdownMenuItem
-                            onClick={() => table.options.meta?.updateData(row.index, "status", "Published")}
-                            disabled={isPublished}
-                        >
-                            Published
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                            onClick={() => table.options.meta?.updateData(row.index, "status", "Unpublished")}
-                            disabled={!isPublished}
-                        >
-                            Unpublished
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            );
+            return <div className="px-4 text-sm w-[160px]">{date.toLocaleDateString()}</div>;
         },
     },
     {
         id: "actions",
         header: "Action",
+        size: 100,
         enableHiding: false,
-        cell: ({ row }) => {
+        cell: ({ row, table }) => {
             const testimonial = row.original;
             return (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-start gap-1">
                     <ViewTestimonialModal testimonial={testimonial} />
+                    <EditTestimonialModal
+                        testimonial={testimonial}
+                        onSave={(updatedTestimonial) => table.options.meta?.updateRow(row.index, updatedTestimonial)}
+                    />
                 </div>
             );
         },
