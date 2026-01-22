@@ -1,17 +1,18 @@
 import { safeLocalStorageSet, cleanupOldStorage } from "./storage-utils";
+import { Gallery } from "@/constants/galleries";
 
 const STORAGE_KEY = "aruna_galleries_v2";
 
 export const getGalleries = (): Gallery[] => {
-    if (typeof window === "undefined") return mockGalleries;
+    if (typeof window === "undefined") return [];
 
     cleanupOldStorage();
 
     const stored = localStorage.getItem(STORAGE_KEY);
 
     if (!stored) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(mockGalleries));
-        return mockGalleries;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+        return [];
     }
 
     try {
@@ -23,14 +24,14 @@ export const getGalleries = (): Gallery[] => {
         );
 
         if (hasStalePaths) {
-            safeLocalStorageSet(STORAGE_KEY, JSON.stringify(mockGalleries));
-            return mockGalleries;
+            safeLocalStorageSet(STORAGE_KEY, JSON.stringify([]));
+            return [];
         }
 
         return parsed;
     } catch (e) {
         console.error("Failed to parse galleries from localStorage", e);
-        return mockGalleries;
+        return [];
     }
 };
 

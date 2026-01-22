@@ -68,27 +68,27 @@ export function CreateTestimonialModal({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[525px]">
                 <DialogHeader>
-                    <DialogTitle>Add New FAQ</DialogTitle>
+                    <DialogTitle>Add New Testimonial</DialogTitle>
                     <DialogDescription>
-                        Create a new question and answer for your FAQ section.
+                        Create a new Testimonial.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
-                        <Label htmlFor="question">Question</Label>
+                        <Label htmlFor="question">Client Name</Label>
                         <Textarea
-                            id="question"
-                            placeholder="Type your question here..."
+                            id="clientName"
+                            placeholder="Type your client name here..."
                             value={clientName}
                             onChange={(e) => setClientName(e.target.value)}
                             className="min-h-[100px]"
                         />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="answer">Answer</Label>
+                        <Label htmlFor="answer">Client Title</Label>
                         <Textarea
-                            id="answer"
-                            placeholder="Type the answer here..."
+                            id="clientTitle"
+                            placeholder="Type the client title here..."
                             value={clientTitle}
                             onChange={(e) => setClientTitle(e.target.value)}
                             className="min-h-[150px]"

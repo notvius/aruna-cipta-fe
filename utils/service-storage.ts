@@ -1,17 +1,18 @@
 import { safeLocalStorageSet, cleanupOldStorage } from "./storage-utils";
+import { Service } from "@/constants/services";
 
 const STORAGE_KEY = "aruna_services_v2";
 
 export const getServices = (): Service[] => {
-    if (typeof window === "undefined") return mockServices;
+    if (typeof window === "undefined") return [];
 
     cleanupOldStorage();
 
     const stored = localStorage.getItem(STORAGE_KEY);
 
     if (!stored) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(mockServices));
-        return mockServices;
+        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+        return [];
     }
 
     try {
@@ -23,14 +24,14 @@ export const getServices = (): Service[] => {
         );
 
         if (hasStalePaths) {
-            safeLocalStorageSet(STORAGE_KEY, JSON.stringify(mockServices));
-            return mockServices;
+            safeLocalStorageSet(STORAGE_KEY, JSON.stringify([]));
+            return [];
         }
 
         return parsed;
     } catch (e) {
         console.error("Failed to parse services from localStorage", e);
-        return mockServices;
+        return [];
     }
 };
 

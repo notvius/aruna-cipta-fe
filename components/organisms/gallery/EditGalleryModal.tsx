@@ -4,39 +4,46 @@ import * as React from "react";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogFooter,
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Pencil } from "lucide-react";
+import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
+import { Pencil, Loader2 } from "lucide-react";
+import { Gallery } from "@/constants/galleries";
 
 interface EditGalleryModalProps {
-    initialContent: string;
-    onSave: (newContent: string) => void;
-    title?: string;
-    type?: "text" | "image";
+    gallery: Gallery;
+    onSave: (updatedGallery: Gallery) => void;
 }
 
-export function EditGalleryModal({
-    initialContent,
-    onSave,
-    title = "Edit Content",
-    type = "text",
-}: EditGalleryModalProps) {
-    const [content, setContent] = React.useState(initialContent);
+export function EditGalleryModal({ gallery, onSave }: EditGalleryModalProps) {
+    const [filePath, setFilePath] = React.useState(gallery.file_path);
+    const [caption, setCaption] = React.useState(gallery.caption);
+    const [altText, setAltText] = React.useState(gallery.alt_text);
+    const [isSaving, setIsSaving] = React.useState(false);
     const [open, setOpen] = React.useState(false);
 
-    React.useEffect(() => {
-        setContent(initialContent);
-    }, [initialContent]);
+    const handleSave = async () => {
+        setIsSaving(true);
 
-    const handleSave = () => {
-        onSave(content);
+        const updatedGallery: Gallery = {
+            ...gallery,
+            file_path: filePath,
+            caption,
+            alt_text: altText,
+            updatedAt: new Date(),
+        };
+
+        onSave(updatedGallery);
+
+        await new Promise((r) => setTimeout(r, 500));
+
+        setIsSaving(false);
         setOpen(false);
     };
 
@@ -46,41 +53,57 @@ export function EditGalleryModal({
                 <Button
                     variant="ghost"
                     size="icon"
-                    className="h-8 w-8"
+                    className="h-8 w-8 text-arcipta-blue-primary"
                 >
-                    <Pencil className="h-4 w-4 text-muted-foreground" />
+                    <Pencil className="h-4 w-4" />
                 </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[525px]">
+
+            <DialogContent className="sm:max-w-[550px]">
                 <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
-                    <DialogDescription>
-                        Modify the {type === "image" ? "image" : "content"} of this gallery below. Click save when you're done.
-                    </DialogDescription>
+                    <DialogTitle>Edit Gallery</DialogTitle>
                 </DialogHeader>
+
                 <div className="grid gap-4 py-4">
-                    {type === "image" ? (
-                        <ImageUpload
-                            value={content}
-                            onChange={setContent}
-                        />
-                    ) : (
+                    <div className="grid gap-2">
+                        <Label>Image</Label>
+                        <ImageUpload value={filePath} onChange={setFilePath} />
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>Caption</Label>
                         <Textarea
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            className="min-h-[200px] resize-none"
+                            value={caption}
+                            onChange={(e) => setCaption(e.target.value)}
                         />
-                    )}
+                    </div>
+
+                    <div className="grid gap-2">
+                        <Label>Alt Text</Label>
+                        <Textarea
+                            value={altText}
+                            onChange={(e) => setAltText(e.target.value)}
+                        />
+                    </div>
                 </div>
-                <DialogFooter className="flex gap-2 sm:justify-end">
+
+                <DialogFooter>
                     <Button variant="outline" onClick={() => setOpen(false)}>
                         Cancel
                     </Button>
                     <Button
                         onClick={handleSave}
-                        className="bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90"
+                        disabled={isSaving}
+                        className="bg-arcipta-blue-primary"
                     >
-                        Save
+                        {isSaving ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            "Save Changes"
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

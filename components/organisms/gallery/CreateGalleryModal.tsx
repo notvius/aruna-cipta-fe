@@ -31,22 +31,24 @@ export function CreateGalleryModal({
     const [file_path, setFilePath] = React.useState("");
     const [caption, setCaption] = React.useState("");
     const [alt_text, setAltText] = React.useState("");
+    const [is_published, setIsPublished] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
 
     const handleSave = async () => {
-        if (!file_path.trim()) return alert("Please enter a file path");
+        if (!file_path.trim()) return alert("Please upload an image");
 
         setIsSaving(true);
 
-        const now = new Date().toISOString();
+        const now = new Date();
         const newGallery: Gallery = {
             id: `Gallery-${Date.now()}`,
             file_path,
             caption,
             alt_text,
-            status: "Published",
+            is_published: false,
             createdAt: now,
             updatedAt: now,
+            deletedAt: null,
         };
 
         addGallery(newGallery);
@@ -57,6 +59,7 @@ export function CreateGalleryModal({
         setFilePath("");
         setCaption("");
         setAltText("");
+        setIsPublished(false);
         onOpenChange(false);
         onSuccess();
     };

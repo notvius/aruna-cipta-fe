@@ -3,9 +3,10 @@ export interface Gallery {
     file_path: string;
     caption: string;
     alt_text: string;
-    status: "Published" | "Unpublished";
-    createdAt: string;
-    updatedAt: string;
+    is_published: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
 }
 
 

@@ -24,7 +24,8 @@ import { RowData } from "@tanstack/react-table";
 
 declare module "@tanstack/react-table" {
     interface TableMeta<TData extends RowData> {
-        updateData: (rowIndex: number, columnId: string, value: any) => void;
+        updateData: (rowIndex: number, columnId: keyof TData | string, value: any) => void;
+        updateRow: (rowIndex: number, newRow: TData) => void;
     }
 }
 
@@ -128,6 +129,11 @@ export function DataTable<T extends Record<string, any>>({
                     ...newData[rowIndex],
                     [columnId]: value,
                 };
+                onDataChange?.(newData);
+            },
+            updateRow: (rowIndex: number, newRow: T) => {
+                const newData = [...data];
+                newData[rowIndex] = newRow;
                 onDataChange?.(newData);
             },
         },

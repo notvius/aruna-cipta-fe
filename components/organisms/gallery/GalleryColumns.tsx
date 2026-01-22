@@ -47,22 +47,18 @@ export const columns: ColumnDef<Gallery>[] = [
         ),
         enableSorting: false,
         enableHiding: false,
+        size: 50,
     },
     {
         accessorKey: "file_path",
         header: "Image",
-        cell: ({ row, table }) => (
-            <div className="flex items-center gap-2 min-w-[240px]">
+        size: 140,
+        cell: ({ row }) => (
+            <div className="flex items-center">
                 <img
                     src={row.getValue("file_path")}
                     alt={row.getValue("alt_text")}
-                    className="rounded-md object-cover h-14 w-24 flex-shrink-0"
-                />
-                <EditGalleryModal
-                    initialContent={row.getValue("file_path")}
-                    onSave={(newFilePath) => table.options.meta?.updateData(row.index, "file_path", newFilePath)}
-                    title={`Edit Image: ${row.original.caption}`}
-                    type="image"
+                    className="rounded-md object-cover h-16 w-24"
                 />
             </div>
         ),
@@ -70,32 +66,20 @@ export const columns: ColumnDef<Gallery>[] = [
     {
         accessorKey: "caption",
         header: "Caption",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center gap-1 justify-between max-w-[200px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("caption"), 10)}
-                </div>
-                <EditGalleryModal
-                    initialContent={row.getValue("caption")}
-                    onSave={(newCaption) => table.options.meta?.updateData(row.index, "caption", newCaption)}
-                    title={`Edit Caption: ${row.original.caption}`}
-                />
+        size: 280,
+        cell: ({ row }) => (
+            <div className="text-sm text-muted-foreground whitespace-normal break-words pr-4">
+                {truncateWords(row.getValue("caption"), 15)}
             </div>
         ),
     },
     {
         accessorKey: "alt_text",
         header: "Alt Text",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center gap-1 justify-between max-w-[200px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("alt_text"), 10)}
-                </div>
-                <EditGalleryModal
-                    initialContent={row.getValue("alt_text")}
-                    onSave={(newAltText) => table.options.meta?.updateData(row.index, "alt_text", newAltText)}
-                    title={`Edit Alt Text: ${row.original.caption}`}
-                />
+        size: 220,
+        cell: ({ row }) => (
+            <div className="text-sm text-muted-foreground whitespace-normal break-words pr-4">
+                {truncateWords(row.getValue("alt_text"), 12)}
             </div>
         ),
     },
@@ -104,43 +88,45 @@ export const columns: ColumnDef<Gallery>[] = [
         header: ({ column }) => (
             <Button
                 variant="ghost"
-                className="font-semibold"
+                className="font-semibold h-auto p-0 hover:bg-transparent"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
                 Created At
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        size: 150,
         cell: ({ row }) => {
             const date = new Date(row.getValue("createdAt"));
             return <div className="px-4">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "publishedAt",
+        accessorKey: "updatedAt",
         header: ({ column }) => (
             <Button
                 variant="ghost"
-                className="font-semibold"
+                className="font-semibold h-auto p-0 hover:bg-transparent"
                 onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
             >
-                Published At
+                Updated At
                 <ArrowUpDown className="ml-2 h-4 w-4" />
             </Button>
         ),
+        size: 150,
         cell: ({ row }) => {
-            const dateValue = row.getValue("publishedAt");
+            const dateValue = row.getValue("updatedAt");
             if (!dateValue) return <div className="text-center text-muted-foreground">-</div>;
             const date = new Date(dateValue as string);
-            return <div className="text-center">{date.toLocaleDateString()}</div>;
+            return <div className="px-4">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "status",
+        accessorKey: "is_published",
         header: "Status",
+        size: 140,
         cell: ({ row, table }) => {
-            const status = row.getValue("status") as string;
-            const isPublished = status.toLowerCase() === "published";
+            const isPublished = row.getValue("is_published") as boolean;
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -157,16 +143,16 @@ export const columns: ColumnDef<Gallery>[] = [
                                         : undefined
                                 }
                             >
-                                {status}
+                                {isPublished ? "Published" : "Unpublished"}
                                 <ChevronDown className="ml-1 h-3 w-3" />
                             </Badge>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
-                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "status", "Published")}>
+                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "is_published", true)}>
                             Published
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "status", "Unpublished")}>
+                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "is_published", false)}>
                             Unpublished
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -177,12 +163,17 @@ export const columns: ColumnDef<Gallery>[] = [
     {
         id: "actions",
         header: "Action",
+        size: 120,
         enableHiding: false,
-        cell: ({ row }) => {
+        cell: ({ row, table }) => {
             const gallery = row.original;
             return (
-                <div className="flex items-center gap-2">
+                <div className="flex gap-2">
                     <ViewGalleryModal gallery={gallery} />
+                    <EditGalleryModal
+                        gallery={gallery}
+                        onSave={(updatedGallery) => table.options.meta?.updateRow(row.index, updatedGallery)}
+                    />
                 </div>
             );
         },
