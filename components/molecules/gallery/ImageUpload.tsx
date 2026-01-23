@@ -74,7 +74,7 @@ export function ImageUpload({ value, onChange, className }: ImageUploadProps) {
                     >
                         <Upload className="size-8" />
                         <span className="text-sm font-medium">Click to upload image</span>
-                        <span className="text-xs">PNG, JPG or WebP (Max 500KB)</span>
+                        <span className="text-xs">PNG, JPG or WebP (Max 5MB)</span>
                     </div>
                 )}
             </div>

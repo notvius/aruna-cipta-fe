@@ -75,6 +75,7 @@ export function EditGalleryModal({ gallery, onSave }: EditGalleryModalProps) {
                         <Textarea
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
+                            className="min-h-[50px]"
                         />
                     </div>
 
@@ -83,6 +84,7 @@ export function EditGalleryModal({ gallery, onSave }: EditGalleryModalProps) {
                         <Textarea
                             value={altText}
                             onChange={(e) => setAltText(e.target.value)}
+                            className="min-h-[50px]"
                         />
                     </div>
                 </div>

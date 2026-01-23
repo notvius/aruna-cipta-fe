@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Editor } from "@tinymce/tinymce-react";
 import {
     Dialog,
     DialogContent,
@@ -11,7 +12,6 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { addService } from "@/utils/service-storage";
@@ -31,26 +31,22 @@ export function CreateServiceModal({
 }: CreateServiceModalProps) {
     const [title, setTitle] = React.useState("");
     const [content, setContent] = React.useState("");
-    const [icon, setIcon] = React.useState("");
     const [featured_image, setFeaturedImage] = React.useState("");
-    const [status, setStatus] = React.useState("Published");
     const [isSaving, setIsSaving] = React.useState(false);
 
     const handleSave = async () => {
-        if (!title.trim()) return alert("Please enter a title");
+        if (!featured_image.trim()) return alert("Please upload an image");
 
         setIsSaving(true);
 
-        const now = new Date().toISOString();
+        const now = new Date();
         const newService: Service = {
             id: `Service-${Date.now()}`,
+            featured_image,
             title,
             content,
-            icon,
-            featured_image,
-            status,
-            createdAt: now,
-            updatedAt: now,
+            created_at: now,
+            updated_at: now,
         };
 
         addService(newService);
@@ -58,63 +54,72 @@ export function CreateServiceModal({
         await new Promise((resolve) => setTimeout(resolve, 800));
 
         setIsSaving(false);
+        setFeaturedImage("");
         setTitle("");
         setContent("");
-        setIcon("");
-        setFeaturedImage("");
-        setStatus("Published");
         onOpenChange(false);
         onSuccess();
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[800px]">
+            <DialogContent className="sm:max-w-[1000px]">
                 <DialogHeader>
                     <DialogTitle>Add New Service</DialogTitle>
                     <DialogDescription>
                         Create a new entry for your service section.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                    <div className="space-y-4">
-                        <div className="grid gap-2">
+
+                <div className="grid grid-cols-2 gap-6 pt-4">
+
+                    {/* Title */}
+                    <div className="space-y-4]">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="title">Title</Label>
-                            <Input
+                            <Textarea
                                 id="title"
-                                placeholder="Service title (e.g., Web Development)"
+                                placeholder="Type the title here..."
                                 value={title}
                                 onChange={(e) => setTitle(e.target.value)}
                             />
                         </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="icon">Icon Name</Label>
-                            <Input
-                                id="icon"
-                                placeholder="Lucide icon name (e.g., Code, Smartphone)"
-                                value={icon}
-                                onChange={(e) => setIcon(e.target.value)}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label>Featured Image</Label>
+                    </div>
+                    {/* Gambar */}
+                    <div className="space-y-6 ma">
+                        <div className="flex flex-col gap-2">
+                            <Label>Image</Label>
                             <ImageUpload
                                 value={featured_image}
                                 onChange={setFeaturedImage}
                             />
                         </div>
                     </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="content">Content</Label>
-                        <Textarea
-                            id="content"
-                            placeholder="Describe the service in detail..."
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            className="min-h-[260px] resize-none"
-                        />
-                    </div>
                 </div>
+
+                <div className="flex flex-col gap-2 max-h-[300px]">
+                    <Label htmlFor="content">Content</Label>
+                    <Editor
+                        apiKey="k7l6wxymdavx8maeydx2yo2w2pvaw8oo2b9ados6cp1ju2k8"
+                        init={{
+                            menubar: false,
+                            plugins: [
+                                        'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
+                                        'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
+                                        'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
+                                    ],
+                                    toolbar: 'undo redo | blocks | ' +
+                                        'bold italic forecolor | alignleft aligncenter ' +
+                                        'alignright alignjustify | bullist numlist outdent indent | ' +
+                                        'removeformat | help',
+                                    content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }',
+                                    skin: "oxide",
+                                    content_css: "default"
+                                }}
+                                value={content}
+                                onEditorChange={(newContent) => setContent(newContent)}
+                            />
+                        </div>
                 <DialogFooter>
                     <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
                         Cancel

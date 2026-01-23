@@ -88,7 +88,7 @@ export function CreateGalleryModal({
                             placeholder="Type the caption here..."
                             value={caption}
                             onChange={(e) => setCaption(e.target.value)}
-                            className="min-h-[100px]"
+                            className="min-h-[50px]"
                         />
                     </div>
                     <div className="grid gap-2">
@@ -98,7 +98,7 @@ export function CreateGalleryModal({
                             placeholder="Type the alt text here..."
                             value={alt_text}
                             onChange={(e) => setAltText(e.target.value)}
-                            className="min-h-[100px]"
+                            className="min-h-[50px]"
                         />
                     </div>
                 </div>

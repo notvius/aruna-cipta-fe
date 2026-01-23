@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
     Dialog,
     DialogContent,
@@ -9,24 +8,27 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { type Service } from "@/constants/services";
-import { DynamicIcon } from "@/components/atoms/DynamicIcon";
 
 interface ViewServiceModalProps {
     service: Service;
 }
 
 export function ViewServiceModal({ service }: ViewServiceModalProps) {
-    const formatDate = (dateString: string | null | undefined) => {
-        if (!dateString) return "-";
-        return new Date(dateString).toLocaleDateString("id-ID", {
-            day: "numeric",
-            month: "long",
+    function formatDate(date: Date | string | null | undefined): string {
+        if (!date) return "—";
+        const parsedDate = date instanceof Date ? date : new Date(date);
+        if (isNaN(parsedDate.getTime())) return "Invalid date";
+
+        return parsedDate.toLocaleDateString("id-ID", {
             year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
         });
-    };
+    }
 
     return (
         <Dialog>
@@ -45,41 +47,12 @@ export function ViewServiceModal({ service }: ViewServiceModalProps) {
                 </DialogHeader>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
-                    <div className="space-y-6">
-                        {/* Title */}
+                    
+                    {/* Kolom Kiri: Preview Gambar */}
+                    <div className="space-y-4">
                         <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
-                            <p className="text-sm leading-relaxed text-foreground font-medium">
-                                {service.title}
-                            </p>
-                        </div>
-
-                        {/* Icon & Status */}
-                        <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                            <div className="flex flex-col gap-2 text-muted-foreground">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Icon</span>
-                                <div className="flex items-center gap-2 text-foreground">
-                                    <DynamicIcon name={service.icon} className="h-5 w-5" />
-                                    <span className="text-sm">{service.icon}</span>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-2 text-muted-foreground">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status</span>
-                                <div>
-                                    <Badge
-                                        className={service.status.toLowerCase() === 'published' ? 'bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90' : ''}
-                                        variant={service.status.toLowerCase() === 'published' ? 'default' : 'secondary'}
-                                    >
-                                        {service.status}
-                                    </Badge>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Image */}
-                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Featured Image</span>
-                            <div className="relative aspect-[16/9] w-full rounded-lg overflow-hidden border bg-muted">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Image Preview</span>
+                            <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
                                 <img
                                     src={service.featured_image}
                                     alt={service.title}
@@ -87,27 +60,39 @@ export function ViewServiceModal({ service }: ViewServiceModalProps) {
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    {/* Kolom Kanan: Detail & Meta Data */}
+                    <div className="space-y-6">
+                        {/* Title */}
+                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
+                                {service.title || <span className="italic text-muted-foreground">No title provided</span>}
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: service.content || "<i>No content provided</i>" }}
+                            />
+                        </div>
 
                         {/* Timestamps */}
                         <div className="grid grid-cols-2 gap-4 pt-2 border-t">
-                            <div className="flex flex-col gap-1 text-muted-foreground">
-                                <span className="text-sm font-semibold uppercase tracking-wider text-[10px]">Created At</span>
-                                <p className="text-xs text-foreground">{formatDate(service.createdAt)}</p>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
+                                <p className="text-xs text-foreground">{formatDate(service.created_at)}</p>
                             </div>
-                            <div className="flex flex-col gap-1 text-muted-foreground">
-                                <span className="text-sm font-semibold uppercase tracking-wider text-[10px]">Updated At</span>
-                                <p className="text-xs text-foreground">{formatDate(service.updatedAt)}</p>
+                            <div className="flex flex-col gap-1">
+                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
+                                <p className="text-xs text-foreground">{formatDate(service.updated_at)}</p>
                             </div>
                         </div>
                     </div>
 
-                    {/* Content */}
-                    <div className="flex flex-col gap-2 pt-2 md:border-t text-muted-foreground h-full">
-                        <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content Description</span>
-                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border h-full">
-                            {service.content}
-                        </div>
-                    </div>
                 </div>
             </DialogContent>
         </Dialog>

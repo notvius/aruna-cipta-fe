@@ -9,7 +9,7 @@ export const galleriesData: Gallery[] = [
         alt_text: "AI",
         is_published: false,
         created_at: new Date("2024-01-01T10:00:00Z"),
-        updated_at: new Date(),
+        updated_at: new Date("2024-01-01T10:00:00Z"),
         deleted_at: null,
     },
     {
@@ -19,7 +19,7 @@ export const galleriesData: Gallery[] = [
         alt_text: "Alien",
         is_published: false,
         created_at: new Date("2024-01-01T10:00:00Z"),
-        updated_at: new Date(),
+        updated_at: new Date("2024-01-01T10:00:00Z"),
         deleted_at: null,
     },
     {
@@ -29,7 +29,7 @@ export const galleriesData: Gallery[] = [
         alt_text: "BYD vs Tesla",
         is_published: false,
         created_at: new Date("2024-01-01T10:00:00Z"),
-        updated_at: new Date(),
+        updated_at: new Date("2024-01-01T10:00:00Z"),
         deleted_at: null,
     },
     {
@@ -39,7 +39,7 @@ export const galleriesData: Gallery[] = [
         alt_text: "Pizza",
         is_published: false,
         created_at: new Date("2024-01-01T10:00:00Z"),
-        updated_at: new Date(),
+        updated_at: new Date("2024-01-01T10:00:00Z"),
         deleted_at: null,
     },
     {
@@ -49,7 +49,7 @@ export const galleriesData: Gallery[] = [
         alt_text: "Trump",
         is_published: false,
         created_at: new Date("2024-01-01T10:00:00Z"),
-        updated_at: new Date(),
+        updated_at: new Date("2024-01-01T10:00:00Z"),
         deleted_at: null,
     },
 ];
