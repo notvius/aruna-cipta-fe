@@ -1,8 +1,7 @@
 "use client";
 
-import * as React from "react";
-import { CreateArticleForm } from "@/components/organisms/article/CreateArticleForm";
+import { ArticleForm } from "@/components/organisms/article/ArticleForm";
 
 export default function CreateArticlePage() {
-    return <CreateArticleForm />;
+    return <ArticleForm mode="create" />;
 }

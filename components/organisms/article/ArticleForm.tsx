@@ -6,8 +6,10 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Loader2, Settings } from "lucide-react";
 import { ArticleEditor } from "@/components/molecules/article/ArticleEditor";
 import { ArticleSidebar } from "@/components/molecules/article/ArticleSidebar";
-import { addArticle } from "@/utils/article-storage";
+import { addArticle, updateArticle } from "@/utils/article-storage";
 import { Article } from "@/constants/articles";
+import { ArticleCategory } from "@/constants/article_category";
+import { getArticleCategories } from "@/utils/article-category-storage";
 import {
     Sheet,
     SheetContent,
@@ -16,16 +18,26 @@ import {
     SheetTrigger,
 } from "@/components/ui/sheet";
 
-export function CreateArticleForm() {
+interface ArticleFormProps {
+    mode: "create" | "edit";
+    initialData?: Article;
+}
+
+export function ArticleForm({ mode, initialData }: ArticleFormProps) {
     const router = useRouter();
     const [isSaving, setIsSaving] = React.useState(false);
 
     // Form State
-    const [title, setTitle] = React.useState("");
-    const [content, setContent] = React.useState("");
-    const [category, setCategory] = React.useState("");
-    const [status, setStatus] = React.useState<"Published" | "Unpublished">("Unpublished");
-    const [thumbnail, setThumbnail] = React.useState("");
+    const [title, setTitle] = React.useState(initialData?.title || "");
+    const [content, setContent] = React.useState(initialData?.content || "");
+    const [category, setCategory] = React.useState(initialData?.category?.[0] || "");
+    const [is_published, setIsPublished] = React.useState(initialData?.is_published || false);
+    const [categories, setCategories] = React.useState<ArticleCategory[]>([]);
+    const [thumbnail, setThumbnail] = React.useState(initialData?.thumbnail || "");
+
+    React.useEffect(() => {
+        setCategories(getArticleCategories());
+    }, []);
 
     // Stats
     const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
@@ -35,23 +47,47 @@ export function CreateArticleForm() {
 
         setIsSaving(true);
 
-        const now = new Date().toISOString();
-        const newArticle: Article = {
-            id: `ART-${Date.now()}`,
-            title,
-            content,
-            category,
-            status,
-            thumbnail: thumbnail || "/images/logo_arcipta.png",
-            createdAt: now,
-            updatedAt: now,
-            publishedAt: status === "Published" ? now : undefined,
-            views: 0,
-        };
+        const now = new Date();
 
-        addArticle(newArticle);
+        let articlePayload: Article;
 
-        // Simulate minor delay for UX
+        if (mode === "create") {
+            articlePayload = {
+                id: `ART-${Date.now()}`,
+                title,
+                content,
+                category: [category],
+                is_published,
+                thumbnail,
+                created_at: now,
+                published_at: is_published ? now : null,
+                updated_at: now,
+                view_count: 0,
+                deleted_at: null,
+            };
+            addArticle(articlePayload);
+        } else {
+            if (!initialData) return;
+            let publishedAt = initialData.published_at;
+            if (is_published && !initialData.is_published) {
+                publishedAt = now;
+            } else if (!is_published && initialData.is_published) {
+                publishedAt = null;
+            }
+
+            articlePayload = {
+                ...initialData,
+                title,
+                content,
+                category: [category],
+                is_published,
+                thumbnail,
+                updated_at: now,
+                published_at: publishedAt,
+            };
+            updateArticle(articlePayload);
+        }
+
         await new Promise((resolve) => setTimeout(resolve, 800));
         setIsSaving(false);
         router.push("/article");
@@ -66,8 +102,12 @@ export function CreateArticleForm() {
                         <ArrowLeft className="size-5" />
                     </Button>
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium leading-none">Create New Article</span>
-                        <span className="text-xs text-muted-foreground hidden sm:block">Draft saved locally</span>
+                        <span className="text-sm font-medium leading-none">
+                            {mode === "create" ? "Create New Article" : "Edit Article"}
+                        </span>
+                        <span className="text-xs text-muted-foreground hidden sm:block">
+                            {mode === "create" ? "Draft saved locally" : "Changes saved locally"}
+                        </span>
                     </div>
                 </div>
 
@@ -86,11 +126,12 @@ export function CreateArticleForm() {
                                 <ArticleSidebar
                                     category={category}
                                     setCategory={setCategory}
-                                    status={status}
-                                    setStatus={setStatus}
+                                    isPublished={is_published}
+                                    setIsPublished={setIsPublished}
                                     thumbnail={thumbnail}
                                     setThumbnail={setThumbnail}
                                     wordCount={wordCount}
+                                    categories={categories}
                                     className="w-full flex flex-col h-full overflow-y-auto p-4 gap-1"
                                 />
                             </SheetContent>
@@ -126,11 +167,12 @@ export function CreateArticleForm() {
                 <ArticleSidebar
                     category={category}
                     setCategory={setCategory}
-                    status={status}
-                    setStatus={setStatus}
+                    isPublished={is_published}
+                    setIsPublished={setIsPublished}
                     thumbnail={thumbnail}
                     setThumbnail={setThumbnail}
                     wordCount={wordCount}
+                    categories={categories}
                 />
             </div>
         </div>

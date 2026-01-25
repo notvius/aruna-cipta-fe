@@ -8,7 +8,8 @@ import {
     BriefcaseBusiness,
     Star,
     TableOfContents,
-    Handshake
+    Handshake,
+    Plus
 } from "lucide-react"
 
 export const mainMenuItems = [
@@ -54,8 +55,20 @@ export const mainMenuItems = [
 export const cmsMenuItems = [
     {
         title: "Article",
-        url: "/article",
+        url: "#",
         icon: Newspaper,
+        items: [
+            {
+                title: "Artikel Items",
+                url: "/article",
+                icon: Plus,
+            },
+            {
+                title: "Article Category",
+                url: "/article/category",
+                icon: TableOfContents,
+            },
+        ]
     },
     {
         title: "FAQ",

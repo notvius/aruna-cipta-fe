@@ -16,13 +16,29 @@ export default function ArticlePage() {
     }, []);
 
     const handleDataChange = (newData: Article[]) => {
-        setData(newData);
-        saveArticles(newData);
+        // Check for status changes and update published_at
+        const updatedData = newData.map((newArticle) => {
+            const oldArticle = data.find((a) => a.id === newArticle.id);
+            if (!oldArticle) return newArticle;
+
+            // If status changed to Published
+            if (newArticle.is_published && !oldArticle.is_published) {
+                return { ...newArticle, published_at: new Date() };
+            }
+            // If status changed to Unpublished
+            if (!newArticle.is_published && oldArticle.is_published) {
+                return { ...newArticle, published_at: null };
+            }
+            return newArticle;
+        });
+
+        setData(updatedData);
+        saveArticles(updatedData);
     };
 
     const sortOptions = [
-        { label: "Created At", value: "createdAt" },
-        { label: "Published At", value: "publishedAt" },
+        { label: "Created At", value: "created_at" },
+        { label: "Published At", value: "published_at" },
     ];
 
     const handleDeleteSelected = (selectedRows: Article[]) => {

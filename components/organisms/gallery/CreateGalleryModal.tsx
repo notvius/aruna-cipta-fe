@@ -45,7 +45,7 @@ export function CreateGalleryModal({
             file_path,
             caption,
             alt_text,
-            is_published: false,
+            is_published,
             created_at: now,
             updated_at: now,
             deleted_at: null,

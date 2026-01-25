@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import {
     ArrowUpDown,
     ChevronDown,
+    Pencil,
 } from "lucide-react";
 import {
     DropdownMenu,
@@ -17,11 +18,19 @@ import { Badge } from "@/components/ui/badge";
 import { type Article } from "@/constants/articles";
 import { EditContentModal } from "./EditContentModal";
 import { ViewArticleModal } from "./ViewArticleModal";
+import { getArticleCategories } from "@/utils/article-category-storage";
 
-const truncateWords = (text: string, count: number) => {
+const truncateWords = (text: string | null | undefined, count: number) => {
+    if (!text) return "";
     const words = text.split(" ");
     if (words.length <= count) return text;
     return words.slice(0, count).join(" ") + "...";
+};
+
+const stripHtml = (html: string) => {
+    const tmp = document.createElement("DIV");
+    tmp.innerHTML = html;
+    return tmp.textContent || tmp.innerText || "";
 };
 
 export const columns: ColumnDef<Article>[] = [
@@ -62,47 +71,58 @@ export const columns: ColumnDef<Article>[] = [
     },
     {
         accessorKey: "title",
-        header: ({ column }) => {
+        header: "Title",
+        cell: ({ row }) => {
+            const rawContent = row.getValue("title") as string;
+            const plainText = stripHtml(rawContent);
+
             return (
-                <Button
-                    variant="ghost"
-                    className="font-semibold"
-                    onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-                >
-                    Title
-                    <ArrowUpDown className="ml-2 h-4 w-3" />
-                </Button>
-            )
+                <div className="group flex items-center gap-1 justify-between max-w-[240px]">
+                    <div className="text-sm text-muted-foreground whitespace-normal break-words">
+                        {truncateWords(plainText, 5)}
+                    </div>
+                </div>
+            );
         },
-        cell: ({ row }) => <div className="font-medium">{row.getValue("title")}</div>,
     },
     {
         accessorKey: "category",
         header: "Category",
-        cell: ({ row }) => (
-            <Badge variant="secondary">
-                {row.getValue("category")}
-            </Badge>
-        ),
+        cell: ({ row }) => {
+            const categories = row.getValue("category") as string[];
+            const allCategories = typeof window !== 'undefined' ? getArticleCategories() : [];
+
+            const categoryNames = Array.isArray(categories)
+                ? categories.map(catId =>
+                    allCategories.find(c => c.id === catId)?.name || catId
+                ).join(", ")
+                : categories;
+
+            return (
+                <Badge variant="secondary">
+                    {categoryNames}
+                </Badge>
+            );
+        },
     },
     {
         accessorKey: "content",
         header: "Content",
-        cell: ({ row, table }) => (
-            <div className="group flex items-center justify-between gap-2 max-w-[300px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("content"), 10)}
+        cell: ({ row }) => {
+            const rawContent = row.getValue("content") as string;
+            const plainText = stripHtml(rawContent);
+
+            return (
+                <div className="group flex items-center gap-1 justify-between max-w-[240px]">
+                    <div className="text-sm text-muted-foreground whitespace-normal break-words">
+                        {truncateWords(plainText, 10)}
+                    </div>
                 </div>
-                <EditContentModal
-                    initialContent={row.getValue("content")}
-                    onSave={(newContent) => table.options.meta?.updateData(row.index, "content", newContent)}
-                    title={`Edit Content: ${row.original.title}`}
-                />
-            </div>
-        ),
+            );
+        },
     },
     {
-        accessorKey: "createdAt",
+        accessorKey: "created_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -114,12 +134,12 @@ export const columns: ColumnDef<Article>[] = [
             </Button>
         ),
         cell: ({ row }) => {
-            const date = new Date(row.getValue("createdAt"));
+            const date = new Date(row.getValue("created_at"));
             return <div className="px-4">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "publishedAt",
+        accessorKey: "published_at",
         header: ({ column }) => (
             <Button
                 variant="ghost"
@@ -131,18 +151,18 @@ export const columns: ColumnDef<Article>[] = [
             </Button>
         ),
         cell: ({ row }) => {
-            const dateValue = row.getValue("publishedAt");
+            const dateValue = row.getValue("published_at");
             if (!dateValue) return <div className="px-4 text-muted-foreground">-</div>;
             const date = new Date(dateValue as string);
             return <div className="px-4">{date.toLocaleDateString()}</div>;
         },
     },
     {
-        accessorKey: "status",
+        accessorKey: "is_published",
         header: "Status",
+        size: 140,
         cell: ({ row, table }) => {
-            const status = row.getValue("status") as string;
-            const isPublished = status.toLowerCase() === "published";
+            const isPublished = row.getValue("is_published") as boolean;
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -159,16 +179,16 @@ export const columns: ColumnDef<Article>[] = [
                                         : undefined
                                 }
                             >
-                                {status}
+                                {isPublished ? "Published" : "Unpublished"}
                                 <ChevronDown className="ml-1 h-3 w-3" />
                             </Badge>
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start">
-                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "status", "Published")}>
+                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "is_published", true)}>
                             Published
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "status", "Unpublished")}>
+                        <DropdownMenuItem onClick={() => table.options.meta?.updateData(row.index, "is_published", false)}>
                             Unpublished
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -185,6 +205,16 @@ export const columns: ColumnDef<Article>[] = [
             return (
                 <div className="flex items-center gap-2">
                     <ViewArticleModal article={article} />
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-arcipta-blue-primary"
+                        asChild
+                    >
+                        <a href={`/article/${article.id}/edit`}>
+                            <Pencil className="h-4 w-4" />
+                        </a>
+                    </Button>
                 </div>
             );
         },

@@ -3,7 +3,7 @@
 import { Article } from "@/constants/articles";
 import { articlesData as mockArticles } from "@/data/articles";
 
-const STORAGE_KEY = "aruna_articles_v2"; 
+const STORAGE_KEY = "aruna_articles_v2";
 
 export const getArticles = (): Article[] => {
     if (typeof window === "undefined") return mockArticles;
@@ -44,5 +44,18 @@ export const saveArticles = (articles: Article[]) => {
 export const addArticle = (newArticle: Article) => {
     const articles = getArticles();
     const updated = [newArticle, ...articles];
+    saveArticles(updated);
+};
+
+export const getArticleById = (id: string): Article | undefined => {
+    const articles = getArticles();
+    return articles.find((article) => article.id === id);
+};
+
+export const updateArticle = (updatedArticle: Article) => {
+    const articles = getArticles();
+    const updated = articles.map((article) =>
+        article.id === updatedArticle.id ? updatedArticle : article
+    );
     saveArticles(updated);
 };
