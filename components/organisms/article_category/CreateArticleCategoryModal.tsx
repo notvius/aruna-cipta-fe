@@ -37,7 +37,7 @@ export function CreateArticleCategoryModal({
 
         const now = new Date();
         const newArticleCategory: ArticleCategory = {
-            id: `ArticleCategory-${Date.now()}`,
+            id: Date.now(),
             name,
             article_id: [],
             created_at: now,

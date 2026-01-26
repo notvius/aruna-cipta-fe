@@ -41,7 +41,7 @@ export function CreateServiceModal({
 
         const now = new Date();
         const newService: Service = {
-            id: `Service-${Date.now()}`,
+            id: Date.now(),
             featured_image,
             title,
             content,

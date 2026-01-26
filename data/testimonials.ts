@@ -3,7 +3,7 @@ export type { Testimonial } from "@/constants/testimonials";
 
 export const testimonialsData: Testimonial[] = [
     {
-        id: "TEST001",
+        id: 1,
         client_name: "John Doe",
         client_title: "CEO",
         content: "Layanan yang diberikan sangat memuaskan, timnya responsif dan solutif. Proyek selesai tepat waktu dan sesuai dengan ekspektasi. Sangat direkomendasikan!",
@@ -11,7 +11,7 @@ export const testimonialsData: Testimonial[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "TEST002",
+        id: 2,
         client_name: "Jane Doe",
         client_title: "CTO",
         content: "Layanan yang diberikan sangat memuaskan, timnya responsif dan solutif. Proyek selesai tepat waktu dan sesuai dengan ekspektasi. Sangat direkomendasikan!",
@@ -19,7 +19,7 @@ export const testimonialsData: Testimonial[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "TEST003",
+        id: 3,
         client_name: "John Doe",
         client_title: "CEO",
         content: "Saya puas dengan service yang diberikan Tim Arcipta.",
@@ -27,7 +27,7 @@ export const testimonialsData: Testimonial[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "TEST004",
+        id: 4,
         client_name: "Jane Doe",
         client_title: "CTO",
         content: "Saya puas dengan service yang diberikan Tim Arcipta.",
@@ -35,7 +35,7 @@ export const testimonialsData: Testimonial[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "TEST005",
+        id: 5,
         client_name: "John Doe",
         client_title: "CEO",
         content: "Saya puas dengan service yang diberikan Tim Arcipta.",

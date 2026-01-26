@@ -1,5 +1,5 @@
 export interface Testimonial {
-    id: string;
+    id: number;
     client_name: string;
     client_title: string;
     content: string;

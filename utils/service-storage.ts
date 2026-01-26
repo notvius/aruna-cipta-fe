@@ -1,6 +1,8 @@
 import { safeLocalStorageSet, cleanupOldStorage } from "./storage-utils";
 import { Service } from "@/constants/services";
 
+import { servicesData } from "@/data/services";
+
 const STORAGE_KEY = "aruna_services_v2";
 
 export const getServices = (): Service[] => {
@@ -11,12 +13,17 @@ export const getServices = (): Service[] => {
     const stored = localStorage.getItem(STORAGE_KEY);
 
     if (!stored) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
-        return [];
+        safeLocalStorageSet(STORAGE_KEY, JSON.stringify(servicesData));
+        return servicesData;
     }
 
     try {
         const parsed = JSON.parse(stored) as Service[];
+
+        if (parsed.length === 0) {
+            saveServices(servicesData);
+            return servicesData;
+        }
 
         const hasStalePaths = parsed.some(svc =>
             !svc.featured_image.startsWith("/images/") &&
@@ -24,8 +31,8 @@ export const getServices = (): Service[] => {
         );
 
         if (hasStalePaths) {
-            safeLocalStorageSet(STORAGE_KEY, JSON.stringify([]));
-            return [];
+            saveServices(servicesData); 
+            return servicesData;
         }
 
         return parsed;

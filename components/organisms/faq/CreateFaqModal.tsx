@@ -39,7 +39,7 @@ export function CreateFaqModal({
 
         const now = new Date();
         const newFaq: Faq = {
-            id: `Faq-${Date.now()}`,
+            id: Date.now(),
             question,
             answer,
             created_at: now,

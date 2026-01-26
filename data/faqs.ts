@@ -3,35 +3,35 @@ export type { Faq } from "@/constants/faqs";
 
 export const faqsData: Faq[] = [
     {
-        id: "FAQ001",
+        id: 1,
         question: "What is React?",
         answer: "React is a JavaScript library for building user interfaces.",
         created_at: new Date("2024-01-01T10:00:00Z"),
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "FAQ002",
+        id: 2,
         question: "What is Next.js?",
         answer: "Next.js is a React framework for building web applications.",
         created_at: new Date("2024-01-05T10:00:00Z"),
         updated_at: new Date("2024-01-05T10:00:00Z"),
     },
     {
-        id: "FAQ003",
+        id: 3,
         question: "What is Tailwind CSS?",
         answer: "Tailwind CSS is a utility-first CSS framework for building custom designs.",
         created_at: new Date("2024-01-10T10:00:00Z"),
         updated_at: new Date("2024-01-11T10:00:00Z"),
     },
     {
-        id: "FAQ004",
+        id: 4,
         question: "What is TypeScript?",
         answer: "TypeScript is a typed superset of JavaScript that compiles to plain JavaScript.",
         created_at: new Date("2024-01-15T10:00:00Z"),
         updated_at: new Date("2024-01-15T10:00:00Z"),
     },
     {
-        id: "FAQ005",
+        id: 5,
         question: "What is Redux?",
         answer: "Redux is a predictable state container for JavaScript apps.",
         created_at: new Date("2024-01-20T10:00:00Z"),

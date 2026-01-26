@@ -1,7 +1,7 @@
 import {type ArticleCategory } from "./article_category";
 
 export interface Article {
-    id: string;
+    id: number;
     thumbnail: string;
     title: string;
     category: ArticleCategory['id'][];

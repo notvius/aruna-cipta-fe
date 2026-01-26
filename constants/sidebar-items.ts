@@ -82,7 +82,7 @@ export const cmsMenuItems = [
     },
     {
         title: "Portfolio",
-        url: "/portfolio",
+        url: "/portofolio",
         icon: BriefcaseBusiness,
     },
     {

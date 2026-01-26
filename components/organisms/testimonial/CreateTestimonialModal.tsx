@@ -41,7 +41,7 @@ export function CreateTestimonialModal({
 
         const now = new Date();
         const newTestimonial: Testimonial = {
-            id: `Testimonial-${Date.now()}`,
+            id: Date.now(),
             client_name: clientName,
             client_title: clientTitle,
             content,

@@ -45,7 +45,7 @@ export const columns: ColumnDef<Faq>[] = [
         size: 180, 
         cell: ({ row }) => (
             <div className="text-sm font-medium whitespace-normal break-words w-[180px] pr-">
-                {truncateWords(row.getValue("question"), 8)}
+                {truncateWords(row.getValue("question"), 10)}
             </div>
         )
     },
@@ -55,7 +55,7 @@ export const columns: ColumnDef<Faq>[] = [
         size: 300,
         cell: ({ row }) => (
             <div className="text-sm text-muted-foreground whitespace-normal break-words w-[300px] pr-4">
-                {truncateWords(row.getValue("answer"), 8)}
+                {truncateWords(row.getValue("answer"), 10)}
             </div>
         )
     },

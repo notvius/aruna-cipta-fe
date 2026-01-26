@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { type Article } from "@/constants/articles";
-import { EditContentModal } from "./EditContentModal";
 import { ViewArticleModal } from "./ViewArticleModal";
 import { getArticleCategories } from "@/utils/article-category-storage";
 
@@ -89,7 +88,7 @@ export const columns: ColumnDef<Article>[] = [
         accessorKey: "category",
         header: "Category",
         cell: ({ row }) => {
-            const categories = row.getValue("category") as string[];
+            const categories = row.getValue("category") as number[];
             const allCategories = typeof window !== 'undefined' ? getArticleCategories() : [];
 
             const categoryNames = Array.isArray(categories)

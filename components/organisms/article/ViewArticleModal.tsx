@@ -43,7 +43,7 @@ export function ViewArticleModal({ article }: ViewArticleModalProps) {
     const categories = getArticleCategories();
     const categoryIds = Array.isArray(article.category) ? article.category : [article.category];
 
-    const categoryNames = categoryIds.map((catId: string) =>
+    const categoryNames = categoryIds.map((catId: number) =>
         categories.find(c => c.id === catId)?.name || catId
     ).join(", ");
 

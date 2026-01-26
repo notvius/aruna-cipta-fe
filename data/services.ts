@@ -3,7 +3,7 @@ export type { Service } from "@/constants/services";
 
 export const servicesData: Service[] = [
     {
-        id: "SERV001",
+        id: 1,
         title: "Mobile Development",
         content: "Mobile development is the process of creating software applications for mobile devices, such as smartphones and tablets. Mobile development typically involves using programming languages and frameworks to create applications that can run on mobile devices.",
         featured_image: "/images/services/ai.jpg",
@@ -11,7 +11,7 @@ export const servicesData: Service[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "SERV002",
+        id: 2,
         title: "Web Development",
         content: "Web development is the process of creating software applications for the web. Web development typically involves using programming languages and frameworks to create applications that can run on web browsers.",
         featured_image: "/images/services/trump.jpg",
@@ -19,7 +19,7 @@ export const servicesData: Service[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "SERV003",
+        id: 3,
         title: "UI/UX Design",
         content: "UI/UX design is the process of creating user interfaces and user experiences for software applications. UI/UX design typically involves using design tools and frameworks to create interfaces that are easy to use and visually appealing.",
         featured_image: "/images/services/evcars.jpg",
@@ -27,7 +27,7 @@ export const servicesData: Service[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "SERV004",
+        id: 4,
         title: "Digital Marketing",
         content: "Digital marketing is the process of promoting products and services using digital channels, such as social media, email marketing, and search engine optimization. Digital marketing typically involves using marketing tools and frameworks to create campaigns that are easy to use and visually appealing.",
         featured_image: "/images/services/pizza.jpg",
@@ -35,7 +35,7 @@ export const servicesData: Service[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "SERV005",
+        id: 5,
         title: "Content Marketing",
         content: "Content marketing is the process of creating and distributing content to attract and retain a clearly defined audience. Content marketing typically involves using marketing tools and frameworks to create campaigns that are easy to use and visually appealing.",
         featured_image: "/images/services/ai.jpg",
@@ -43,7 +43,7 @@ export const servicesData: Service[] = [
         updated_at: new Date("2024-01-02T10:00:00Z"),
     },
     {
-        id: "SERV006",
+        id: 6,
         title: "Social Media Marketing",
         content: "Social media marketing is the process of promoting products and services using social media channels, such as Facebook, Twitter, and Instagram. Social media marketing typically involves using marketing tools and frameworks to create campaigns that are easy to use and visually appealing.",
         featured_image: "/images/services/ai.jpg",

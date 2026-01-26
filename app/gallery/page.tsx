@@ -25,8 +25,8 @@ export default function GalleryPage() {
     };
 
     const sortOptions = [
-        { label: "Created At", value: "createdAt" },
-        { label: "Updated At", value: "updatedAt" },
+        { label: "Created At", value: "created_at" },
+        { label: "Updated At", value: "updated_at" },
     ];
 
     const handleDeleteSelected = (selectedRows: Gallery[]) => {

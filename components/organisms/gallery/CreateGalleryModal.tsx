@@ -41,7 +41,7 @@ export function CreateGalleryModal({
 
         const now = new Date();
         const newGallery: Gallery = {
-            id: `Gallery-${Date.now()}`,
+            id: Date.now(),
             file_path,
             caption,
             alt_text,

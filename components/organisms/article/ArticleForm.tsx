@@ -30,7 +30,7 @@ export function ArticleForm({ mode, initialData }: ArticleFormProps) {
     // Form State
     const [title, setTitle] = React.useState(initialData?.title || "");
     const [content, setContent] = React.useState(initialData?.content || "");
-    const [category, setCategory] = React.useState(initialData?.category?.[0] || "");
+    const [category, setCategory] = React.useState<string>(initialData?.category?.[0]?.toString() || "");
     const [is_published, setIsPublished] = React.useState(initialData?.is_published || false);
     const [categories, setCategories] = React.useState<ArticleCategory[]>([]);
     const [thumbnail, setThumbnail] = React.useState(initialData?.thumbnail || "");
@@ -53,10 +53,10 @@ export function ArticleForm({ mode, initialData }: ArticleFormProps) {
 
         if (mode === "create") {
             articlePayload = {
-                id: `ART-${Date.now()}`,
+                id: Date.now(),
                 title,
                 content,
-                category: [category],
+                category: [Number(category)],
                 is_published,
                 thumbnail,
                 created_at: now,
@@ -79,7 +79,7 @@ export function ArticleForm({ mode, initialData }: ArticleFormProps) {
                 ...initialData,
                 title,
                 content,
-                category: [category],
+                category: [Number(category)],
                 is_published,
                 thumbnail,
                 updated_at: now,

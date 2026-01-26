@@ -16,16 +16,12 @@ export default function ArticlePage() {
     }, []);
 
     const handleDataChange = (newData: Article[]) => {
-        // Check for status changes and update published_at
         const updatedData = newData.map((newArticle) => {
             const oldArticle = data.find((a) => a.id === newArticle.id);
             if (!oldArticle) return newArticle;
-
-            // If status changed to Published
             if (newArticle.is_published && !oldArticle.is_published) {
                 return { ...newArticle, published_at: new Date() };
             }
-            // If status changed to Unpublished
             if (!newArticle.is_published && oldArticle.is_published) {
                 return { ...newArticle, published_at: null };
             }

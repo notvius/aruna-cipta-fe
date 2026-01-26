@@ -3,7 +3,7 @@ export type { Gallery } from "../constants/galleries";
 
 export const galleriesData: Gallery[] = [
     {
-        id: "GALLERY001",
+        id: 1,
         file_path: "/images/galleries/ai.jpg",
         caption: "AI in the future",
         alt_text: "AI",
@@ -13,7 +13,7 @@ export const galleriesData: Gallery[] = [
         deleted_at: null,
     },
     {
-        id: "GALLERY002",
+        id: 2,
         file_path: "/images/galleries/alien.jpg",
         caption: "Alien might be the future of space exploration",
         alt_text: "Alien",
@@ -23,7 +23,7 @@ export const galleriesData: Gallery[] = [
         deleted_at: null,
     },
     {
-        id: "GALLERY003",
+        id: 3,
         file_path: "/images/galleries/evcars.jpg",
         caption: "BYD vs Tesla who will win?",
         alt_text: "BYD vs Tesla",
@@ -33,7 +33,7 @@ export const galleriesData: Gallery[] = [
         deleted_at: null,
     },
     {
-        id: "GALLERY004",
+        id: 4,
         file_path: "/images/galleries/pizza.jpg",
         caption: "How to make pizza",
         alt_text: "Pizza",
@@ -43,7 +43,7 @@ export const galleriesData: Gallery[] = [
         deleted_at: null,
     },
     {
-        id: "GALLERY005",
+        id: 5,
         file_path: "/images/galleries/trump.jpg",
         caption: "Trump: We try to save Venezuela",
         alt_text: "Trump",
