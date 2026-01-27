@@ -4,25 +4,31 @@ import * as React from "react"
 import { ChevronDown } from "lucide-react"
 
 import { models } from "@/constants/item-header-items"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
+import {
+  articleSummary,
+  growthPassSummary,
+  serviceSummary,
+  whatsappSummary
+} from "@/data/guest_event_analytics"
 
 export default function AnalyticsOverviewHeader() {
+  const statsMapping: Record<string, string | number> = {
+    "WhatsApp Analytic": whatsappSummary[0].value,
+    "Growth Pass Analytic": growthPassSummary[0].value,
+    "Service Analytic": serviceSummary[0].value,
+    "Article Analytic": articleSummary[0].value,
+  }
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {models.map((model) => (
-        <AnalyticCard key={model.name} model={model} />
+        <AnalyticCard
+          key={model.name}
+          model={{ ...model, summary: statsMapping[model.name] || model.summary }}
+        />
       ))}
     </div>
   )

@@ -11,6 +11,7 @@ import {
     Handshake,
     Plus
 } from "lucide-react"
+import { title } from "process"
 
 export const mainMenuItems = [
     {
@@ -22,6 +23,18 @@ export const mainMenuItems = [
         title: "Users",
         url: "#",
         icon: User,
+        items: [
+            {
+                title: "User Management",
+                url: "/user",
+                icon: User,
+            },
+            {
+                title: "Activity Log",
+                url: "/user/activity-log",
+                icon: User,
+            }
+        ]
     },
     {
         title: "Guest Tracking",

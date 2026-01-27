@@ -136,7 +136,6 @@ export function GuestEventDashboard({
                             <DetailCard
                                 title={detailTitle}
                                 item={selectedItem}
-                                containerClassName="h-full flex flex-col"
                                 fields={(item) => {
                                     if (item.ip_address || item.created_at || item.event_subtype) {
                                         return [

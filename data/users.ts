@@ -1,0 +1,55 @@
+import { type User } from "@/constants/users";
+export { type User } from "@/constants/users";
+
+export const userData: User[] = [
+  {
+    id: 1,
+    username: "superadmin",
+    password_hash: "$2y$10$superadminhashedpassword",
+    is_active: true,
+    is_superadmin: true,
+    created_at: new Date("2025-12-01T08:00:00Z"),
+    updated_at: new Date("2025-12-01T08:00:00Z"),
+    deleted_at: null,
+  },
+  {
+    id: 2,
+    username: "admin_content",
+    password_hash: "$2y$10$admincontenthashedpassword",
+    is_active: true,
+    is_superadmin: false,
+    created_at: new Date("2025-12-05T09:15:00Z"),
+    updated_at: new Date("2026-01-10T04:20:00Z"),
+    deleted_at: null,
+  },
+  {
+    id: 3,
+    username: "admin_marketing",
+    password_hash: "$2y$10$adminmarketinghashedpassword",
+    is_active: true,
+    is_superadmin: false,
+    created_at: new Date("2025-12-10T10:30:00Z"),
+    updated_at: new Date("2026-01-18T06:45:00Z"),
+    deleted_at: null,
+  },
+  {
+    id: 4,
+    username: "admin_service",
+    password_hash: "$2y$10$adminservicehashedpassword",
+    is_active: false,
+    is_superadmin: false,
+    created_at: new Date("2025-12-12T07:50:00Z"),
+    updated_at: new Date("2026-01-05T03:10:00Z"),
+    deleted_at: null,
+  },
+  {
+    id: 5,
+    username: "admin_archived",
+    password_hash: "$2y$10$adminarchivedhashedpassword",
+    is_active: false,
+    is_superadmin: false,
+    created_at: new Date("2025-11-20T06:40:00Z"),
+    updated_at: new Date("2025-12-15T02:00:00Z"),
+    deleted_at: new Date("2025-12-20T00:00:00Z"),
+  },
+];
