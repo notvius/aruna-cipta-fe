@@ -1,6 +1,6 @@
 "use client";
 
-import ItemHeaderDemo from "@/components/item-header";
+import AnalyticsOverviewHeader from "@/components/organisms/dashboard/AnalyticsOverviewHeader";
 import { AnalyticsSection } from "@/components/dashboard/AnalyticSection";
 
 const articlesData = [
@@ -41,7 +41,7 @@ const mapDots = [
 export default function OverviewPage() {
     return (
         <div className="flex flex-col gap-6">
-            <ItemHeaderDemo />
+            <AnalyticsOverviewHeader />
             <AnalyticsSection articlesData={articlesData} mapDots={mapDots} />
         </div>
     );

@@ -29,23 +29,23 @@ export const mainMenuItems = [
         icon: Users,
         items: [
             {
-                title: "WhatsApp Analytics",
-                url: "#",
-                icon: ChartNoAxesColumnDecreasing,
-            },
-            {
                 title: "Article Analytics",
-                url: "#",
+                url: "/guest-event/article",
                 icon: ChartNoAxesColumnDecreasing,
             },
             {
                 title: "Growth Pass Analytics",
-                url: "#",
+                url: "/guest-event/growth-pass",
                 icon: ChartNoAxesColumnDecreasing,
             },
             {
                 title: "Service Analytics",
-                url: "#",
+                url: "/guest-event/service",
+                icon: ChartNoAxesColumnDecreasing,
+            },
+            {
+                title: "WhatsApp Analytics",
+                url: "/guest-event/whatsapp",
                 icon: ChartNoAxesColumnDecreasing,
             },
         ]
@@ -81,7 +81,7 @@ export const cmsMenuItems = [
         icon: BookImage,
     },
     {
-        title: "Portfolio",
+        title: "Portofolio",
         url: "/portofolio",
         icon: BriefcaseBusiness,
     },
@@ -92,7 +92,7 @@ export const cmsMenuItems = [
     },
     {
         title: "Testimonial",
-        url: "/testmonial",
+        url: "/testimonial",
         icon: Star,
     },
 ]

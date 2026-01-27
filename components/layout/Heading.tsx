@@ -10,28 +10,28 @@ export default function Heading() {
         const allItems = [
             ...mainMenuItems,
             ...cmsMenuItems,
-            ...mainMenuItems.flatMap(item => item.items || []),
+            ...(mainMenuItems.flatMap(item => item.items || [])),
+            ...(cmsMenuItems.flatMap(item => item.items || [])),
         ]
 
         if (pathname === "/") return "Overview"
 
-        // Try exact match first
-        const exactMatch = allItems.find(item => item.url !== "#" && item.url === pathname)
-        if (exactMatch) return exactMatch.title
-
-        // Try parent match for sub-paths (e.g., /article/create)
-        const parentMatch = allItems.find(item =>
-            item.url !== "#" && item.url !== "/" && pathname.startsWith(item.url + "/")
+        const matches = allItems.filter(item => 
+            item.url !== "#" && 
+            item.url !== "/" && 
+            (pathname === item.url || pathname.startsWith(item.url + "/"))
         )
 
-        if (parentMatch) {
-            // Check for common sub-paths
-            if (pathname.endsWith("/create")) return `Create ${parentMatch.title}`
-            if (pathname.includes("/edit/")) return `Edit ${parentMatch.title}`
-            return parentMatch.title
+        if (matches.length > 0) {
+            const bestMatch = matches.sort((a, b) => b.url.length - a.url.length)[0]
+            
+            if (pathname.endsWith("/create")) return `Create ${bestMatch.title}`
+            if (pathname.includes("/edit/")) return `Edit ${bestMatch.title}`
+            
+            return bestMatch.title
         }
 
-        return "Overview"
+        return "Overview" 
     }
 
     return (

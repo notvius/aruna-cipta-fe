@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 
-export default function ItemHeaderDemo() {
+export default function AnalyticsOverviewHeader() {
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {models.map((model) => (

@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import { Editor } from "@tinymce/tinymce-react";
 
 interface ArticleEditorProps {

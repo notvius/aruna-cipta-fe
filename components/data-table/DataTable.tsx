@@ -30,14 +30,11 @@ declare module "@tanstack/react-table" {
 }
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
     DropdownMenu,
     DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -53,7 +50,6 @@ import {
 import {
     Pagination,
     PaginationContent,
-    PaginationEllipsis,
     PaginationItem,
     PaginationLink,
     PaginationNext,
@@ -82,6 +78,7 @@ export interface DataTableProps<T extends Record<string, any>> {
     sortOptions?: { label: string; value: string }[];
     onDeleteSelected?: (selectedRows: T[]) => void;
     onAddNew?: () => void;
+    onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T extends Record<string, any>>({
@@ -96,6 +93,7 @@ export function DataTable<T extends Record<string, any>>({
     sortOptions,
     onDeleteSelected,
     onAddNew,
+    onRowClick,
 }: DataTableProps<T>) {
     const [sorting, setSorting] = React.useState<SortingState>([]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
@@ -278,6 +276,8 @@ export function DataTable<T extends Record<string, any>>({
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
+                                    onClick={() => onRowClick?.(row.original)}
+                                    className={onRowClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
                                 >
                                     {row.getVisibleCells().map((cell) => (
                                         <TableCell key={cell.id}>
