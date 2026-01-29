@@ -60,7 +60,7 @@ export function ViewTestimonialModal({ testimonial }: ViewTestimonialModalProps)
                     </div>
 
                     {/* Content */}
-                    <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
+                    <div className="flex flex-col gap-2 pt-2 text-muted-foreground">
                         <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
                         <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
                             {testimonial.content || <span className="italic text-muted-foreground">No content provided</span>}
@@ -68,7 +68,7 @@ export function ViewTestimonialModal({ testimonial }: ViewTestimonialModalProps)
                     </div>
 
                     {/* Timestamps */}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div className="grid grid-cols-2 gap-4 pt-2">
                         <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
                             <p className="text-xs text-foreground">{formatDate(testimonial.created_at)}</p>

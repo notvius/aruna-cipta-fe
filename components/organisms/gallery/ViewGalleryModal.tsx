@@ -51,7 +51,7 @@ export function ViewGalleryModal({ gallery }: ViewGalleryModalProps) {
                     
                     {/* Kolom Kiri: Preview Gambar */}
                     <div className="space-y-4">
-                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
+                        <div className="flex flex-col gap-2 pt-2 text-muted-foreground">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Image Preview</span>
                             <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
                                 <img
@@ -66,7 +66,7 @@ export function ViewGalleryModal({ gallery }: ViewGalleryModalProps) {
                     {/* Kolom Kanan: Detail & Meta Data */}
                     <div className="space-y-6">
                         {/* Caption */}
-                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
+                        <div className="flex flex-col gap-2 pt-2 text-muted-foreground">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Caption</span>
                             <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
                                 {gallery.caption || <span className="italic text-muted-foreground">No caption provided</span>}
@@ -74,7 +74,7 @@ export function ViewGalleryModal({ gallery }: ViewGalleryModalProps) {
                         </div>
 
                         {/* Status & Alt Text */}
-                        <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div className="grid grid-cols-2 gap-4 pt-2">
                             <div className="flex flex-col gap-1">
                                 <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status</span>
                                 <div>
@@ -93,7 +93,7 @@ export function ViewGalleryModal({ gallery }: ViewGalleryModalProps) {
                         </div>
 
                         {/* Timestamps */}
-                        <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div className="grid grid-cols-2 gap-4 pt-2">
                             <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
                                 <p className="text-xs text-foreground">{formatDate(gallery.created_at)}</p>

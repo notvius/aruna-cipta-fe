@@ -48,19 +48,23 @@ export function ViewFaqModal({ faq }: ViewFaqModalProps) {
 
                 <div className="grid gap-6 py-4">
                     {/* Question & Answer */}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div className="grid grid-cols-2 gap-4 pt-2">
                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Question</span>
-                            <p className="text-sm text-foreground">{faq.question || ""}</p>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
+                                {faq.question || <span className="italic text-muted-foreground">No question provided</span>}
+                            </div>
                         </div>
                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Answer</span>
-                            <p className="text-sm text-foreground">{faq.answer || ""}</p>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
+                                {faq.answer || <span className="italic text-muted-foreground">No answer provided</span>}
+                            </div>
                         </div>
                     </div>
 
                     {/* Timestamps */}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div className="grid grid-cols-2 gap-4 pt-2">
                         <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
                             <p className="text-xs text-foreground">{formatDate(faq.created_at)}</p>

@@ -69,8 +69,10 @@ export const columns: ColumnDef<Gallery>[] = [
         header: "Caption",
         size: 280,
         cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words pr-4">
-                {truncateWords(row.getValue("caption"), 15)}
+            <div className="group flex items-center gap-1 justify-between max-w-[200px]">
+                <div className="text-sm text-muted-foreground whitespace-normal break-words">
+                    {truncateWords(row.getValue("caption"), 15)}
+                </div>
             </div>
         ),
     },
@@ -79,8 +81,10 @@ export const columns: ColumnDef<Gallery>[] = [
         header: "Alt Text",
         size: 220,
         cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words pr-4">
-                {truncateWords(row.getValue("alt_text"), 12)}
+            <div className="group flex items-center gap-1 justify-between max-w-[200px]">
+                <div className="text-sm text-muted-foreground whitespace-normal break-words">
+                    {truncateWords(row.getValue("alt_text"), 10)}
+                </div>
             </div>
         ),
     },

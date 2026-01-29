@@ -35,7 +35,6 @@ export function DashboardSummary({ items }: DashboardSummaryProps) {
                                         : 'lg:col-span-1 bg-white hover:border-arcipta-orange hover:shadow-lg hover:shadow-orange-500/10'}
                         `}
                     >
-                        {/* Hover Animated Line */}
                         <div className={`absolute top-0 left-0 w-full h-[2px] scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left ${index === 0 ? 'bg-emerald-400' : 'bg-arcipta-orange'}`} />
 
                         <CardContent className={`px-8 py-6 ${items.length === 1 ? 'h-full flex flex-col justify-center' : ''}`}>

@@ -48,15 +48,17 @@ export function ViewArticleCategoryModal({ articleCategory }: ViewArticleCategor
 
                 <div className="grid gap-6 py-4">
                     {/* Name */}
-                    <div className="grid grid-cols-1 gap-4 pt-2 border-t">
+                    <div className="grid grid-cols-1 gap-4 pt-2">
                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Name</span>
-                            <p className="text-sm text-foreground">{articleCategory.name || ""}</p>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
+                                {articleCategory.name || <span className="italic text-muted-foreground">No name provided</span>}
+                            </div>
                         </div>
                     </div>
 
                     {/* Timestamps */}
-                    <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                    <div className="grid grid-cols-2 gap-4 pt-2">
                         <div className="flex flex-col gap-1">
                             <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
                             <p className="text-xs text-foreground">{formatDate(articleCategory.created_at)}</p>

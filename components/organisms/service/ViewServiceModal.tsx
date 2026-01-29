@@ -48,9 +48,9 @@ export function ViewServiceModal({ service }: ViewServiceModalProps) {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 py-4">
                     
-                    {/* Kolom Kiri: Preview Gambar */}
+                    {/* Kolom Kiri: Preview Gambar dan Timestamps*/}
                     <div className="space-y-4">
-                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
+                        <div className="flex flex-col gap-2 pt-2 text-muted-foreground">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Image Preview</span>
                             <div className="relative aspect-video rounded-lg overflow-hidden border bg-muted">
                                 <img
@@ -60,28 +60,8 @@ export function ViewServiceModal({ service }: ViewServiceModalProps) {
                                 />
                             </div>
                         </div>
-                    </div>
-
-                    {/* Kolom Kanan: Detail & Meta Data */}
-                    <div className="space-y-6">
-                        {/* Title */}
-                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
-                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                {service.title || <span className="italic text-muted-foreground">No title provided</span>}
-                            </div>
-                        </div>
-
-                        {/* Content */}
-                        <div className="flex flex-col gap-2 pt-2 border-t text-muted-foreground">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
-                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{ __html: service.content || "<i>No content provided</i>" }}
-                            />
-                        </div>
-
                         {/* Timestamps */}
-                        <div className="grid grid-cols-2 gap-4 pt-2 border-t">
+                        <div className="grid grid-cols-2 gap-4 pt-2">
                             <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
                                 <p className="text-xs text-foreground">{formatDate(service.created_at)}</p>
@@ -90,6 +70,25 @@ export function ViewServiceModal({ service }: ViewServiceModalProps) {
                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
                                 <p className="text-xs text-foreground">{formatDate(service.updated_at)}</p>
                             </div>
+                        </div>
+                    </div>
+
+                    {/* Kolom Kanan: Detail & Meta Data */}
+                    <div className="space-y-6">
+                        {/* Title */}
+                        <div className="flex flex-col gap-2 pt-2 text-muted-foreground">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
+                                {service.title || <span className="italic text-muted-foreground">No title provided</span>}
+                            </div>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex flex-col gap-2 text-muted-foreground">
+                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{ __html: service.content || "<i>No content provided</i>" }}
+                            />
                         </div>
                     </div>
 

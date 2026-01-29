@@ -118,7 +118,7 @@ export function ViewUserModal({ user }: ViewUserModalProps) {
                                 <p className="text-sm font-medium">{formatDate(user.created_at)}</p>
                             </div>
                             <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Last Updated</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Updated At</span>
                                 <p className="text-sm font-medium">{formatDate(user.updated_at)}</p>
                             </div>
                         </div>

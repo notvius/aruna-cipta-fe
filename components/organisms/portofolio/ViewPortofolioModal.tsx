@@ -101,7 +101,7 @@ export function ViewPortofolioModal({ portofolio }: ViewPortofolioModalProps) {
                                 </div>
                             </div>
 
-                            <div className="space-y-6 pt-6 border-t">
+                            <div className="space-y-6 pt-6">
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="space-y-1">
                                         <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Client</Label>
@@ -121,11 +121,11 @@ export function ViewPortofolioModal({ portofolio }: ViewPortofolioModalProps) {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1 pt-4 border-t border-dashed">
+                                    <div className="space-y-1 pt-4 border-dashed">
                                         <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Created At</Label>
                                         <p className="text-xs text-foreground font-medium">{formatDate(portofolio.created_at)}</p>
                                     </div>
-                                    <div className="space-y-1 pt-4 border-t border-dashed">
+                                    <div className="space-y-1 pt-4 border-dashed">
                                         <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Updated At</Label>
                                         <p className="text-xs text-foreground font-medium">{formatDate(portofolio.updated_at)}</p>
                                     </div>
@@ -171,7 +171,7 @@ export function ViewPortofolioModal({ portofolio }: ViewPortofolioModalProps) {
                             </div>
 
                             {/* Context Section */}
-                            <div className="space-y-6 pt-6 border-t">
+                            <div className="space-y-6 pt-6">
                                 <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
                                     <span className="w-1 h-4 bg-arcipta-blue-primary rounded-full"></span>
                                     Context & Process
@@ -206,7 +206,7 @@ export function ViewPortofolioModal({ portofolio }: ViewPortofolioModalProps) {
 
                             {/* Process Images */}
                             {content?.image_process && content.image_process.length > 0 && (content.image_process[0] || content.image_process[1]) && (
-                                <div className="space-y-4 pt-8 border-t">
+                                <div className="space-y-4 pt-8">
                                     <Label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Process Images</Label>
                                     <div className="grid grid-cols-2 gap-6">
                                         {content.image_process.map((img, idx) => img ? (

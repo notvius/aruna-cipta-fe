@@ -52,4 +52,14 @@ export const galleriesData: Gallery[] = [
         updated_at: new Date("2024-01-01T10:00:00Z"),
         deleted_at: null,
     },
+    {
+        id: 6,
+        file_path: "/images/galleries/ai.jpg",
+        caption: "AI in the future",
+        alt_text: "AI",
+        is_published: false,
+        created_at: new Date("2024-01-01T10:00:00Z"),
+        updated_at: new Date("2024-01-01T10:00:00Z"),
+        deleted_at: null,
+    },
 ];

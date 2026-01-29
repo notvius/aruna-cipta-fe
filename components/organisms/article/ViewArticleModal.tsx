@@ -99,7 +99,7 @@ export function ViewArticleModal({ article }: ViewArticleModalProps) {
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 pt-4 border-t">
+                        <div className="grid grid-cols-2 gap-4 pt-4">
                             <div className="flex flex-col gap-1">
                                 <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
                                 <p className="text-xs text-foreground">{formatDate(article.created_at)}</p>
@@ -125,14 +125,14 @@ export function ViewArticleModal({ article }: ViewArticleModalProps) {
                     <div className="space-y-6">
                         <div className="flex flex-col gap-1">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
-                            <p className="text-xl font-bold leading-tight">{stripHtml(article.title)}</p>
+                            <div className="text-lg font-bold leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">{stripHtml(article.title)}</div>
                         </div>
 
-                        <div className="flex flex-col gap-2 pt-4 border-t text-muted-foreground">
+                        <div className="flex flex-col gap-2 pt-4 text-muted-foreground">
                             <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
                                 {stripHtml(article.content)}
-                            </p>
+                            </div>
                         </div>
                     </div>
 
