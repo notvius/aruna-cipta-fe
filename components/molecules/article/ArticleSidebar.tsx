@@ -14,8 +14,8 @@ import {
 import { ChevronDown, Image as ImageIcon, Info, Type, Plus } from "lucide-react";
 
 interface ArticleSidebarProps {
-    category: ArticleCategory['id'];
-    setCategory: (category: ArticleCategory['id']) => void;
+    category: number | undefined;
+    setCategory: (category: number) => void;
     isPublished: boolean;
     setIsPublished: (isPublished: boolean) => void;
     thumbnail: string;

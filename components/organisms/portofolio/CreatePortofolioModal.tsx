@@ -13,6 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import {
     Select,
     SelectContent,
@@ -43,7 +45,6 @@ export function CreatePortofolioModal({
     onOpenChange,
     onSuccess,
 }: CreatePortofolioModalProps) {
-    // Step State
     const [step, setStep] = React.useState(1);
     const [isSaving, setIsSaving] = React.useState(false);
 
@@ -67,9 +68,27 @@ export function CreatePortofolioModal({
     const [image_process, setImageProcess] = React.useState<string[]>([]);
     const [impact, setImpact] = React.useState("");
 
+    // Alert
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
     React.useEffect(() => {
-        setCategories(getServices());
-    }, []);
+        if (!open) {
+            resetForm();
+        } else {
+            setCategories(getServices());
+        }
+    }, [open]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [
+        thumbnail, title, client_name, year, category,
+        problem, solution, role,
+        context, challenge, approach, impact, image_process
+    ]);
 
     const resetForm = () => {
         setStep(1);
@@ -90,9 +109,15 @@ export function CreatePortofolioModal({
 
     const handleNext = () => {
         if (step === 1) {
-            if (!thumbnail.trim()) return alert("Please upload a thumbnail");
-            if (!title.trim()) return alert("Please enter a title");
-            if (!category) return alert("Please select a category");
+            if (!thumbnail.trim()) return setError("Thumbnail is required");
+            if (!title.trim()) return setError("Title is required");
+            if (!category) return setError("Category is required");
+            if (!client_name.trim()) return setError("Client name is required");
+            if (!year.trim()) return setError("Year is required");
+        } else if (step === 2) {
+            if (!problem.trim()) return setError("Problem is required");
+            if (!solution.trim()) return setError("Solution is required");
+            if (!role.trim()) return setError("Role is required");
         }
         setStep(step + 1);
     };
@@ -104,52 +129,67 @@ export function CreatePortofolioModal({
     };
 
     const handleSave = async () => {
+        if (!context.trim()) return setError("Context is required");
+        if (!challenge.trim()) return setError("Challenge is required");
+        if (!approach.trim()) return setError("Approach is required");
+        if (!impact.trim()) return setError("Impact is required");
+
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const portofolioId = Date.now();
+        try {
+            const now = new Date();
+            const portofolioId = Date.now();
 
-        // Save Portofolio Meta
-        const newPortofolio: Portofolio = {
-            id: portofolioId,
-            thumbnail,
-            title,
-            client_name,
-            year,
-            category: [Number(category)],
-            created_at: now,
-            updated_at: now,
-        };
-        addPortofolio(newPortofolio);
+            // Save Portofolio Meta
+            const newPortofolio: Portofolio = {
+                id: portofolioId,
+                thumbnail,
+                title,
+                client_name,
+                year,
+                category: [Number(category)],
+                created_at: now,
+                updated_at: now,
+            };
+            addPortofolio(newPortofolio);
 
-        // Save Overview
-        const newOverview: PortofolioOverview = {
-            id: Date.now() + 1, 
-            portofolio_id: portofolioId,
-            problem,
-            solution,
-            role,
-        };
-        addPortofolioOverview(newOverview);
+            // Save Overview
+            const newOverview: PortofolioOverview = {
+                id: Date.now() + 1, 
+                portofolio_id: portofolioId,
+                problem,
+                solution,
+                role,
+            };
+            addPortofolioOverview(newOverview);
 
-        // Save Content
-        const newContent: PortofolioContent = {
-            id: Date.now() + 2,
-            portofolio_id: portofolioId,
-            context,
-            challenge,
-            approach,
-            image_process, 
-            impact,
-        };
-        addPortofolioContent(newContent);
+            // Save Content
+            const newContent: PortofolioContent = {
+                id: Date.now() + 2,
+                portofolio_id: portofolioId,
+                context,
+                challenge,
+                approach,
+                image_process, 
+                impact,
+            };
+            addPortofolioContent(newContent);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setIsSaving(false);
-        resetForm();
-        onOpenChange(false);
-        onSuccess();
+            setSuccess("Portofolio added successfully!");
+
+            setTimeout(() => {
+                resetForm();
+                onOpenChange(false);
+                onSuccess();
+            }, 1200);
+
+        } catch (error) {
+            setError("Failed to save portofolio. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     const renderStepper = () => {
@@ -346,6 +386,14 @@ export function CreatePortofolioModal({
                 </DialogHeader>
 
                 {renderStepper()}
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 {renderStepContent()}
 

@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { addFaq } from "@/utils/faq-storage";
 import { type Faq } from "@/constants/faqs";
 import { Loader2 } from "lucide-react";
@@ -30,31 +32,49 @@ export function CreateFaqModal({
     const [question, setQuestion] = React.useState("");
     const [answer, setAnswer] = React.useState("");
     const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
 
     const handleSave = async () => {
-        if (!question.trim()) return alert("Please enter a question");
-        if (!answer.trim()) return alert("Please enter an answer");
+        if (!question.trim()) {
+            setError("Please enter a question");
+            return;
+        }
+        if (!answer.trim()) {
+            setError("Please enter an answer");
+            return;
+        }
 
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const newFaq: Faq = {
-            id: Date.now(),
-            question,
-            answer,
-            created_at: now,
-            updated_at: now,
-        };
+        try {
+            const now = new Date();
+            const newFaq: Faq = {
+                id: Date.now(),
+                question,
+                answer,
+                created_at: now,
+                updated_at: now,
+            };
 
-        addFaq(newFaq);
+            addFaq(newFaq);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setIsSaving(false);
-        setQuestion("");
-        setAnswer("");
-        onOpenChange(false);
-        onSuccess();
+            setSuccess("FAQ added successfully!");
+
+            setTimeout(() => {
+                setQuestion("");
+                setAnswer("");
+                onOpenChange(false);
+                onSuccess();
+            }, 1200);
+            
+        } catch (error) {
+            setError("Failed to save FAQ. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -66,6 +86,15 @@ export function CreateFaqModal({
                         Create a new entry for your FAQ section.
                     </DialogDescription>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
+
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="question">Question</Label>

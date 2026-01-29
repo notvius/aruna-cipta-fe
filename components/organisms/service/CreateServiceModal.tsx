@@ -13,6 +13,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { addService } from "@/utils/service-storage";
 import { type Service } from "@/constants/services";
@@ -33,32 +35,71 @@ export function CreateServiceModal({
     const [content, setContent] = React.useState("");
     const [featured_image, setFeaturedImage] = React.useState("");
     const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setSuccess(null);
+            setTitle("");
+            setContent("");
+            setFeaturedImage("");
+        }
+    }, [open]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [title, content, featured_image]);
 
     const handleSave = async () => {
-        if (!featured_image.trim()) return alert("Please upload an image");
+        if (!featured_image.trim()) {
+            setError("Image is required");
+            return;
+        }
+        if (!title.trim()) {
+            setError("Title is required");
+            return;
+        }
+        if (!content.trim()) {
+            setError("Content is required");
+            return;
+        }
 
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const newService: Service = {
-            id: Date.now(),
-            featured_image,
-            title,
-            content,
-            created_at: now,
-            updated_at: now,
-        };
+        try {
+            const now = new Date();
+            const newService: Service = {
+                id: Date.now(),
+                featured_image,
+                title,
+                content,
+                created_at: now,
+                updated_at: now,
+            };
 
-        addService(newService);
+            addService(newService);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setIsSaving(false);
-        setFeaturedImage("");
-        setTitle("");
-        setContent("");
-        onOpenChange(false);
-        onSuccess();
+            setSuccess("Service added successfully!");
+
+            setTimeout(() => {
+                setFeaturedImage("");
+                setTitle("");
+                setContent("");
+                onOpenChange(false);
+                onSuccess();
+            }, 1500);
+
+        } catch (error) {
+            setError("Failed to save service. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -70,6 +111,14 @@ export function CreateServiceModal({
                         Create a new entry for your service section.
                     </DialogDescription>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 <div className="grid grid-cols-2 gap-6 pt-4">
 

@@ -26,9 +26,9 @@ import { DualImageUpload } from "@/components/molecules/gallery/DualImageUpload"
 import { getPortofolioOverviews, savePortofolioOverviews } from "@/utils/portofolio-overview-storage";
 import { getPortofolioContents, savePortofolioContents } from "@/utils/portofolio-content-storage";
 import { type Portofolio } from "@/constants/portofolios";
-import { type PortofolioOverview } from "@/constants/portofolio_overviews";
-import { type PortofolioContent } from "@/constants/portofolios_contents";
 import { Loader2, ArrowLeft, ArrowRight, Pencil } from "lucide-react";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { getServices } from "@/utils/service-storage";
 import { type Service } from "@/constants/services";
 
@@ -44,6 +44,9 @@ export function EditPortofolioModal({
     const [open, setOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
     const [isSaving, setIsSaving] = React.useState(false);
+
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
 
     // Step 1: Meta Data
     const [thumbnail, setThumbnail] = React.useState(portofolio.thumbnail);
@@ -69,6 +72,10 @@ export function EditPortofolioModal({
 
     React.useEffect(() => {
         if (open) {
+            setError(null);
+            setSuccess(null);
+            setStep(1);
+        } else {
             setCategories(getServices());
 
             const overviews = getPortofolioOverviews();
@@ -95,12 +102,31 @@ export function EditPortofolioModal({
         }
     }, [open, portofolio.id]);
 
-    const handleNext = () => {
-        if (step === 1) {
-            if (!thumbnail.trim()) return alert("Please upload a thumbnail");
-            if (!title.trim()) return alert("Please enter a title");
-            if (!category) return alert("Please select a category");
+    React.useEffect(() => {
+        if (error) setError(null);
+    }, [thumbnail, title, client_name, year, category, problem, solution, role, context, challenge, approach, impact, image_process]);
+
+    const validateStep = (currentStep: number) => {
+        if (currentStep === 1) {
+            if (!thumbnail.trim()) return "Thumbnail is required";
+            if (!title.trim()) return "Title is required";
+            if (!category) return "Category is required";
+        } else if (currentStep === 2) {
+            if (!problem.trim()) return "Problem is required";
+            if (!solution.trim()) return "Solution is required";
+            if (!role.trim()) return "Role is required";
+        } else if (currentStep === 3) {
+            if (!context.trim()) return "Context is required";
+            if (!challenge.trim()) return "Challenge is required";
+            if (!approach.trim()) return "Approach is required";
+            if (!impact.trim()) return "Impact is required";
         }
+        return null;
+    };
+
+    const handleNext = () => {
+        const err = validateStep(step);
+        if (err) return setError(err);
         setStep(step + 1);
     };
 
@@ -111,74 +137,88 @@ export function EditPortofolioModal({
     };
 
     const handleSave = async () => {
+        const err = validateStep(3);
+        if (err) return setError(err);
+
+        setError(null);
         setIsSaving(true);
-        const now = new Date();
 
-        // 1. Update Portofol
-        const updatedPortofolio: Portofolio = {
-            ...portofolio,
-            thumbnail,
-            title,
-            client_name,
-            year,
-            category: [Number(category)],
-            updated_at: now,
-        };
+        try {
+            const now = new Date();
 
-        // 2. Update Overview directly to storage
-        const overviews = getPortofolioOverviews();
-        let newOverviews = [...overviews];
-        if (overviewId) {
-            newOverviews = newOverviews.map(o => o.id === overviewId ? {
-                ...o,
-                problem,
-                solution,
-                role
-            } : o);
-        } else {
-            // Create if missing
-            newOverviews.push({
-                id: Date.now(),
-                portofolio_id: portofolio.id,
-                problem,
-                solution,
-                role
-            });
+            // 1. Update Portofol
+            const updatedPortofolio: Portofolio = {
+                ...portofolio,
+                thumbnail,
+                title,
+                client_name,
+                year,
+                category: [Number(category)],
+                updated_at: now,
+            };
+
+            // 2. Update Overview directly to storage
+            const overviews = getPortofolioOverviews();
+            let newOverviews = [...overviews];
+            if (overviewId) {
+                newOverviews = newOverviews.map(o => o.id === overviewId ? {
+                    ...o,
+                    problem,
+                    solution,
+                    role
+                } : o);
+            } else {
+                // Create if missing
+                newOverviews.push({
+                    id: Date.now(),
+                    portofolio_id: portofolio.id,
+                    problem,
+                    solution,
+                    role
+                });
+            }
+            savePortofolioOverviews(newOverviews);
+
+            // 3. Update Content directly to storage
+            const contents = getPortofolioContents();
+            let newContents = [...contents];
+            if (contentId) {
+                newContents = newContents.map(c => c.id === contentId ? {
+                    ...c,
+                    context,
+                    challenge,
+                    approach,
+                    image_process,
+                    impact
+                } : c);
+            } else {
+                newContents.push({
+                    id: Date.now() + 1,
+                    portofolio_id: portofolio.id,
+                    context,
+                    challenge,
+                    approach,
+                    image_process,
+                    impact
+                });
+            }
+            savePortofolioContents(newContents);
+
+            onSave(updatedPortofolio);
+
+            await new Promise((resolve) => setTimeout(resolve, 800));
+
+            setSuccess("Portofolio updated successfully!");
+            setIsSaving(false);
+
+            setTimeout(() => {
+                setOpen(false);
+            }, 1500);
+            } catch (error) {
+                setError("Failed to update portofolio. Please try again.");
+                setIsSaving(false);
         }
-        savePortofolioOverviews(newOverviews);
-
-        // 3. Update Content directly to storage
-        const contents = getPortofolioContents();
-        let newContents = [...contents];
-        if (contentId) {
-            newContents = newContents.map(c => c.id === contentId ? {
-                ...c,
-                context,
-                challenge,
-                approach,
-                image_process,
-                impact
-            } : c);
-        } else {
-            newContents.push({
-                id: Date.now() + 1,
-                portofolio_id: portofolio.id,
-                context,
-                challenge,
-                approach,
-                image_process,
-                impact
-            });
-        }
-        savePortofolioContents(newContents);
-
-        onSave(updatedPortofolio);
-
-        await new Promise((resolve) => setTimeout(resolve, 800));
-
-        setIsSaving(false);
-        setOpen(false);
-        setStep(1); // Reset 
+        
     };
 
     const renderStepper = () => {
@@ -382,6 +422,14 @@ export function EditPortofolioModal({
                 {renderStepper()}
 
                 {renderStepContent()}
+
+                {error && (
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                )}
+                
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}  
 
                 <DialogFooter className="flex justify-between sm:justify-between w-full">
                     {step > 1 ? (

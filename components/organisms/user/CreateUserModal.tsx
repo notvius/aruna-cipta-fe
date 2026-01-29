@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Loader2 } from "lucide-react";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { type User } from "@/constants/users";
 import { type Permission } from "@/data/permissions";
 import { permissionsData } from "@/data/permissions";
@@ -38,6 +40,8 @@ export function CreateUserModal({
     const [isSuperadmin, setIsSuperadmin] = React.useState(false);
     const [selectedPermissions, setSelectedPermissions] = React.useState<number[]>([]);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
 
     const groupedPermissions = React.useMemo(() => {
         return permissionsData.reduce((acc, curr) => {
@@ -55,47 +59,80 @@ export function CreateUserModal({
         );
     };
 
-    const handleSave = async () => {
-        if (!username.trim()) return alert("Username is required");
-        if (!password.trim()) return alert("Password is required");
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setSuccess(null);
+            setUsername("");
+            setPassword("");
+            setIsSuperadmin(false);
+            setSelectedPermissions([]);
+        }
+    }, [open]);
 
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [username, password, isSuperadmin, selectedPermissions]);
+
+    const handleSave = async () => {
+        if (!username.trim()) {
+            setError("Username is required");
+            return;
+        }
+        if (!password.trim()) {
+            setError("Password is required");
+            return;
+        }
+
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const userId = Date.now();
+        try {
+            const now = new Date();
+            const userId = Date.now();
 
-        const newUser: User = {
-            id: userId,
-            username,
-            password_hash: password,
-            is_active: true,
-            is_superadmin: isSuperadmin,
-            created_at: now,
-            updated_at: now,
-            deleted_at: null,
-        };
+            const newUser: User = {
+                id: userId,
+                username,
+                password_hash: password,
+                is_active: true,
+                is_superadmin: isSuperadmin,
+                created_at: now,
+                updated_at: now,
+                deleted_at: null,
+            };
 
-        const newPermissions: UserPermission[] = selectedPermissions.map((permId) => ({
-            id: Date.now() + Math.random(),
-            user_id: userId,
-            permission_id: permId,
-            is_allowed: true,
-            created_at: now,
-            updated_at: now,
-        }));
+            const newPermissions: UserPermission[] = selectedPermissions.map((permId) => ({
+                id: Date.now() + Math.random(),
+                user_id: userId,
+                permission_id: permId,
+                is_allowed: true,
+                created_at: now,
+                updated_at: now,
+            }));
 
-        addUser(newUser);
-        addUserPermissions(newPermissions);
+            addUser(newUser);
+            addUserPermissions(newPermissions);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setIsSaving(false);
-        setUsername("");
-        setPassword("");
-        setIsSuperadmin(false);
-        setSelectedPermissions([]);
-        onOpenChange(false);
-        onSuccess();
+            setSuccess("User added successfully!");
+
+            setTimeout(() => {
+                setUsername("");
+                setPassword("");
+                setIsSuperadmin(false);
+                setSelectedPermissions([]);
+                onOpenChange(false);
+                onSuccess();
+            }, 1500);
+        } catch (error) {
+            setError("Failed to save user. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -107,6 +144,14 @@ export function CreateUserModal({
                         Create a new user and assign specific permissions.
                     </DialogDescription>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 <div className="grid gap-6 py-4">
                     <div className="grid grid-cols-2 gap-4">

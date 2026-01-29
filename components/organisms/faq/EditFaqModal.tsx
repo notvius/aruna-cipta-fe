@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { Faq } from "@/constants/faqs";
 
 interface EditModalProps {
@@ -27,10 +29,32 @@ export function EditFaqModal({ faq, onSave }: EditModalProps) {
     const [isSaving, setIsSaving] = React.useState(false);
     const [open, setOpen] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setQuestion(faq.question);
+            setAnswer(faq.answer);
+        }
+    }, [open, faq]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [question, answer]);
+
     const handleSave = async () => {
+        if (!question.trim()) return setError("Question is required");
+        if (!answer.trim()) return setError("Answer is required");
+
+        setError(null);
         setIsSaving(true);
 
-        const updatedFaq: Faq = {
+        try {
+            const updatedFaq: Faq = {
             ...faq,
             question,
             answer,
@@ -39,10 +63,19 @@ export function EditFaqModal({ faq, onSave }: EditModalProps) {
 
         onSave(updatedFaq);
 
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 800));
 
+        setSuccess("FAQ updated successfully!");
         setIsSaving(false);
-        setOpen(false);
+
+        setTimeout(() => {
+            setSuccess(null);
+            setOpen(false);
+        }, 1500);
+        } catch (error) {
+            setError("Failed to update FAQ. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -61,6 +94,14 @@ export function EditFaqModal({ faq, onSave }: EditModalProps) {
                 <DialogHeader>
                     <DialogTitle>Edit FAQ</DialogTitle>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">

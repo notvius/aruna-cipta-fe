@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { ArticleForm } from "@/components/organisms/article/ArticleForm";
 import { getArticleById } from "@/utils/article-storage";
 import { Article } from "@/constants/articles";
+import { Loader2 } from "lucide-react";
 
 export default function EditArticlePage() {
     const params = useParams();
@@ -15,17 +16,23 @@ export default function EditArticlePage() {
         const id = params?.id as string;
         if (id) {
             const decodedId = decodeURIComponent(id);
-            console.log("Fetching article with ID:", decodedId);
-            const data = getArticleById(decodedId);
+            const numericId = Number(decodedId); 
+            console.log("Fetching article with numeric ID:", numericId);
+            const data = getArticleById(numericId);
             console.log("Found data:", data);
             setArticle(data || null);
         }
         setIsLoading(false);
     }, [params]);
 
-    if (isLoading) return <div className="p-8">Loading...</div>;
+    if (isLoading) return <div className="p-8 text-center"><Loader2 className="animate-spin mx-auto" /></div>;
 
-    if (!article) return <div className="p-8">Article not found</div>;
+    if (!article) return (
+        <div className="p-8 text-center">
+            <h2 className="text-xl font-bold">Article not found</h2>
+            <p className="text-muted-foreground">ID: {params?.id}</p>
+        </div>
+    );
 
     return <ArticleForm mode="edit" initialData={article} />;
 }

@@ -4,6 +4,8 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save, Loader2, Settings } from "lucide-react";
+import AlertError2 from "@/components/alert-error-2"; 
+import AlertSuccess2 from "@/components/alert-success-2";
 import { ArticleEditor } from "@/components/molecules/article/ArticleEditor";
 import { ArticleSidebar } from "@/components/molecules/article/ArticleSidebar";
 import { addArticle, updateArticle } from "@/utils/article-storage";
@@ -27,70 +29,104 @@ export function ArticleForm({ mode, initialData }: ArticleFormProps) {
     const router = useRouter();
     const [isSaving, setIsSaving] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
     // Form State
-    const [title, setTitle] = React.useState(initialData?.title || "");
-    const [content, setContent] = React.useState(initialData?.content || "");
-    const [category, setCategory] = React.useState<string>(initialData?.category?.[0]?.toString() || "");
-    const [is_published, setIsPublished] = React.useState(initialData?.is_published || false);
+    const [title, setTitle] = React.useState("");
+    const [content, setContent] = React.useState("");
+    const [category, setCategory] = React.useState<number | undefined>(undefined);
+    const [is_published, setIsPublished] = React.useState(false);
+    const [thumbnail, setThumbnail] = React.useState("");
     const [categories, setCategories] = React.useState<ArticleCategory[]>([]);
-    const [thumbnail, setThumbnail] = React.useState(initialData?.thumbnail || "");
 
     React.useEffect(() => {
         setCategories(getArticleCategories());
-    }, []);
+        
+        if (mode === "edit" && initialData) {
+            setTitle(initialData.title);
+            setContent(initialData.content);
+            setCategory(initialData.category?.[0] ? Number(initialData.category[0]) : undefined);
+            setIsPublished(initialData.is_published);
+            setThumbnail(initialData.thumbnail);
+        }
+    }, [initialData, mode]);
 
-    // Stats
+    React.useEffect(() => {
+        if (error) setError(null);
+    }, [title, content, category, thumbnail]);
+
     const wordCount = content.trim() ? content.trim().split(/\s+/).length : 0;
 
     const handleSave = async () => {
-        if (!title.trim()) return alert("Please enter a title");
-
-        setIsSaving(true);
-
-        const now = new Date();
-
-        let articlePayload: Article;
-
-        if (mode === "create") {
-            articlePayload = {
-                id: Date.now(),
-                title,
-                content,
-                category: [Number(category)],
-                is_published,
-                thumbnail,
-                created_at: now,
-                published_at: is_published ? now : null,
-                updated_at: now,
-                view_count: 0,
-                deleted_at: null,
-            };
-            addArticle(articlePayload);
-        } else {
-            if (!initialData) return;
-            let publishedAt = initialData.published_at;
-            if (is_published && !initialData.is_published) {
-                publishedAt = now;
-            } else if (!is_published && initialData.is_published) {
-                publishedAt = null;
-            }
-
-            articlePayload = {
-                ...initialData,
-                title,
-                content,
-                category: [Number(category)],
-                is_published,
-                thumbnail,
-                updated_at: now,
-                published_at: publishedAt,
-            };
-            updateArticle(articlePayload);
+        if (!title.trim() || title === "<h1>&nbsp;</h1>" || title === "<h1></h1>") {
+            return setError("Title is required.");
+        }
+        if (!content.trim() || content === "<p>&nbsp;</p>") {
+            return setError("Content cannot be empty.");
+        }
+        if (!category) {
+            return setError("Category is required.");
+        }
+        if (!thumbnail) {
+            return setError("Thumbnail is required.");
         }
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        setIsSaving(false);
-        router.push("/article");
+        setError(null);
+        setIsSaving(true);
+
+        try {
+            const now = new Date();
+            let articlePayload: Article;
+
+            if (mode === "create") {
+                articlePayload = {
+                    id: Date.now(),
+                    title,
+                    content,
+                    category: [Number(category)],
+                    is_published,
+                    thumbnail,
+                    created_at: now,
+                    published_at: is_published ? now : null,
+                    updated_at: now,
+                    view_count: 0,
+                    deleted_at: null,
+                };
+                addArticle(articlePayload);
+            } else {
+                if (!initialData) {
+                    setError("Initial data missing. Cannot update.");
+                    setIsSaving(false);
+                    return;
+                }
+
+                articlePayload = {
+                    ...initialData,
+                    title,
+                    content,
+                    category: [Number(category)],
+                    is_published,
+                    thumbnail,
+                    updated_at: now,
+                    published_at: is_published && !initialData.is_published ? now : initialData.published_at,
+                };
+                updateArticle(articlePayload);
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 800));
+            setSuccess("Article saved successfully.");
+
+            setTimeout(() => {
+                setIsSaving(false);
+                router.push("/article");
+            }, 1500);
+    
+        } catch (error) {
+            setError("Failed to save article. Please try again.");
+            setIsSaving(false);
+        }
+
     };
 
     return (
@@ -155,6 +191,9 @@ export function ArticleForm({ mode, initialData }: ArticleFormProps) {
                     </Button>
                 </div>
             </header>
+
+            {error && <AlertError2 message={error} onClose={() => setError(null)} />}
+            {success && <AlertSuccess2 message={success} />}
 
             {/* Main Content Area */}
             <div className="flex flex-1 overflow-hidden">

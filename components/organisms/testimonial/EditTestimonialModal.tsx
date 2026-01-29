@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { Testimonial } from "@/constants/testimonials";
 
 interface EditTestimonialModalProps {
@@ -28,10 +30,34 @@ export function EditTestimonialModal({ testimonial, onSave }: EditTestimonialMod
     const [isSaving, setIsSaving] = React.useState(false);
     const [open, setOpen] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+            if (!open) {
+                setError(null);
+                setClientName(testimonial.client_name);
+                setClientTitle(testimonial.client_title);
+                setContent(testimonial.content);
+            }
+        }, [open, testimonial]);
+    
+        React.useEffect(() => {
+            if (error) {
+                setError(null);
+            }
+        }, [clientName, clientTitle, content]);
+
     const handleSave = async () => {
+        if (!clientName.trim()) return setError("Client name is required");
+        if (!clientTitle.trim()) return setError("Client title is required");
+        if (!content.trim()) return setError("Content is required");
+
+        setError(null);
         setIsSaving(true);
 
-        const updatedTestimonial: Testimonial = {
+        try {
+            const updatedTestimonial: Testimonial = {
             ...testimonial,
             client_name: clientName,
             client_title: clientTitle,
@@ -41,10 +67,19 @@ export function EditTestimonialModal({ testimonial, onSave }: EditTestimonialMod
 
         onSave(updatedTestimonial);
 
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 800));
 
+        setSuccess("Testimonial updated successfully!");
         setIsSaving(false);
-        setOpen(false);
+
+        setTimeout(() => {
+            setSuccess(null);
+            setOpen(false);
+        }, 1500);
+        } catch (error) {
+            setError("Failed to update testimonial. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -63,6 +98,14 @@ export function EditTestimonialModal({ testimonial, onSave }: EditTestimonialMod
                 <DialogHeader>
                     <DialogTitle>Edit Testimonial</DialogTitle>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">

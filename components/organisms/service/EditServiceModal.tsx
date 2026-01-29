@@ -16,6 +16,8 @@ import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { Pencil, Loader2 } from "lucide-react";
 import { Service } from "@/constants/services";
 import { Editor } from "@tinymce/tinymce-react";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 
 interface EditServiceModalProps {
     service: Service;
@@ -29,10 +31,34 @@ export function EditServiceModal({ service, onSave }: EditServiceModalProps) {
     const [isSaving, setIsSaving] = React.useState(false);
     const [open, setOpen] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setTitle(service.title);
+            setContent(service.content);
+            setFeaturedImage(service.featured_image);
+        }
+    }, [open, service]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [title, content, featured_image]);
+
     const handleSave = async () => {
+        if (!title.trim()) return setError("Title is required");
+        if (!content.trim()) return setError("Content is required");
+        if (!featured_image.trim()) return setError("Featured image is required");
+
+        setError(null);
         setIsSaving(true);
 
-        const updatedService: Service = {
+        try {
+            const updatedService: Service = {
             ...service,
             title,
             content,
@@ -42,10 +68,19 @@ export function EditServiceModal({ service, onSave }: EditServiceModalProps) {
 
         onSave(updatedService);
 
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 800));
 
+        setSuccess("Service updated successfully!");
         setIsSaving(false);
-        setOpen(false);
+
+        setTimeout(() => {
+            setSuccess(null);
+            setOpen(false);
+        }, 1500);
+        } catch (error) {
+            setError("Failed to update service. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -64,6 +99,14 @@ export function EditServiceModal({ service, onSave }: EditServiceModalProps) {
                 <DialogHeader>
                     <DialogTitle>Edit Service</DialogTitle>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 <div className="grid grid-cols-2 gap-6 pt-4">
 

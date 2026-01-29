@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { addGallery } from "@/utils/gallery-storage";
 import { type Gallery } from "@/constants/galleries";
@@ -33,36 +35,76 @@ export function CreateGalleryModal({
     const [alt_text, setAltText] = React.useState("");
     const [is_published, setIsPublished] = React.useState(false);
     const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setSuccess(null);
+            setFilePath("");
+            setCaption("");
+            setAltText("");
+            setIsPublished(false);
+        }
+    }, [open]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [file_path, caption, alt_text, is_published]);
 
     const handleSave = async () => {
-        if (!file_path.trim()) return alert("Please upload an image");
+        if (!file_path.trim()) {
+            setError("Image is required");
+            return;
+        }
+        if (!caption.trim()) {
+            setError("Caption is required");
+            return;
+        }
+        if (!alt_text.trim()) {
+            setError("Alt text is required");
+            return;
+        }
 
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const newGallery: Gallery = {
-            id: Date.now(),
-            file_path,
-            caption,
-            alt_text,
-            is_published,
-            created_at: now,
-            updated_at: now,
-            deleted_at: null,
-        };
+        try {
+            const now = new Date();
+            const newGallery: Gallery = {
+                id: Date.now(),
+                file_path,
+                caption,
+                alt_text,
+                is_published,
+                created_at: now,
+                updated_at: now,
+                deleted_at: null,
+            };
 
-        addGallery(newGallery);
+            addGallery(newGallery);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setIsSaving(false);
-        setFilePath("");
-        setCaption("");
-        setAltText("");
-        setIsPublished(false);
-        onOpenChange(false);
-        onSuccess();
-    };
+            setSuccess("Gallery added successfully!");
+
+            setTimeout(() => {
+                setFilePath("");
+                setCaption("");
+                setAltText("");
+                setIsPublished(false);
+                onOpenChange(false);
+                onSuccess();  
+            }, 1200);
+
+        } catch (error) {
+            setError("Failed to save gallery. Please try again.");
+            setIsSaving(false);
+        }
+    }   
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -73,6 +115,15 @@ export function CreateGalleryModal({
                         Create a new entry for your gallery section.
                     </DialogDescription>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
+
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label>Image</Label>

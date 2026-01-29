@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { addTestimonial } from "@/utils/testimonial-storage";
 import { type Testimonial } from "@/constants/testimonials";
 import { Loader2 } from "lucide-react";
@@ -31,34 +33,71 @@ export function CreateTestimonialModal({
     const [clientTitle, setClientTitle] = React.useState("");
     const [content, setContent] = React.useState("");
     const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (open) {
+            setError(null);
+            setSuccess(null);
+            setClientName("");
+            setClientTitle("");
+            setContent("");
+        }
+    }, [open]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [clientName, clientTitle, content]);
 
     const handleSave = async () => {
-        if (!clientName.trim()) return alert("Please enter a client name");
-        if (!clientTitle.trim()) return alert("Please enter a client title");
-        if (!content.trim()) return alert("Please enter a content");
+        if (!clientName.trim()) {
+            setError("Client name is required");
+            return;
+        }
+        if (!clientTitle.trim()) {
+            setError("Client title is required");
+            return;
+        }
+        if (!content.trim()) {
+            setError("Content is required");
+            return;
+        }
 
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const newTestimonial: Testimonial = {
-            id: Date.now(),
-            client_name: clientName,
-            client_title: clientTitle,
-            content,
-            created_at: now,
-            updated_at: now,
-        };
+        try {
+            const now = new Date();
+            const newTestimonial: Testimonial = {
+                id: Date.now(),
+                client_name: clientName,
+                client_title: clientTitle,
+                content,
+                created_at: now,
+                updated_at: now,
+            };
 
-        addTestimonial(newTestimonial);
+            addTestimonial(newTestimonial);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));4
 
-        setIsSaving(false);
-        setClientName("");
-        setClientTitle("");
-        setContent("");
-        onOpenChange(false);
-        onSuccess();
+            setSuccess("Testimonial added successfully!");
+
+            setTimeout(() => {
+                setClientName("");
+                setClientTitle("");
+                setContent("");
+                onOpenChange(false);
+                onSuccess();
+            }, 1500);
+            
+        } catch (error) {
+            setError("Failed to save testimonial. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -70,6 +109,15 @@ export function CreateTestimonialModal({
                         Create a new entry for your testimonial section.
                     </DialogDescription>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
+
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="client_name">Client Name</Label>

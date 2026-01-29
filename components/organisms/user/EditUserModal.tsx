@@ -21,6 +21,8 @@ import { permissionsData } from "@/data/permissions";
 import { updateUser } from "@/utils/user-storage";
 import { updateUserPermissions, getUserPermissions } from "@/utils/user-permission-storage";
 import { type UserPermission } from "@/constants/user_permissions";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 
 interface EditUserModalProps {
     user: User;
@@ -38,8 +40,13 @@ export function EditUserModal({
     const [selectedPermissions, setSelectedPermissions] = React.useState<number[]>([]);
     const [isSaving, setIsSaving] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
     React.useEffect(() => {
         if (open) {
+            setError(null);
+
             const allUserPerms = getUserPermissions();
             const userPerms = allUserPerms
                 .filter(p => p.user_id === user.id && p.is_allowed)
@@ -48,8 +55,17 @@ export function EditUserModal({
             setUsername(user.username);
             setPassword(user.password_hash);
             setIsSuperadmin(user.is_superadmin);
+        } else {
+            setError(null);
+            setSuccess(null);
         }
     }, [open, user]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [username, password, isSuperadmin, selectedPermissions]);
 
     const groupedPermissions = React.useMemo(() => {
         return permissionsData.reduce((acc, curr) => {
@@ -68,37 +84,49 @@ export function EditUserModal({
     };
 
     const handleSave = async () => {
-        if (!username.trim()) return alert("Username is required");
+        if (!username.trim()) return setError("Username is required");
+        if (!password.trim()) return setError("Password is required");
+        if (!isSuperadmin && selectedPermissions.length === 0) return setError("Please select at least one permission");
 
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
+        try {
+            const now = new Date();
+            const updatedUser: User = {
+                ...user,
+                username,
+                password_hash: password,
+                is_superadmin: isSuperadmin,
+                updated_at: now,
+            };
 
-        const updatedUser: User = {
-            ...user,
-            username,
-            password_hash: password,
-            is_superadmin: isSuperadmin,
-            updated_at: now,
-        };
+            const updatedPermissions: UserPermission[] = selectedPermissions.map((permId) => ({
+                id: Date.now() + Math.random(),
+                user_id: user.id,
+                permission_id: permId,
+                is_allowed: true,
+                created_at: now, 
+                updated_at: now,
+            }));
 
-        const updatedPermissions: UserPermission[] = selectedPermissions.map((permId) => ({
-            id: Date.now() + Math.random(),
-            user_id: user.id,
-            permission_id: permId,
-            is_allowed: true,
-            created_at: now, 
-            updated_at: now,
-        }));
+            updateUser(updatedUser);
+            updateUserPermissions(user.id, updatedPermissions);
 
-        updateUser(updatedUser);
-        updateUserPermissions(user.id, updatedPermissions);
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            setSuccess("User updated successfully!");
+            setIsSaving(false);
 
-        setIsSaving(false);
-        setOpen(false);
-        if (onSave) onSave(updatedUser);
+            if (onSave) onSave(updatedUser);
+
+            setTimeout(() => {
+                setOpen(false);
+            }, 1500);
+        } catch (error) {
+            setError("Failed to update user. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -120,6 +148,14 @@ export function EditUserModal({
                             Update user details and assigned permissions.
                         </DialogDescription>
                     </DialogHeader>
+
+                    {error && (
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                    )}
+
+                    {success && (
+                        <AlertSuccess2 message={success} />
+                    )}
 
                     <div className="grid gap-6 py-4">
                         <div className="grid grid-cols-2 gap-4">

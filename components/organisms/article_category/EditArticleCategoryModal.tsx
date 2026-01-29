@@ -14,6 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Pencil } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { ArticleCategory } from "@/constants/article_category";
 
 interface EditModalProps {
@@ -26,21 +28,50 @@ export function EditArticleCategoryModal({ articleCategory, onSave }: EditModalP
     const [isSaving, setIsSaving] = React.useState(false);
     const [open, setOpen] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setName(articleCategory.name);
+        }
+    }, [open, articleCategory]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [name]);
+
     const handleSave = async () => {
+        if (!name.trim()) return setError("Name is required");
+
+        setError(null);
         setIsSaving(true);
 
-        const updatedArticleCategory: ArticleCategory = {
-            ...articleCategory,
-            name,
-            updated_at: new Date(),
-        };
+        try {
+            const updatedArticleCategory: ArticleCategory = {
+                ...articleCategory,
+                name,
+                updated_at: new Date(),
+            };
 
-        onSave(updatedArticleCategory);
+            onSave(updatedArticleCategory);
 
-        await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 800));
 
-        setIsSaving(false);
-        setOpen(false);
+            setSuccess("Article category updated successfully!");
+            setIsSaving(false);
+
+            setTimeout(() => {
+                setSuccess(null);
+                setOpen(false);
+            }, 1500);
+        } catch (error) {
+            setError("Failed to update article category. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -59,6 +90,14 @@ export function EditArticleCategoryModal({ articleCategory, onSave }: EditModalP
                 <DialogHeader>
                     <DialogTitle>Edit Article Category</DialogTitle>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
 
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">

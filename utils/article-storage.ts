@@ -47,15 +47,15 @@ export const addArticle = (newArticle: Article) => {
     saveArticles(updated);
 };
 
-export const getArticleById = (id: string): Article | undefined => {
+export const getArticleById = (id: number |string): Article | undefined => {
     const articles = getArticles();
-    return articles.find((article) => article.id === id);
+    return articles.find((article) => Number(article.id) === Number(id));
 };
 
 export const updateArticle = (updatedArticle: Article) => {
     const articles = getArticles();
     const updated = articles.map((article) =>
-        article.id === updatedArticle.id ? updatedArticle : article
+        Number(article.id) === Number(updatedArticle.id) ? updatedArticle : article
     );
     saveArticles(updated);
 };

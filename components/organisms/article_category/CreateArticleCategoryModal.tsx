@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 import { addArticleCategory } from "@/utils/article-category-storage";
 import { type ArticleCategory } from "@/constants/article_category";
 import { Loader2 } from "lucide-react";
@@ -29,29 +31,59 @@ export function CreateArticleCategoryModal({
 }: CreateArticleCategoryModalProps) {
     const [name, setName] = React.useState("");
     const [isSaving, setIsSaving] = React.useState(false);
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setSuccess(null);
+            setName("");
+        }
+    }, [open]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [name]);
 
     const handleSave = async () => {
-        if (!name.trim()) return alert("Please enter a name");
+        if (!name.trim()) {
+            setError("Please enter a name");
+            return;
+        }
 
+        setError(null);
         setIsSaving(true);
 
-        const now = new Date();
-        const newArticleCategory: ArticleCategory = {
-            id: Date.now(),
-            name,
-            article_id: [],
-            created_at: now,
-            updated_at: now,
-        };
+        try {
+            const now = new Date();
+            const newArticleCategory: ArticleCategory = {
+                id: Date.now(),
+                name,
+                article_id: [],
+                created_at: now,
+                updated_at: now,
+            };
 
-        addArticleCategory(newArticleCategory);
+            addArticleCategory(newArticleCategory);
 
-        await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 800));
 
-        setIsSaving(false);
-        setName("");
-        onOpenChange(false);
-        onSuccess();
+            setSuccess("Article category added successfully!");
+
+            setTimeout(() => {
+                setSuccess(null);
+                setName("");
+                onOpenChange(false);
+                onSuccess();
+            }, 1500);
+
+        } catch (error) {
+            setError("Failed to save article category. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -63,6 +95,15 @@ export function CreateArticleCategoryModal({
                         Create a new entry for your Article Category section.
                     </DialogDescription>
                 </DialogHeader>
+
+                {error && (
+                    <AlertError2 message={error} />
+                )}
+
+                {success && (
+                    <AlertSuccess2 message={success} />
+                )}
+
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="name">Name</Label>
@@ -90,7 +131,7 @@ export function CreateArticleCategoryModal({
                                 Saving...
                             </>
                         ) : (
-                            "Save Testimonial"
+                            "Save Article Category"
                         )}
                     </Button>
                 </DialogFooter>

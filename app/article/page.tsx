@@ -6,10 +6,16 @@ import { DataTable } from "@/components/data-table/DataTable";
 import { columns } from "@/components/organisms/article/ArticleColumns";
 import { getArticles, saveArticles } from "@/utils/article-storage";
 import { type Article } from "@/constants/articles";
+import { AlertDeleteConfirmation } from "@/components/molecules/AlertDeleteConfirmation";
+import AlertSuccess2 from "@/components/alert-success-2";
 
 export default function ArticlePage() {
     const router = useRouter();
     const [data, setData] = React.useState<Article[]>([]);
+
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+    const [rowsToDelete, setRowsToDelete] = React.useState<Article[]>([]);
+    const [success, setSuccess] = React.useState<string | null>(null);
 
     React.useEffect(() => {
         setData(getArticles());
@@ -38,14 +44,25 @@ export default function ArticlePage() {
     ];
 
     const handleDeleteSelected = (selectedRows: Article[]) => {
-        const selectedIds = new Set(selectedRows.map((row) => row.id));
+        setRowsToDelete(selectedRows);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = () => {
+        const selectedIds = new Set(rowsToDelete.map((row) => row.id));
         const newData = data.filter((row) => !selectedIds.has(row.id));
         setData(newData);
         saveArticles(newData);
+        setIsDeleteDialogOpen(false);
+        setRowsToDelete([]);
+        setSuccess("Article(s) deleted successfully");
+        setTimeout(() => setSuccess(null), 2000);
     };
 
     return (
         <div className="w-full">
+            {success && <AlertSuccess2 message={success} />}
+
             <div className="flex items-center justify-between mb-4">
                 <h2 className="text-2xl font-bold tracking-tight">Article Management</h2>
             </div>
@@ -57,6 +74,14 @@ export default function ArticlePage() {
                 onDeleteSelected={handleDeleteSelected}
                 onAddNew={() => router.push("/article/create")}
                 sortOptions={sortOptions}
+            />
+
+            <AlertDeleteConfirmation
+                open={isDeleteDialogOpen}
+                onOpenChange={setIsDeleteDialogOpen}
+                onConfirm={confirmDelete}
+                title="Delete Article"
+                description={`Are you sure you want to delete ${rowsToDelete.length} article(s)?`}
             />
         </div>
     );

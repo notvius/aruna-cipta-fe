@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { Pencil, Loader2 } from "lucide-react";
 import { Gallery } from "@/constants/galleries";
+import AlertError2 from "@/components/alert-error-2";
+import AlertSuccess2 from "@/components/alert-success-2";
 
 interface EditGalleryModalProps {
     gallery: Gallery;
@@ -28,23 +30,65 @@ export function EditGalleryModal({ gallery, onSave }: EditGalleryModalProps) {
     const [isSaving, setIsSaving] = React.useState(false);
     const [open, setOpen] = React.useState(false);
 
+    const [error, setError] = React.useState<string | null>(null);
+    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (!open) {
+            setError(null);
+            setFilePath(gallery.file_path);
+            setCaption(gallery.caption);
+            setAltText(gallery.alt_text);
+        }
+    }, [open, gallery]);
+
+    React.useEffect(() => {
+        if (error) {
+            setError(null);
+        }
+    }, [filePath, caption, altText]);
+
     const handleSave = async () => {
+        if (!filePath.trim()) {
+            setError("Image is required");
+            return;
+        }
+        if (!caption.trim()) {
+            setError("Caption is required");
+            return;
+        }
+        if (!altText.trim()) {
+            setError("Alt text is required");
+            return;
+        }
+
+        setError(null);
         setIsSaving(true);
 
-        const updatedGallery: Gallery = {
-            ...gallery,
-            file_path: filePath,
-            caption,
-            alt_text: altText,
-            updated_at: new Date(),
-        };
+        try {
+            const updatedGallery: Gallery = {
+                ...gallery,
+                file_path: filePath,
+                caption,
+                alt_text: altText,
+                updated_at: new Date(),
+            };
 
-        onSave(updatedGallery);
+            onSave(updatedGallery);
 
-        await new Promise((r) => setTimeout(r, 500));
+            await new Promise((r) => setTimeout(r, 800));
 
-        setIsSaving(false);
-        setOpen(false);
+            setSuccess("Gallery updated successfully!");
+            setIsSaving(false);
+
+            setTimeout(() => {
+                setSuccess(null);
+                setOpen(false);
+            }, 1500);
+        } catch (error) {
+            setError("Failed to update gallery. Please try again.");
+            setIsSaving(false);
+        }
     };
 
     return (

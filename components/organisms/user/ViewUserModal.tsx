@@ -74,7 +74,7 @@ export function ViewUserModal({ user }: ViewUserModalProps) {
                     <DialogTitle className="text-xl font-bold flex items-center gap-2">
                         User Details
                     </DialogTitle>
-                    <DialogDescription>
+                    <DialogDescription className="text-sm font-medium text-left">
                         Summary of profile and access rights for {user.username}.
                     </DialogDescription>
                 </DialogHeader>
