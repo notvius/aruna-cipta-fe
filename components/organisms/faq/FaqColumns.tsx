@@ -61,41 +61,7 @@ export const columns: ColumnDef<Faq>[] = [
     },
     {
         accessorKey: "created_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Created At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        size: 140,
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("created_at"));
-            return <div className="px-4 text-sm w-[160px]">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "updated_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Updated At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        size: 140,
-        cell: ({ row }) => {
-            const dateValue = row.getValue("updated_at");
-            if (!dateValue) return <div className="px-4 text-muted-foreground w-[140px]">-</div>;
-            const date = new Date(dateValue as string);
-            return <div className="px-4 text-sm w-[140px]">{date.toLocaleDateString()}</div>;
-        },
+        header: "Created At",
     },
     {
         id: "actions",

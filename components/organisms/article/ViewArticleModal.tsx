@@ -7,14 +7,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Eye } from "lucide-react";
 import { type Article } from "@/constants/articles";
 import { getArticleCategories } from "@/utils/article-category-storage";
 
 interface ViewArticleModalProps {
     article: Article;
+    children: React.ReactElement;
 }
 
 const stripHtml = (html: string) => {
@@ -24,7 +23,7 @@ const stripHtml = (html: string) => {
     return tmp.textContent || tmp.innerText || "";
 };
 
-export function ViewArticleModal({ article }: ViewArticleModalProps) {
+export function ViewArticleModal({ article, children }: ViewArticleModalProps) {
     function formatDate(date: Date | string | null | undefined): string {
         if (!date) return "—";
         const parsedDate = date instanceof Date ? date : new Date(date);
@@ -49,13 +48,7 @@ export function ViewArticleModal({ article }: ViewArticleModalProps) {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-arcipta-blue-primary hover:text-arcipta-blue-primary/90"
-                >
-                    <Eye className="h-4 w-4" />
-                </Button>
+                {children}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>

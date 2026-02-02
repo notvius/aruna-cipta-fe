@@ -34,13 +34,13 @@ export function AlertDeleteConfirmation({
 }: AlertDeleteConfirmationProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="max-w-[400px] p-6">
+      <AlertDialogContent className="max-w-[92vw] sm:max-w-[400px] p-5 sm:p-6 rounded-2xl">
         <AlertDialogHeader>
-          <div className="flex items-start gap-4">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-              <Trash2 className="h-5 w-5 text-destructive/80" />
+          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/10">
+              <Trash2 className="h-6 w-6 text-destructive/80" />
             </div>
-            <div className="space-y-1 text-left">
+            <div className="space-y-1 text-center sm:text-left">
               <AlertDialogTitle className="text-lg font-semibold text-slate-900">
                 {title}
               </AlertDialogTitle>
@@ -54,7 +54,7 @@ export function AlertDeleteConfirmation({
         <AlertDialogFooter className="mt-6 flex flex-row items-center gap-3">
           <AlertDialogCancel 
             disabled={loading} 
-            className="flex-1 mt-0 border-slate-200 text-slate-600 hover:bg-slate-50"
+            className="flex-1 mt-0 h-10 border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm"
           >
             Cancel
           </AlertDialogCancel>
@@ -66,7 +66,7 @@ export function AlertDeleteConfirmation({
             disabled={loading}
             className={cn(
               buttonVariants({ variant: "destructive" }),
-              "flex-1 bg-destructive/90 hover:bg-destructive text-white shadow-none transition-all"
+              "flex-1 h-10 bg-destructive/90 hover:bg-destructive text-white shadow-none transition-all text-xs sm:text-sm"
             )}
           >
             {loading ? (

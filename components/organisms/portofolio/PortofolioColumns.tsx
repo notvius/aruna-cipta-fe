@@ -82,61 +82,30 @@ export const getPortofolioColumns = (
         accessorKey: "category",
         header: "Category",
         cell: ({ row }) => {
-            const categoryIds = row.getValue("category") as number[];
+            const rawCategoryIds = row.getValue("category") as (number | string)[];
 
-            if (!Array.isArray(categoryIds) || categoryIds.length === 0) {
+            if (!Array.isArray(rawCategoryIds) || rawCategoryIds.length === 0) {
                 return <span className="text-muted-foreground">-</span>;
             }
 
-            const names = categoryIds
-                .map(id => services.find(s => s.id === id)?.title)
+            const names = rawCategoryIds
+                .map(id => {
+                    const numericId = Number(id);
+                    return services.find(s => Number(s.id) === numericId)?.title;
+                })
                 .filter(Boolean)
                 .join(", ");
 
             return (
-                <Badge variant="secondary">
-                    {names || "-"}
+                <Badge variant="secondary" className="font-normal">
+                    {names || "Uncategorized"}
                 </Badge>
             );
         },
     },
     {
         accessorKey: "created_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() =>
-                    column.toggleSorting(column.getIsSorted() === "asc")
-                }
-            >
-                Created At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("created_at"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "updated_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() =>
-                    column.toggleSorting(column.getIsSorted() === "asc")
-                }
-            >
-                Updated At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("updated_at"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
+        header: "Created At",
     },
     {
         id: "actions",

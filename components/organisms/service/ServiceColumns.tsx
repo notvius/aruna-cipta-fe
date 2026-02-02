@@ -47,6 +47,20 @@ export const columns: ColumnDef<Service>[] = [
         enableHiding: false,
     },
     {
+        accessorKey: "featured_image",
+        header: "Image",
+        size: 100,
+        cell: ({ row }) => (
+            <div className="flex items-center gap-2 min-w-[100px]">
+                <img
+                    src={row.getValue("featured_image")}
+                    alt={row.original.title}
+                    className="rounded-md object-cover h-14 w-24 flex-shrink-0"
+                />
+            </div>
+        ),
+    },
+    {
         accessorKey: "title",
         header: "Title",
         size: 200,
@@ -76,52 +90,8 @@ export const columns: ColumnDef<Service>[] = [
         },
     },
     {
-        accessorKey: "featured_image",
-        header: "Image",
-        size: 100,
-        cell: ({ row }) => (
-            <div className="flex items-center gap-2 min-w-[100px]">
-                <img
-                    src={row.getValue("featured_image")}
-                    alt={row.original.title}
-                    className="rounded-md object-cover h-14 w-24 flex-shrink-0"
-                />
-            </div>
-        ),
-    },
-    {
         accessorKey: "created_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Created At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("created_at"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "updated_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Updated At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("updated_at"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
+        header: "Created At",
     },
     {
         id: "actions",

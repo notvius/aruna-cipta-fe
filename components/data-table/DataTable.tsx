@@ -13,7 +13,7 @@ import {
     type SortingState,
     type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, Plus, Search, Trash2 } from "lucide-react";
+import { ArrowUpDown, ChevronDown, Search, Trash2} from "lucide-react";
 import {
     InputGroup,
     InputGroupAddon,
@@ -95,10 +95,17 @@ export function DataTable<T extends Record<string, any>>({
     onAddNew,
     onRowClick,
 }: DataTableProps<T>) {
-    const [sorting, setSorting] = React.useState<SortingState>([]);
+    const [sorting, setSorting] = React.useState<SortingState>([
+        {
+            id: "created_at",
+            desc: true,
+        }
+    ]);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = React.useState("");
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
+        created_at: false,
+    });
     const [rowSelection, setRowSelection] = React.useState({});
 
     const table = useReactTable({
@@ -115,8 +122,8 @@ export function DataTable<T extends Record<string, any>>({
         onGlobalFilterChange: setGlobalFilter,
         state: {
             sorting,
-            columnFilters,
             columnVisibility,
+            columnFilters,
             rowSelection,
             globalFilter,
         },
@@ -237,16 +244,6 @@ export function DataTable<T extends Record<string, any>>({
                                 ))}
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    {onAddNew && (
-                        <Button
-                            size="sm"
-                            onClick={onAddNew}
-                            className="flex items-center gap-2 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white border-none shrink-0"
-                        >
-                            <Plus className="size-4" />
-                            Add new
-                        </Button>
-                    )}
                 </div>
             </div>
 

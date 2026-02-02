@@ -3,27 +3,38 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ChevronDown, Pencil, Plus, Eye, Trash2 } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { type Testimonial } from "@/constants/testimonials";
-import { EditTestimonialModal } from "./EditTestimonialModal";
-import { ViewTestimonialModal } from "./ViewTestimonialModal";
 
-const truncateWords = (text: string, count: number) => {
+const truncate = (text: string, count: number) => {
     if (!text) return "";
     const words = text.split(" ");
-    if (words.length <= count) return text;
-    return words.slice(0, count).join(" ") + "...";
+    return words.length <= count ? text : words.slice(0, count).join(" ") + "...";
 };
 
-export const columns: ColumnDef<Testimonial>[] = [
+export const columns = ({
+    onCreate,
+    onView,
+    onEdit,
+    onDeleteSingle,
+}: {
+    onCreate: () => void;
+    onView: (t: Testimonial) => void;
+    onEdit: (t: Testimonial) => void;
+    onDeleteSingle: (t: Testimonial) => void;
+}): ColumnDef<Testimonial>[] => [
     {
         id: "select",
         header: ({ table }) => (
             <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
+                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -35,94 +46,74 @@ export const columns: ColumnDef<Testimonial>[] = [
                 aria-label="Select row"
             />
         ),
-        size: 40, 
-        enableSorting: false,
-        enableHiding: false,
+        size: 40,
     },
     {
         accessorKey: "client_name",
         header: "Client Name",
-        size: 180, 
         cell: ({ row }) => (
-            <div className="text-sm font-medium whitespace-normal break-words w-[180px] pr-">
-                {truncateWords(row.getValue("client_name"), 8)}
+            <div className="text-sm font-medium whitespace-normal break-words w-[180px]">
+                {truncate(row.getValue("client_name"), 8)}
             </div>
-        )
+        ),
     },
     {
         accessorKey: "client_title",
         header: "Client Title",
-        size: 150,
         cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words w-[150px] pr-4">
-                {truncateWords(row.getValue("client_title"), 8)}
+            <div className="text-sm text-muted-foreground whitespace-normal break-words w-[150px]">
+                {truncate(row.getValue("client_title"), 8)}
             </div>
-        )
+        ),
     },
     {
         accessorKey: "content",
         header: "Content",
-        size: 400, 
         cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words min-w-[250px] max-w-[450px]">
-                {truncateWords(row.getValue("content"), 20)}
+            <div className="text-sm text-muted-foreground whitespace-normal break-words max-w-[450px]">
+                {truncate(row.getValue("content"), 20)}
             </div>
-        )
+        ),
     },
     {
         accessorKey: "created_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Created At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        size: 160,
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("created_at"));
-            return <div className="px-4 text-sm w-[160px]">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "updated_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Updated At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        size: 160,
-        cell: ({ row }) => {
-            const dateValue = row.getValue("updated_at");
-            if (!dateValue) return <div className="px-4 text-muted-foreground w-[160px]">-</div>;
-            const date = new Date(dateValue as string);
-            return <div className="px-4 text-sm w-[160px]">{date.toLocaleDateString()}</div>;
-        },
+        header: "Created At",
     },
     {
         id: "actions",
         header: "Action",
-        size: 100,
-        enableHiding: false,
-        cell: ({ row, table }) => {
-            const testimonial = row.original;
+        cell: ({ row }) => {
+            const t = row.original;
             return (
-                <div className="flex items-center justify-start gap-1">
-                    <ViewTestimonialModal testimonial={testimonial} />
-                    <EditTestimonialModal
-                        testimonial={testimonial}
-                        onSave={(updatedTestimonial) => table.options.meta?.updateRow(row.index, updatedTestimonial)}
-                    />
+                <div onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-fit p-0 hover:bg-transparent">
+                                <Badge variant="outline" className="cursor-pointer bg-arcipta-blue-primary text-white py-1">
+                                    Action <ChevronDown className="ml-1 h-3 w-3" />
+                                </Badge>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem onClick={onCreate}>
+                                <Plus className="mr-2 h-4 w-4" /> Create New
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onView(t)}>
+                                <Eye className="mr-2 h-4 w-4" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEdit(t)}>
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={() => onDeleteSingle(t)}
+                                className="text-red-600 focus:text-red-600"
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             );
         },
     },
-]
+];

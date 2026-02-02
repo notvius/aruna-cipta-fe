@@ -12,7 +12,6 @@ import AlertSuccess2 from "@/components/alert-success-2";
 export default function ArticlePage() {
     const router = useRouter();
     const [data, setData] = React.useState<Article[]>([]);
-
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
     const [rowsToDelete, setRowsToDelete] = React.useState<Article[]>([]);
     const [success, setSuccess] = React.useState<string | null>(null);
@@ -43,6 +42,11 @@ export default function ArticlePage() {
         { label: "Published At", value: "published_at" },
     ];
 
+    const handleDeleteSingle = (article: Article) => {
+        setRowsToDelete([article]); 
+        setIsDeleteDialogOpen(true);
+    };
+
     const handleDeleteSelected = (selectedRows: Article[]) => {
         setRowsToDelete(selectedRows);
         setIsDeleteDialogOpen(true);
@@ -69,7 +73,7 @@ export default function ArticlePage() {
 
             <DataTable
                 data={data}
-                columns={columns}
+                columns={columns(handleDeleteSingle)}
                 onDataChange={handleDataChange}
                 onDeleteSelected={handleDeleteSelected}
                 onAddNew={() => router.push("/article/create")}

@@ -1,12 +1,15 @@
 "use client";
 
+import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import {
-    ArrowUpDown,
     ChevronDown,
     Pencil,
+    Plus,
+    Eye,
+    Trash2,
 } from "lucide-react";
 import {
     DropdownMenu,
@@ -18,6 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { type Article } from "@/constants/articles";
 import { ViewArticleModal } from "./ViewArticleModal";
 import { getArticleCategories } from "@/utils/article-category-storage";
+import Link from "next/link";
 
 const truncateWords = (text: string | null | undefined, count: number) => {
     if (!text) return "";
@@ -32,7 +36,9 @@ const stripHtml = (html: string) => {
     return tmp.textContent || tmp.innerText || "";
 };
 
-export const columns: ColumnDef<Article>[] = [
+export const columns = (
+    onDeleteSingle: (article: Article) => void
+): ColumnDef<Article>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -121,42 +127,6 @@ export const columns: ColumnDef<Article>[] = [
         },
     },
     {
-        accessorKey: "created_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Created At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const date = new Date(row.getValue("created_at"));
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
-        accessorKey: "published_at",
-        header: ({ column }) => (
-            <Button
-                variant="ghost"
-                className="font-semibold"
-                onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            >
-                Published At
-                <ArrowUpDown className="ml-2 h-4 w-4" />
-            </Button>
-        ),
-        cell: ({ row }) => {
-            const dateValue = row.getValue("published_at");
-            if (!dateValue) return <div className="px-4 text-muted-foreground">-</div>;
-            const date = new Date(dateValue as string);
-            return <div className="px-4">{date.toLocaleDateString()}</div>;
-        },
-    },
-    {
         accessorKey: "is_published",
         header: "Status",
         size: 140,
@@ -196,26 +166,77 @@ export const columns: ColumnDef<Article>[] = [
         },
     },
     {
+        accessorKey: "created_at",
+        header: "Created At",
+    },
+    {
         id: "actions",
         header: "Action",
         enableHiding: false,
         cell: ({ row }) => {
             const article = row.original;
+
             return (
-                <div className="flex items-center gap-2">
-                    <ViewArticleModal article={article} />
-                    <Button
+            <div onClick={(e) => e.stopPropagation()}>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
                         variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-arcipta-blue-primary"
-                        asChild
-                    >
-                        <a href={`/article/${article.id}/edit`}>
-                            <Pencil className="h-4 w-4" />
-                        </a>
-                    </Button>
-                </div>
+                        className="h-fit p-0 hover:bg-transparent focus-visible:ring-0"
+                        >
+                            <Badge
+                                variant="outline"
+                                className="cursor-pointer font-medium bg-arcipta-blue-primary text-white border-muted-foreground/20 py-1"
+                            >
+                                Action
+                                <ChevronDown className="ml-1 h-3 w-3" />
+                            </Badge>
+                        </Button>
+                    </DropdownMenuTrigger>
+
+                    <DropdownMenuContent align="end" className="w-40">
+                        {/* Create */}
+                        <DropdownMenuItem asChild>
+                            <Link href="/article/create" className="flex items-center w-full">
+                                <Plus className="mr-2 h-4 w-4" />
+                                <span>Create New</span>
+                            </Link>
+                        </DropdownMenuItem>
+
+                        {/* View */}
+                        <ViewArticleModal article={article}>
+                            <DropdownMenuItem
+                                onSelect={(e) => e.preventDefault()}
+                                className="flex items-center"
+                            >
+                                <Eye className="mr-2 h-4 w-4" />
+                                <span>View Details</span>
+                            </DropdownMenuItem>
+                        </ViewArticleModal>
+
+                        {/* Edit */}
+                        <DropdownMenuItem asChild>
+                            <Link
+                                href={`/article/${article.id}/edit`}
+                                className="flex items-center w-full"
+                            >
+                                <Pencil className="mr-2 h-4 w-4" />
+                                <span>Edit Article</span>
+                            </Link>
+                        </DropdownMenuItem>
+
+                        {/* Delete */}
+                        <DropdownMenuItem
+                            className="flex items-center text-red-600 focus:text-red-600"
+                            onClick={() => onDeleteSingle(article)}
+                            >
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            <span>Delete</span>
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
             );
         },
-    },
+    }
 ];

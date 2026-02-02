@@ -9,17 +9,20 @@ import { userData } from "@/data/users";
 
 export const columns: ColumnDef<ActivityLog>[] = [
     {
-        accessorKey: "user_id",
+        accessorFn: (row) => {
+            const user = userData.find((u) => u.id === row.user_id);
+            return user ? user.username : `User ${row.user_id}`;
+        },
+        id: "username",
         header: "User",
         cell: ({ row }) => {
-            const userId = row.getValue("user_id") as number;
-            const user = userData.find((u) => u.id === userId);
-            return (
-                <div className="font-medium text-sm">
-                    {user ? user.username : `User ${userId}`}
-                </div>
-            );
+            const username = row.getValue("username") as string;
+            return <div className="font-medium text-sm">{username}</div>;
         },
+    },
+    {
+        accessorKey: "created_at",
+        header: "Created At",
     },
     {
         accessorKey: "action",

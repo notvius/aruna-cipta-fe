@@ -6,25 +6,28 @@ import { getPortofolioColumns } from "@/components/organisms/portofolio/Portofol
 import { type Portofolio } from "@/constants/portofolios";
 import { getPortofolios, savePortofolios } from "@/utils/portofolio-storage";
 import { CreatePortofolioModal } from "@/components/organisms/portofolio/CreatePortofolioModal";
-import { servicesData } from "@/data/services";
+import { type Service } from "@/constants/services";
+import { getServices } from "@/utils/service-storage";
 import { AlertDeleteConfirmation } from "@/components/molecules/AlertDeleteConfirmation";
 import AlertSuccess2 from "@/components/alert-success-2";
 
 export default function PortofolioPage() {
     const [portofolios, setPortofolios] = React.useState<Portofolio[]>([]);
     const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
+    const [activeServices, setActiveServices] = React.useState<Service[]>([]);
 
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
     const [rowsToDelete, setRowsToDelete] = React.useState<Portofolio[]>([]);
     const [success, setSuccess] = React.useState<string | null>(null);
 
     const columns = React.useMemo(
-        () => getPortofolioColumns(servicesData),
-        [servicesData]
+        () => getPortofolioColumns(activeServices),
+        [activeServices]
     );
 
     const refreshPortofolios = React.useCallback(() => {
         setPortofolios(getPortofolios());
+        setActiveServices(getServices());
     }, []);
 
     React.useEffect(() => {
