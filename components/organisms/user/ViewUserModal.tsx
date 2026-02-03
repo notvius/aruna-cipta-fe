@@ -14,13 +14,13 @@ import { type User } from "@/constants/users";
 import { permissionsData } from "@/data/permissions";
 import { getUserPermissions } from "@/utils/user-permission-storage";
 
-interface ViewUserModalProps {
+interface ViewProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     user: User;
 }
 
-export function ViewUserModal({ open, onOpenChange, user }: ViewUserModalProps) {
+export function ViewUserModal({ open, onOpenChange, user }: ViewProps) {
     const [userPermissions, setUserPermissions] = React.useState<number[]>([]);
 
     React.useEffect(() => {
@@ -49,6 +49,19 @@ export function ViewUserModal({ open, onOpenChange, user }: ViewUserModalProps) 
         });
     };
 
+    const Field = ({ label, value, badge, full }: { label: string; value?: string; badge?: React.ReactNode; full?: boolean }) => (
+        <div className={`flex flex-col gap-1 ${full ? "col-span-2" : ""}`}>
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{label}</span>
+            {badge ? (
+                <div className="pt-0.5">{badge}</div>
+            ) : (
+                <p className={`${full ? "text-2xl font-bold text-arcipta-blue-primary tracking-tight" : "text-sm font-medium text-foreground"}`}>
+                    {value || <span className="italic text-muted-foreground">No data</span>}
+                </p>
+            )}
+        </div>
+    );
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-[92vw] sm:max-w-[800px] max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-2xl border-none shadow-2xl">
@@ -60,45 +73,34 @@ export function ViewUserModal({ open, onOpenChange, user }: ViewUserModalProps) 
                 </DialogHeader>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6">
-                    {/* LEFT COLUMN: Basic Info */}
                     <div className="space-y-6">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Username</span>
-                            <p className="text-2xl font-bold text-arcipta-blue-primary tracking-tight">{user.username}</p>
-                        </div>
+                        <Field label="Username" value={user.username} full />
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Role</span>
-                                <div>
+                            <Field 
+                                label="Role" 
+                                badge={
                                     <Badge variant={user.is_superadmin ? "default" : "secondary"} className={user.is_superadmin ? "bg-arcipta-blue-primary" : ""}>
                                         {user.is_superadmin ? "Superadmin" : "Admin"}
                                     </Badge>
-                                </div>
-                            </div>
-                            <div className="flex flex-col gap-1.5">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Status</span>
-                                <div>
+                                } 
+                            />
+                            <Field 
+                                label="Status" 
+                                badge={
                                     <Badge className={user.is_active ? "bg-green-600 text-white" : "bg-red-100 text-red-600"}>
                                         {user.is_active ? "Active" : "Inactive"}
                                     </Badge>
-                                </div>
-                            </div>
+                                } 
+                            />
                         </div>
 
-                        <div className="space-y-4 pt-6 border-t border-border/60">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Created At</span>
-                                <p className="text-sm font-medium">{format(user.created_at)}</p>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Updated At</span>
-                                <p className="text-sm font-medium">{format(user.updated_at)}</p>
-                            </div>
+                        <div className="grid grid-cols-2 gap-4 pt-6 border-t border-border/60">
+                            <Field label="Created At" value={format(user.created_at)} />
+                            <Field label="Updated At" value={format(user.updated_at)} />
                         </div>
                     </div>
 
-                    {/* RIGHT COLUMN: Permissions Grid */}
                     <div className="space-y-4 bg-muted/30 p-5 rounded-2xl border border-dashed border-border/80">
                         <div className="flex items-center gap-2 border-b border-border/50 pb-3 mb-2">
                             <ShieldCheck className="h-5 w-5 text-arcipta-blue-primary" />

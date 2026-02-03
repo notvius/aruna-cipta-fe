@@ -15,14 +15,15 @@ import AlertError2 from "@/components/alert-error-2";
 export default function UserPage() {
     const [users, setUsers] = React.useState<User[]>([]);
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
-    const [editItem, setEditItem] = React.useState<User | null>(null);
     const [viewItem, setViewItem] = React.useState<User | null>(null);
+    const [editItem, setEditItem] = React.useState<User | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
     const [rowsToDelete, setRowsToDelete] = React.useState<User[]>([]);
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
 
     const refresh = React.useCallback(() => setUsers(getUsers()), []);
+
     React.useEffect(() => refresh(), [refresh]);
 
     const persist = (data: User[]) => {
@@ -36,6 +37,11 @@ export default function UserPage() {
         setTimeout(() => setSuccess(null), 2000);
     };
 
+    const notifyError = (msg: string) => {
+        setError(msg);
+        setTimeout(() => setError(null), 4000);
+    };
+
     const handleUpdateStatus = (index: number, active: boolean) => {
         const newData = [...users];
         newData[index] = { ...newData[index], is_active: active, updated_at: new Date() };
@@ -43,7 +49,7 @@ export default function UserPage() {
         notifySuccess(`User ${active ? "activated" : "deactivated"}`);
     };
 
-    const confirmDelete = () => {
+    const handleConfirmDelete = () => {
         const ids = new Set(rowsToDelete.map(r => r.id));
         persist(users.filter(r => !ids.has(r.id)));
         setIsDeleteOpen(false);
@@ -54,17 +60,24 @@ export default function UserPage() {
     return (
         <div className="w-full relative">
             {success && (
-                <div className="fixed top-6 right-6 z-[200] animate-in fade-in slide-in-from-right-4">
-                    <AlertSuccess2 message={success} onClose={() => setSuccess(null)} />
-                </div>
-            )}
-            {error && (
-                <div className="fixed top-6 right-6 z-[200] animate-in fade-in slide-in-from-right-4">
-                    <AlertError2 message={error} onClose={() => setError(null)} />
+                <div className="fixed top-6 right-6 z-[200] pointer-events-none animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="pointer-events-auto">
+                        <AlertSuccess2 message={success} onClose={() => setSuccess(null)} />
+                    </div>
                 </div>
             )}
 
-            <h2 className="text-2xl font-bold tracking-tight mb-4">User Management</h2>
+            {error && (
+                <div className="fixed top-6 right-6 z-[200] pointer-events-none animate-in fade-in slide-in-from-right-4 duration-300">
+                    <div className="pointer-events-auto">
+                        <AlertError2 message={error} onClose={() => setError(null)} />
+                    </div>
+                </div>
+            )}
+
+            <div className="flex items-center justify-between mb-4">
+                <h2 className="text-2xl font-bold tracking-tight">User Management</h2>
+            </div>
 
             <DataTable
                 data={users}
@@ -79,35 +92,38 @@ export default function UserPage() {
                 onDeleteSelected={(rows) => { setRowsToDelete(rows); setIsDeleteOpen(true); }}
             />
 
-            <CreateUserModal open={isCreateOpen} onOpenChange={setIsCreateOpen} onSuccess={() => notifySuccess("User created!")} onError={setError} />
+            <CreateUserModal
+                open={isCreateOpen}
+                onOpenChange={setIsCreateOpen}
+                onSuccess={() => notifySuccess("User added successfully!")}
+                onError={notifyError}
+            />
 
-            {/* MODAL EDIT */}
             {editItem && (
                 <EditUserModal
                     open={!!editItem}
-                    onOpenChange={(open: boolean) => !open && setEditItem(null)}
+                    onOpenChange={(open) => !open && setEditItem(null)}
                     user={editItem}
                     onSave={(updated) => persist(users.map(u => u.id === updated.id ? updated : u))}
-                    onSuccess={() => notifySuccess("User updated!")}
-                    onError={setError}
+                    onSuccess={() => notifySuccess("User updated successfully!")}
+                    onError={notifyError}
                 />
             )}
 
-            {/* MODAL VIEW */}
             {viewItem && (
-                <ViewUserModal 
-                    open={!!viewItem} 
-                    onOpenChange={(open: boolean) => !open && setViewItem(null)} 
-                    user={viewItem} 
+                <ViewUserModal
+                    open={!!viewItem}
+                    onOpenChange={(open) => !open && setViewItem(null)}
+                    user={viewItem}
                 />
             )}
 
             <AlertDeleteConfirmation
                 open={isDeleteOpen}
                 onOpenChange={setIsDeleteOpen}
-                onConfirm={confirmDelete}
+                onConfirm={handleConfirmDelete}
                 title="Delete User"
-                description={`Delete ${rowsToDelete.length} user(s)?`}
+                description={`Are you sure you want to delete ${rowsToDelete.length} user(s)?`}
             />
         </div>
     );

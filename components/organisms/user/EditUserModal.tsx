@@ -54,7 +54,7 @@ export function EditUserModal({ open, onOpenChange, user, onSave, onSuccess, onE
         
         setIsSaving(true);
         try {
-            await new Promise(r => setTimeout(r, 800));
+            await new Promise(r => setTimeout(r, 1000));
             const now = new Date();
 
             const updatedUser: User = {
@@ -98,42 +98,48 @@ export function EditUserModal({ open, onOpenChange, user, onSave, onSuccess, onE
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[92vw] sm:max-w-[700px] max-h-[90vh] overflow-y-auto p-5 sm:p-8 rounded-2xl border-none shadow-2xl">
+            <DialogContent className="sm:max-w-[700px]" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Edit User: {user.username}</DialogTitle>
-                    <DialogDescription>Update credentials and system access rights.</DialogDescription>
+                    <DialogTitle>Edit User</DialogTitle>
+                    <DialogDescription>Update credentials and system access rights for {user.username}.</DialogDescription>
                 </DialogHeader>
 
                 <div className="grid gap-6 py-4">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label>Username</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="username">Username</Label>
                             <Input 
+                                id="username"
                                 value={form.username} 
                                 onChange={e => setForm({...form, username: e.target.value})} 
                                 className="h-11 rounded-xl" 
+                                disabled={isSaving}
                             />
                         </div>
-                        <div className="space-y-2">
-                            <Label>New Password</Label>
+                        <div className="grid gap-2">
+                            <Label htmlFor="password">New Password</Label>
                             <Input 
+                                id="password"
                                 type="password" 
                                 placeholder="Required to update"
                                 value={form.password} 
                                 onChange={e => setForm({...form, password: e.target.value})} 
                                 className="h-11 rounded-xl" 
+                                disabled={isSaving}
                             />
                         </div>
                     </div>
 
                     <div className="flex items-center space-x-3 border p-4 rounded-xl bg-muted/30">
                         <Switch 
+                            id="superadmin"
                             checked={form.isSuper} 
                             onCheckedChange={v => setForm({...form, isSuper: v})} 
                             className="data-[state=checked]:bg-arcipta-blue-primary"
+                            disabled={isSaving}
                         />
                         <div className="grid gap-1">
-                            <Label className="font-bold">Superadmin Privilege</Label>
+                            <Label htmlFor="superadmin" className="font-bold">Superadmin Privilege</Label>
                             <p className="text-xs text-muted-foreground">Full access override enabled if active.</p>
                         </div>
                     </div>
@@ -155,6 +161,7 @@ export function EditUserModal({ open, onOpenChange, user, onSave, onSuccess, onE
                                                         checked={selectedPerms.includes(perm.id)}
                                                         onCheckedChange={() => togglePermission(perm.id)}
                                                         className="data-[state=checked]:bg-arcipta-blue-primary data-[state=checked]:border-arcipta-blue-primary"
+                                                        disabled={isSaving}
                                                     />
                                                     <Label htmlFor={`edit-perm-${perm.id}`} className="text-sm font-medium capitalize cursor-pointer">
                                                         {perm.action}
@@ -169,10 +176,10 @@ export function EditUserModal({ open, onOpenChange, user, onSave, onSuccess, onE
                     )}
                 </div>
 
-                <DialogFooter className="flex-row gap-3 mt-4">
-                    <Button variant="outline" className="flex-1 h-12 rounded-xl font-semibold" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button className="flex-1 h-12 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white font-semibold rounded-xl" onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? <><Loader2 className="animate-spin mr-2 h-4 w-4" /> Saving</> : "Update User"}
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>Cancel</Button>
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-arcipta-blue-primary min-w-[120px]">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Changes"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

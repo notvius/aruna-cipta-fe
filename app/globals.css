@@ -71,7 +71,9 @@
   --radius-4xl: calc(var(--radius) + 16px);
 
   --font-orbitron: var(--font-orbitron);
-  --font-outfit: var(--font-outfit);
+  --font-satoshi: var(--font-satoshi);
+  --font-sans: var(--font-satoshi);
+  --font-mono: var(--font-geist-mono);
   --color-arcipta-orange: #FF6B35;
 }
 

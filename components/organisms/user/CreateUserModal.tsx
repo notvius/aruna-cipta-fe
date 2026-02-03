@@ -1,7 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogFooter, 
+    DialogHeader, 
+    DialogTitle, 
+    DialogDescription,
+    DialogTrigger
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +22,15 @@ import { addUserPermissions } from "@/utils/user-permission-storage";
 import { type User } from "@/constants/users";
 import { type UserPermission } from "@/constants/user_permissions";
 
-export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any) {
+interface CreateProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onSuccess: () => void;
+    onError: (msg: string) => void;
+    children?: React.ReactElement;
+}
+
+export function CreateUserModal({ open, onOpenChange, onSuccess, onError, children }: CreateProps) {
     const [form, setForm] = React.useState({ username: "", password: "", isSuper: false });
     const [selectedPerms, setSelectedPerms] = React.useState<number[]>([]);
     const [isSaving, setIsSaving] = React.useState(false);
@@ -33,13 +49,12 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
     };
 
     const handleSave = async () => {
-        if (!form.username.trim() || !form.password.trim()) {
-            return onError("Username and password are required");
-        }
+        if (!form.username.trim()) return onError("Username is required");
+        if (!form.password.trim()) return onError("Password is required");
         
         setIsSaving(true);
         try {
-            await new Promise(r => setTimeout(r, 800));
+            await new Promise(r => setTimeout(r, 1000));
             const now = new Date();
             const userId = Date.now();
 
@@ -85,7 +100,8 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-[92vw] sm:max-w-[700px] max-h-[95vh] overflow-y-auto p-5 sm:p-8 rounded-2xl border-none shadow-2xl">
+            {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+            <DialogContent className="max-w-[92vw] sm:max-w-[700px] max-h-[95vh] overflow-y-auto p-5 sm:p-8 rounded-2xl border-none shadow-2xl" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
                     <DialogTitle className="text-xl font-bold">Add New User</DialogTitle>
                     <DialogDescription>Assign credentials and module access rights.</DialogDescription>
@@ -101,6 +117,7 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
                                 value={form.username} 
                                 onChange={e => setForm({...form, username: e.target.value})} 
                                 className="h-11 rounded-xl"
+                                disabled={isSaving}
                             />
                         </div>
                         <div className="space-y-2">
@@ -112,6 +129,7 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
                                 value={form.password} 
                                 onChange={e => setForm({...form, password: e.target.value})} 
                                 className="h-11 rounded-xl"
+                                disabled={isSaving}
                             />
                         </div>
                     </div>
@@ -122,6 +140,7 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
                             checked={form.isSuper} 
                             onCheckedChange={v => setForm({...form, isSuper: v})} 
                             className="data-[state=checked]:bg-arcipta-blue-primary"
+                            disabled={isSaving}
                         />
                         <div className="grid gap-1">
                             <Label htmlFor="superadmin" className="font-bold">Superadmin Privilege</Label>
@@ -146,6 +165,7 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
                                                         checked={selectedPerms.includes(perm.id)}
                                                         onCheckedChange={() => togglePermission(perm.id)}
                                                         className="rounded-md border-slate-300 data-[state=checked]:bg-arcipta-blue-primary data-[state=checked]:border-arcipta-blue-primary"
+                                                        disabled={isSaving}
                                                     />
                                                     <Label
                                                         htmlFor={`perm-${perm.id}`}
@@ -164,9 +184,9 @@ export function CreateUserModal({ open, onOpenChange, onSuccess, onError }: any)
                 </div>
 
                 <DialogFooter className="flex-row gap-3 mt-4">
-                    <Button variant="outline" className="flex-1 h-12 rounded-xl font-semibold" onClick={() => onOpenChange(false)}>Cancel</Button>
-                    <Button className="flex-1 h-12 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white font-semibold rounded-xl transition-all" onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? <><Loader2 className="animate-spin mr-2 h-4 w-4" /> Saving</> : "Create User"}
+                    <Button variant="outline" className="flex-1 h-12 rounded-xl font-semibold" onClick={() => onOpenChange(false)} disabled={isSaving}>Cancel</Button>
+                    <Button className="flex-1 h-12 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white font-semibold rounded-xl transition-all min-w-[140px]" onClick={handleSave} disabled={isSaving}>
+                        {isSaving ? <><Loader2 className="animate-spin mr-2 h-4 w-4" /> Saving...</> : "Create User"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

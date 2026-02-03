@@ -1,175 +1,77 @@
 "use client";
 
 import * as React from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import AlertError2 from "@/components/alert-error-2";
-import AlertSuccess2 from "@/components/alert-success-2";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { addGallery } from "@/utils/gallery-storage";
-import { type Gallery } from "@/constants/galleries";
 import { Loader2 } from "lucide-react";
 
-interface CreateGalleryModalProps {
+interface CreateProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
+    onError: (msg: string) => void;
 }
 
-export function CreateGalleryModal({
-    open,
-    onOpenChange,
-    onSuccess,
-}: CreateGalleryModalProps) {
-    const [file_path, setFilePath] = React.useState("");
-    const [caption, setCaption] = React.useState("");
-    const [alt_text, setAltText] = React.useState("");
-    const [is_published, setIsPublished] = React.useState(false);
+export function CreateGalleryModal({ open, onOpenChange, onSuccess, onError }: CreateProps) {
+    const [form, setForm] = React.useState({ file_path: "", caption: "", alt_text: "" });
     const [isSaving, setIsSaving] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
-    const [success, setSuccess] = React.useState<string | null>(null);
 
     React.useEffect(() => {
-        if (!open) {
-            setError(null);
-            setSuccess(null);
-            setFilePath("");
-            setCaption("");
-            setAltText("");
-            setIsPublished(false);
-        }
+        if (open) setForm({ file_path: "", caption: "", alt_text: "" });
     }, [open]);
 
-    React.useEffect(() => {
-        if (error) {
-            setError(null);
-        }
-    }, [file_path, caption, alt_text, is_published]);
-
     const handleSave = async () => {
-        if (!file_path.trim()) {
-            setError("Image is required");
-            return;
-        }
-        if (!caption.trim()) {
-            setError("Caption is required");
-            return;
-        }
-        if (!alt_text.trim()) {
-            setError("Alt text is required");
-            return;
-        }
+        if (!form.file_path.trim()) return onError("Image is required");
+        if (!form.caption.trim()) return onError("Caption is required");
 
-        setError(null);
         setIsSaving(true);
-
         try {
-            const now = new Date();
-            const newGallery: Gallery = {
+            await new Promise(r => setTimeout(r, 1000));
+            addGallery({
                 id: Date.now(),
-                file_path,
-                caption,
-                alt_text,
-                is_published,
-                created_at: now,
-                updated_at: now,
+                ...form,
+                is_published: false,
+                created_at: new Date(),
+                updated_at: new Date(),
                 deleted_at: null,
-            };
-
-            addGallery(newGallery);
-
-            await new Promise((resolve) => setTimeout(resolve, 800));
-
-            setSuccess("Gallery added successfully!");
-
-            setTimeout(() => {
-                setFilePath("");
-                setCaption("");
-                setAltText("");
-                setIsPublished(false);
-                onOpenChange(false);
-                onSuccess();  
-            }, 1200);
-
-        } catch (error) {
-            setError("Failed to save gallery. Please try again.");
+            });
+            onOpenChange(false);
+            onSuccess();
+        } catch {
+            onError("Failed to save gallery item.");
+        } finally {
             setIsSaving(false);
         }
-    }   
+    };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px]">
+            <DialogContent className="sm:max-w-[525px]" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
                     <DialogTitle>Add New Gallery Image</DialogTitle>
-                    <DialogDescription>
-                        Create a new entry for your gallery section.
-                    </DialogDescription>
                 </DialogHeader>
-
-                {error && (
-                    <AlertError2 message={error} />
-                )}
-
-                {success && (
-                    <AlertSuccess2 message={success} />
-                )}
-
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label>Image</Label>
-                        <ImageUpload
-                            value={file_path}
-                            onChange={setFilePath}
-                        />
+                        <ImageUpload value={form.file_path} onChange={val => setForm({...form, file_path: val})} />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="caption">Caption</Label>
-                        <Textarea
-                            id="caption"
-                            placeholder="Type the caption here..."
-                            value={caption}
-                            onChange={(e) => setCaption(e.target.value)}
-                            className="min-h-[50px]"
-                        />
+                        <Label>Caption</Label>
+                        <Textarea value={form.caption} onChange={e => setForm({...form, caption: e.target.value})} className="min-h-[60px]" />
                     </div>
                     <div className="grid gap-2">
-                        <Label htmlFor="alt_text">Alt Text</Label>
-                        <Textarea
-                            id="alt_text"
-                            placeholder="Type the alt text here..."
-                            value={alt_text}
-                            onChange={(e) => setAltText(e.target.value)}
-                            className="min-h-[50px]"
-                        />
+                        <Label>Alt Text</Label>
+                        <Textarea value={form.alt_text} onChange={e => setForm({...form, alt_text: e.target.value})} className="min-h-[60px]" />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90"
-                    >
-                        {isSaving ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Saving...
-                            </>
-                        ) : (
-                            "Save Gallery"
-                        )}
+                    <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-arcipta-blue-primary min-w-[140px]">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save Gallery"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -33,12 +33,14 @@ export const columns = ({
             <Checkbox
                 checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+                aria-label="Select all"
             />
         ),
         cell: ({ row }) => (
             <Checkbox
                 checked={row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
+                aria-label="Select row"
             />
         ),
         size: 40,
@@ -46,7 +48,7 @@ export const columns = ({
     {
         accessorKey: "username",
         header: "Username",
-        cell: ({ row }) => <div className="font-medium text-sm">{row.getValue("username")}</div>,
+        cell: ({ row }) => <div className="text-sm font-medium">{row.getValue("username")}</div>,
     },
     {
         accessorKey: "is_superadmin",
@@ -54,7 +56,10 @@ export const columns = ({
         cell: ({ row }) => {
             const isSuper = row.getValue("is_superadmin") as boolean;
             return (
-                <Badge variant={isSuper ? "default" : "secondary"} className={isSuper ? "bg-arcipta-blue-primary" : ""}>
+                <Badge 
+                    variant={isSuper ? "default" : "secondary"} 
+                    className={isSuper ? "bg-arcipta-blue-primary" : ""}
+                >
                     {isSuper ? "Superadmin" : "Admin"}
                 </Badge>
             );
@@ -92,11 +97,20 @@ export const columns = ({
                                 </Badge>
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-44">
-                            <DropdownMenuItem onClick={onCreate}><Plus className="mr-2 h-4 w-4" /> Create New</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onView(u)}><Eye className="mr-2 h-4 w-4" /> View Details</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(u)}><Pencil className="mr-2 h-4 w-4" /> Edit User</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onDeleteSingle(u)} className="text-red-600 focus:text-red-600">
+                        <DropdownMenuContent align="end" className="w-40">
+                            <DropdownMenuItem onClick={onCreate}>
+                                <Plus className="mr-2 h-4 w-4" /> Create New
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onView(u)}>
+                                <Eye className="mr-2 h-4 w-4" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEdit(u)}>
+                                <Pencil className="mr-2 h-4 w-4" /> Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={() => onDeleteSingle(u)} 
+                                className="text-red-600 focus:text-red-600"
+                            >
                                 <Trash2 className="mr-2 h-4 w-4" /> Delete
                             </DropdownMenuItem>
                         </DropdownMenuContent>
