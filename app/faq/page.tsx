@@ -17,7 +17,6 @@ export default function FAQPage() {
     const [openIndex, setOpenIndex] = React.useState<number | null>(null);
     const [enabled, setEnabled] = React.useState(false);
     
-    // State konsisten dengan Testimonial
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
     const [viewItem, setViewItem] = React.useState<Faq | null>(null);
     const [editItem, setEditItem] = React.useState<Faq | null>(null);
@@ -73,7 +72,6 @@ export default function FAQPage() {
 
     return (
         <div className="w-full relative px-4 sm:px-10">
-            {/* Alert Notifications - Konsisten dengan Testimonial */}
             {success && (
                 <div className="fixed top-6 right-6 z-[200] pointer-events-none animate-in fade-in slide-in-from-right-4 duration-300">
                     <div className="pointer-events-auto">
@@ -94,7 +92,6 @@ export default function FAQPage() {
                 <h2 className="text-2xl font-bold tracking-tight">FAQ Management</h2>
             </div>
 
-            {/* Accordion with Drag & Drop */}
             <DragDropContext onDragEnd={handleDragEnd}>
                 <Droppable droppableId="faq-list">
                     {(provided) => (
@@ -123,7 +120,6 @@ export default function FAQPage() {
                 </Droppable>
             </DragDropContext>
 
-            {/* Modals - Konsisten dengan Testimonial */}
             <CreateFaqModal
                 open={isCreateOpen}
                 onOpenChange={setIsCreateOpen}
