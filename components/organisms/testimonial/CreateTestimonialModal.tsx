@@ -14,7 +14,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { addTestimonial } from "@/utils/testimonial-storage";
-import { type Testimonial } from "@/constants/testimonials";
 import { Loader2 } from "lucide-react";
 
 interface CreateProps {

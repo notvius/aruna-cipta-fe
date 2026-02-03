@@ -3,61 +3,66 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
+import { ChevronDown, Pencil, Plus, Eye, Trash2 } from "lucide-react";
+import {
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
 import { type Faq } from "@/constants/faqs";
-import { EditFaqModal } from "./EditFaqModal";
-import { ViewFaqModal } from "./ViewFaqModal";
 
-const truncateWords = (text: string, count: number) => {
+const truncate = (text: string, count: number) => {
     if (!text) return "";
     const words = text.split(" ");
-    if (words.length <= count) return text;
-    return words.slice(0, count).join(" ") + "...";
+    return words.length <= count ? text : words.slice(0, count).join(" ") + "...";
 };
 
-export const columns: ColumnDef<Faq>[] = [
+export const columns = ({
+    onCreate,
+    onView,
+    onEdit,
+    onDeleteSingle,
+}: {
+    onCreate: () => void;
+    onView: (f: Faq) => void;
+    onEdit: (f: Faq) => void;
+    onDeleteSingle: (f: Faq) => void;
+}): ColumnDef<Faq>[] => [
     {
         id: "select",
         header: ({ table }) => (
             <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
+                checked={table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && "indeterminate")}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-                aria-label="Select all"
             />
         ),
         cell: ({ row }) => (
             <Checkbox
                 checked={row.getIsSelected()}
                 onCheckedChange={(value) => row.toggleSelected(!!value)}
-                aria-label="Select row"
             />
         ),
-        size: 40, 
-        enableSorting: false,
-        enableHiding: false,
+        size: 40,
     },
     {
         accessorKey: "question",
         header: "Question",
-        size: 180, 
         cell: ({ row }) => (
-            <div className="text-sm font-medium whitespace-normal break-words w-[180px] pr-">
-                {truncateWords(row.getValue("question"), 10)}
+            <div className="text-sm font-medium whitespace-normal break-words w-[200px]">
+                {truncate(row.getValue("question"), 10)}
             </div>
-        )
+        ),
     },
     {
         accessorKey: "answer",
         header: "Answer",
-        size: 300,
         cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words w-[300px] pr-4">
-                {truncateWords(row.getValue("answer"), 10)}
+            <div className="text-sm text-muted-foreground whitespace-normal break-words max-w-[400px]">
+                {truncate(row.getValue("answer"), 15)}
             </div>
-        )
+        ),
     },
     {
         accessorKey: "created_at",
@@ -66,19 +71,38 @@ export const columns: ColumnDef<Faq>[] = [
     {
         id: "actions",
         header: "Action",
-        size: 100,
-        enableHiding: false,
-        cell: ({ row, table }) => {
-            const faq = row.original;
+        cell: ({ row }) => {
+            const f = row.original;
             return (
-                <div className="flex items-center justify-start gap-1">
-                    <ViewFaqModal faq={faq} />
-                    <EditFaqModal
-                        faq={faq}
-                        onSave={(updatedFaq) => table.options.meta?.updateRow(row.index, updatedFaq)}
-                    />
+                <div onClick={(e) => e.stopPropagation()}>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-fit p-0 hover:bg-transparent shadow-none border-none">
+                                <Badge variant="outline" className="cursor-pointer bg-arcipta-blue-primary text-white py-1">
+                                    Action <ChevronDown className="ml-1 h-3 w-3" />
+                                </Badge>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-44">
+                            <DropdownMenuItem onClick={onCreate}>
+                                <Plus className="mr-2 h-4 w-4" /> Create New
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onView(f)}>
+                                <Eye className="mr-2 h-4 w-4" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEdit(f)}>
+                                <Pencil className="mr-2 h-4 w-4" /> Edit FAQ
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={() => onDeleteSingle(f)}
+                                className="text-red-600 focus:text-red-600"
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             );
         },
     },
-]
+];

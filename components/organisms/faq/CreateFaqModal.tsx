@@ -8,132 +8,89 @@ import {
     DialogFooter,
     DialogHeader,
     DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import AlertError2 from "@/components/alert-error-2";
-import AlertSuccess2 from "@/components/alert-success-2";
 import { addFaq } from "@/utils/faq-storage";
-import { type Faq } from "@/constants/faqs";
 import { Loader2 } from "lucide-react";
 
-interface CreateFaqModalProps {
+interface CreateProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSuccess: () => void;
+    onError: (msg: string) => void;
+    children?: React.ReactElement; 
 }
 
-export function CreateFaqModal({
-    open,
-    onOpenChange,
-    onSuccess,
-}: CreateFaqModalProps) {
-    const [question, setQuestion] = React.useState("");
-    const [answer, setAnswer] = React.useState("");
+export function CreateFaqModal({ open, onOpenChange, onSuccess, onError, children }: CreateProps) {
+    const [form, setForm] = React.useState({ question: "", answer: "" });
     const [isSaving, setIsSaving] = React.useState(false);
-    const [error, setError] = React.useState<string | null>(null);
-    const [success, setSuccess] = React.useState<string | null>(null);
+
+    React.useEffect(() => {
+        if (open) setForm({ question: "", answer: "" });
+    }, [open]);
 
     const handleSave = async () => {
-        if (!question.trim()) {
-            setError("Please enter a question");
-            return;
-        }
-        if (!answer.trim()) {
-            setError("Please enter an answer");
-            return;
-        }
+        if (!form.question.trim()) return onError("Question is required");
+        if (!form.answer.trim()) return onError("Answer is required");
 
-        setError(null);
         setIsSaving(true);
-
         try {
+            await new Promise(r => setTimeout(r, 1000)); 
             const now = new Date();
-            const newFaq: Faq = {
+            addFaq({
                 id: Date.now(),
-                question,
-                answer,
+                question: form.question,
+                answer: form.answer,
                 created_at: now,
                 updated_at: now,
-            };
-
-            addFaq(newFaq);
-
-            await new Promise((resolve) => setTimeout(resolve, 800));
-
-            setSuccess("FAQ added successfully!");
-
-            setTimeout(() => {
-                setQuestion("");
-                setAnswer("");
-                onOpenChange(false);
-                onSuccess();
-            }, 1200);
-            
-        } catch (error) {
-            setError("Failed to save FAQ. Please try again.");
+            });
+            onOpenChange(false);
+            onSuccess();
+        } catch {
+            onError("Failed to save FAQ.");
+        } finally {
             setIsSaving(false);
         }
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[525px]">
+            {children && <DialogTrigger asChild>{children}</DialogTrigger>}
+            
+            <DialogContent className="sm:max-w-[525px]" onInteractOutside={e => e.preventDefault()}>
                 <DialogHeader>
                     <DialogTitle>Add New FAQ</DialogTitle>
-                    <DialogDescription>
-                        Create a new entry for your FAQ section.
-                    </DialogDescription>
+                    <DialogDescription>Create a new entry for your FAQ section.</DialogDescription>
                 </DialogHeader>
-
-                {error && (
-                    <AlertError2 message={error} />
-                )}
-
-                {success && (
-                    <AlertSuccess2 message={success} />
-                )}
-
                 <div className="grid gap-4 py-4">
                     <div className="grid gap-2">
                         <Label htmlFor="question">Question</Label>
                         <Textarea
                             id="question"
-                            placeholder="Type your question here..."
-                            value={question}
-                            onChange={(e) => setQuestion(e.target.value)}
-                            className="min-h-[30px]"
+                            value={form.question}
+                            onChange={e => setForm({ ...form, question: e.target.value })}
+                            className="min-h-[60px]"
+                            disabled={isSaving}
                         />
                     </div>
                     <div className="grid gap-2">
                         <Label htmlFor="answer">Answer</Label>
                         <Textarea
                             id="answer"
-                            placeholder="Type the answer here..."
-                            value={answer}
-                            onChange={(e) => setAnswer(e.target.value)}
-                            className="min-h-[30px]"
+                            value={form.answer}
+                            onChange={e => setForm({ ...form, answer: e.target.value })}
+                            className="min-h-[100px]"
+                            disabled={isSaving}
                         />
                     </div>
                 </div>
                 <DialogFooter>
-                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>
-                        Cancel
-                    </Button>
-                    <Button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90"
-                    >
-                        {isSaving ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Saving...
-                            </>
-                        ) : (
-                            "Save Testimonial"
-                        )}
+                    <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isSaving}>Cancel</Button>
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-arcipta-blue-primary min-w-[140px]">
+                        {isSaving ? <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Saving...</> : "Save FAQ"}
                     </Button>
                 </DialogFooter>
             </DialogContent>
