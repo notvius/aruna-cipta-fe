@@ -31,8 +31,19 @@ export const saveArticleCategories = (articleCategories: ArticleCategory[]) => {
     safeLocalStorageSet(STORAGE_KEY, JSON.stringify(articleCategories));
 };
 
-export const addArticleCategory = (newArticleCategory: ArticleCategory) => {
+export const addArticleCategory = (name: string): ArticleCategory => {
     const articleCategories = getArticleCategories();
-    const updated = [newArticleCategory, ...articleCategories];
+    
+    const newCategory: ArticleCategory = {
+        id: Date.now(),
+        name: name,
+        article_id: [], 
+        created_at: new Date(),
+        updated_at: new Date()
+    };
+
+    const updated = [newCategory, ...articleCategories];
     saveArticleCategories(updated);
+    
+    return newCategory; 
 };

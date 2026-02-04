@@ -1,129 +1,114 @@
 "use client";
 
-import { ArticleCategory } from "@/constants/article_category";
+import * as React from "react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Hash, Image as ImageIcon, Check, ChevronsUpDown, Plus } from "lucide-react";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown, Image as ImageIcon, Info, Type, Plus } from "lucide-react";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
+import { addArticleCategory } from "@/utils/article-category-storage";
 
-interface ArticleSidebarProps {
-    category: number | undefined;
-    setCategory: (category: number) => void;
-    isPublished: boolean;
-    setIsPublished: (isPublished: boolean) => void;
-    thumbnail: string;
-    setThumbnail: (thumbnail: string) => void;
-    wordCount: number;
-    categories: ArticleCategory[];
-    className?: string;
-}
+export function ArticleSidebar({ category, setCategory, isPublished, setIsPublished, thumbnail, setThumbnail, wordCount, categories = [], onCategoryCreated }: any) {
+    const [open, setOpen] = React.useState(false);
+    const [searchQuery, setSearchQuery] = React.useState("");
 
-export function ArticleSidebar({
-    category,
-    setCategory,
-    isPublished,
-    setIsPublished,
-    thumbnail,
-    setThumbnail,
-    wordCount,
-    categories,
-    className,
-}: ArticleSidebarProps) {
-    const selectedCategoryName = categories.find((c) => c.id === category)?.name || "Select Category";
+    const selectedCategoryName = React.useMemo(() => {
+        if (!category || !categories) return "Select category...";
+        return categories.find((c: any) => c.id === category)?.name || "Select category...";
+    }, [category, categories]);
+
+    const handleCreateCategory = () => {
+        if (!searchQuery) return;
+        const newCat = addArticleCategory(searchQuery);
+        onCategoryCreated();
+        setCategory(newCat.id);
+        setOpen(false);
+        setSearchQuery("");
+    };
+
+    const arciptaFocus = "focus-within:ring-2 focus-within:ring-arcipta-blue-primary/20 focus-within:border-arcipta-blue-primary transition-all";
 
     return (
-        <div className={className || "w-80 border-l bg-white h-full hidden xl:flex flex-col overflow-y-auto px-4 py-3 gap-3"}>
-            <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">Settings</h3>
+        <aside className="w-[340px] border-l bg-white flex flex-col h-full font-satoshi shrink-0 overflow-hidden">
+            <div className="p-6 space-y-8 overflow-y-auto scrollbar-none">
+                
+                <div className="space-y-4">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Visibility</p>
+                    <div className={cn("flex items-center justify-between p-4 rounded-xl border transition-all duration-300", isPublished ? 'border-arcipta-blue-primary/30 bg-arcipta-blue-primary/[0.02]' : 'border-slate-100 bg-slate-50/50')}>
+                        <div className="space-y-0.5">
+                            <Label htmlFor="publish" className="text-sm font-bold text-slate-900 cursor-pointer">Published</Label>
+                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-tight">{isPublished ? "Public" : "Draft"}</p>
+                        </div>
+                        <Switch id="publish" checked={isPublished} onCheckedChange={setIsPublished} className="data-[state=checked]:bg-arcipta-blue-primary" />
+                    </div>
+                </div>
 
-            {/* Status Section */}
-            <Card className="border-none shadow-none">
-                <CardHeader className="p-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                        <Info className="size-4 text-arcipta-blue-primary" />
-                        Status
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-2 space-y-3">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full justify-between">
-                                <span className="flex items-center gap-2">
-                                    <Badge variant={isPublished ? "default" : "secondary"}>
-                                        {isPublished ? "Published" : "Unpublished"}
-                                    </Badge>
-                                </span>
-                                <ChevronDown className="size-4 opacity-50" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-72">
-                            <DropdownMenuItem onClick={() => setIsPublished(true)}>Published</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => setIsPublished(false)}>Unpublished</DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </CardContent>
-            </Card>
+                <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Category</p>
+                    <div className={cn(
+                        "rounded-xl border transition-all duration-300 group",
+                        open 
+                            ? "ring-2 ring-arcipta-blue-primary/20 border-arcipta-blue-primary" 
+                            : "border-transparent hover:ring-2 hover:ring-arcipta-blue-primary/20 hover:border-arcipta-blue-primary"
+                    )}>
+                        <Popover open={open} onOpenChange={setOpen}>
+                            <PopoverTrigger asChild>
+                                <Button 
+                                    variant="outline" 
+                                    role="combobox" 
+                                    aria-expanded={open} 
+                                    className="w-full justify-between rounded-xl h-11 border-slate-200 font-medium text-slate-600 focus:ring-0 hover:bg-white hover:text-slate-600 bg-white"
+                                >
+                                    {selectedCategoryName}
+                                    <ChevronsUpDown className={cn(
+                                        "ml-2 h-4 w-4 shrink-0 transition-colors",
+                                        open ? "text-arcipta-blue-primary" : "opacity-50 group-hover:text-arcipta-blue-primary group-hover:opacity-100"
+                                    )} />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-[290px] p-0 z-[200]">
+                                <Command>
+                                    <CommandInput placeholder="Search or create..." value={searchQuery} onValueChange={setSearchQuery} />
+                                    <CommandList>
+                                        <CommandEmpty className="p-2">
+                                            <Button onClick={handleCreateCategory} variant="ghost" className="w-full justify-start text-arcipta-blue-primary font-bold">
+                                                <Plus className="mr-2 h-4 w-4" /> Add "{searchQuery}"
+                                            </Button>
+                                        </CommandEmpty>
+                                        <CommandGroup>
+                                            {categories.map((c: any) => (
+                                                <CommandItem key={c.id} value={c.name} onSelect={() => { setCategory(c.id); setOpen(false); }}>
+                                                    <Check className={cn("mr-2 h-4 w-4", category === c.id ? "opacity-100" : "opacity-0")} />
+                                                    {c.name}
+                                                </CommandItem>
+                                            ))}
+                                        </CommandGroup>
+                                    </CommandList>
+                                </Command>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                </div>
 
-            {/* Category Section */}
-            <Card className="border-none shadow-none">
-                <CardHeader className="p-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                        <Type className="size-4 text-arcipta-blue-primary" />
-                        Category
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-2 space-y-3">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full justify-between">
-                                {selectedCategoryName}
-                                <ChevronDown className="size-4 opacity-50" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-72">
-                            {categories.map((cat) => (
-                                <DropdownMenuItem key={cat.id} onClick={() => setCategory(cat.id)}>
-                                    {cat.name}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </CardContent>
-            </Card>
+                <div className="space-y-3">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">Thumbnail</p>
+                    <div className={cn("rounded-xl overflow-hidden border border-slate-100 bg-slate-50/30 p-1", arciptaFocus)}>
+                        <ImageUpload value={thumbnail} onChange={setThumbnail} />
+                    </div>
+                </div>
 
-            {/* Thumbnail Section */}
-            <Card className="border-none shadow-none">
-                <CardHeader className="p-2">
-                    <CardTitle className="text-sm flex items-center gap-2">
-                        <ImageIcon className="size-4 text-arcipta-blue-primary" />
-                        Thumbnail
-                    </CardTitle>
-                </CardHeader>
-                <CardContent className="p-2 space-y-3">
-                    <ImageUpload
-                        value={thumbnail}
-                        onChange={setThumbnail}
-                    />
-                </CardContent>
-            </Card>
-
-            {/* Stats Section */}
-            <div className="mt-auto border-t pt-6 px-2 space-y-4">
-                <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground flex items-center gap-2">
-                        <Type className="size-4" />
-                        Words
-                    </span>
-                    <span className="font-medium">{wordCount}</span>
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                    <div className="flex justify-between items-center px-1">
+                        <div className="flex items-center gap-2 text-slate-400">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">Word Count</span>
+                        </div>
+                        <span className="text-xs font-bold text-slate-900">{wordCount} words</span>
+                    </div>
                 </div>
             </div>
-        </div>
+        </aside>
     );
 }
-

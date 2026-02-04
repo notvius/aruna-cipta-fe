@@ -1,135 +1,104 @@
 "use client";
 
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { type Article } from "@/constants/articles";
 import { getArticleCategories } from "@/utils/article-category-storage";
 
-interface ViewArticleModalProps {
-    article: Article;
-    children: React.ReactElement;
-}
+export function ViewArticleModal({ article, open, onOpenChange }: { article: Article | null, open: boolean, onOpenChange: (o: boolean) => void }) {
+    if (!article) return null;
+    const categories = getArticleCategories();
+    const catName = article.category.map((id: number) => categories.find(c => c.id === id)?.name).join(", ") || "General";
 
-const stripHtml = (html: string) => {
-    if (typeof window === "undefined") return html;
-    const tmp = document.createElement("DIV");
-    tmp.innerHTML = html;
-    return tmp.textContent || tmp.innerText || "";
-};
+    const strip = (html: string) => html?.replace(/<[^>]*>/g, '') || "—";
 
-export function ViewArticleModal({ article, children }: ViewArticleModalProps) {
-    function formatDate(date: Date | string | null | undefined): string {
+    const formatFullDate = (date: any) => {
         if (!date) return "—";
-        const parsedDate = date instanceof Date ? date : new Date(date);
-        if (isNaN(parsedDate.getTime())) return "Invalid date";
-
-        return parsedDate.toLocaleDateString("id-ID", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
+        return new Date(date).toLocaleString("id-ID", {
             hour: "2-digit",
             minute: "2-digit",
-        });
-    }
-
-    const categories = getArticleCategories();
-    const categoryIds = Array.isArray(article.category) ? article.category : [article.category];
-
-    const categoryNames = categoryIds.map((catId: number) =>
-        categories.find(c => c.id === catId)?.name || catId
-    ).join(", ");
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }) + " WIB";
+    };
 
     return (
-        <Dialog>
-            <DialogTrigger asChild>
-                {children}
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[1000px] max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Article Details</DialogTitle>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[700px] font-satoshi p-0 overflow-hidden border-none shadow-2xl">
+                <DialogHeader className="p-6 pb-0">
+                    <DialogTitle className="text-xl font-bold font-orbitron uppercase tracking-tight text-slate-900">Article Details</DialogTitle>
                 </DialogHeader>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-4">
-                    
-                    {/* --- KOLOM KIRI: Thumbnail & Metadata --- */}
-                    <div className="space-y-6">
-                        <div className="flex flex-col gap-2">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Thumbnail</span>
-                            <img
-                                src={article.thumbnail}
-                                alt={article.title}
-                                className="w-full aspect-video object-cover rounded-lg border shadow-sm"
-                            />
+                
+                <ScrollArea className="max-h-[85vh] w-full">
+                    <div className="p-6 space-y-6">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Visibility</p>
+                                <Badge className={article.is_published ? 'bg-arcipta-blue-primary' : 'bg-amber-500'}>
+                                    {article.is_published ? 'PUBLISHED' : 'DRAFT'}
+                                </Badge>
+                            </div>
+                            <div className="space-y-1 text-right">
+                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Category</p>
+                                <p className="font-bold text-slate-900">{catName}</p>
+                            </div>
                         </div>
 
-                        <div className="grid grid-cols-3 gap-4">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Category</span>
-                                <div>
-                                    <Badge variant="secondary">{categoryNames || "-"}</Badge>
+                        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4">
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Title</p>
+                                    <p className="text-sm font-bold text-slate-900 leading-tight">{strip(article.title)}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">URL Slug Path</p>
+                                    <p className="text-xs font-medium text-arcipta-blue-primary">/articles/{article.slug}</p>
+                                </div>
+
+                                <div className="space-y-1 border-t border-slate-200/60 pt-4">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Excerpt</p>
+                                    <p className="text-xs text-slate-500 leading-relaxed">"{strip(article.excerpt)}"</p>
+                                </div>
+                                
+                                <div className="space-y-2 border-t border-slate-200/60 pt-4">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Thumbnail</p>
+                                    <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white">
+                                        <img 
+                                            src={article.thumbnail} 
+                                            alt="" 
+                                            className="h-full w-full object-cover"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2 border-t border-slate-200/60 pt-4">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Main Content</p>
+                                    <div 
+                                        className="prose prose-sm max-w-none text-slate-600 prose-p:leading-relaxed prose-headings:text-slate-900"
+                                        dangerouslySetInnerHTML={{ __html: article.content }}
+                                    />
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Total Views</span>
-                                <p className="text-lg font-medium">{(article.view_count ?? 0).toLocaleString("id-ID")}</p>
-                            </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Status</span>
-                                <div>
-                                    <Badge
-                                        className={article.is_published ? 'bg-green-600' : ''}
-                                        variant={article.is_published ? 'default' : 'secondary'}
-                                    >
-                                        {article.is_published ? 'Published' : 'Unpublished'}
-                                    </Badge>
-                                </div>
-                            </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 pt-4">
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Created At</span>
-                                <p className="text-xs text-foreground">{formatDate(article.created_at)}</p>
+                        <div className="grid grid-cols-1 gap-3 border-t pt-4 pb-2">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-muted-foreground font-bold uppercase tracking-tighter">Engagement Stats</span>
+                                <span className="px-2 py-1 rounded-md font-bold text-slate-900">{article.view_count.toLocaleString()} Views</span>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Published At</span>
-                                <p className="text-xs text-foreground">{formatDate(article.published_at)}</p>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-muted-foreground font-bold uppercase tracking-tighter">Creation Date</span>
+                                <span className="px-2 py-1 rounded-md text-slate-900 font-medium">{formatFullDate(article.created_at)}</span>
                             </div>
-                            <div className="flex flex-col gap-1">
-                                <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Updated At</span>
-                                <p className="text-xs text-foreground">{formatDate(article.updated_at)}</p>
-                            </div>
-                            {article.deleted_at && (
-                                <div className="flex flex-col gap-1">
-                                    <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider text-red-500">Deleted At</span>
-                                    <p className="text-xs text-red-500 italic">{formatDate(article.deleted_at)}</p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* --- KOLOM KANAN: Title & Content --- */}
-                    <div className="space-y-6">
-                        <div className="flex flex-col gap-1">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Title</span>
-                            <div className="text-lg font-bold leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">{stripHtml(article.title)}</div>
-                        </div>
-
-                        <div className="flex flex-col gap-2 pt-4 text-muted-foreground">
-                            <span className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Content</span>
-                            <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                {stripHtml(article.content)}
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-muted-foreground font-bold uppercase tracking-tighter">Last Update At</span>
+                                <span className="text-black px-2 py-1 rounded-md font-medium">{formatFullDate(article.updated_at)}</span>
                             </div>
                         </div>
                     </div>
-
-                </div>
+                </ScrollArea>
             </DialogContent>
         </Dialog>
     );

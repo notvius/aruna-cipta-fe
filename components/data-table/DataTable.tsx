@@ -13,7 +13,7 @@ import {
     type SortingState,
     type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, Search, Trash2} from "lucide-react";
+import { ArrowUpDown, Search, Trash2} from "lucide-react";
 import {
     InputGroup,
     InputGroupAddon,
@@ -56,16 +56,6 @@ import {
     PaginationPrevious,
 } from "@/components/ui/pagination";
 
-/**
- * Generic reusable data‑table component.
- *
- * @template T – type of a single row of data.
- * @param data – array of rows.
- * @param columns – column definitions (TanStack `ColumnDef`).
- * @param caption – optional table caption.
- * @param filterColumn – optional key of the column to filter with the text input.
- * @param showFooter – whether to render a simple footer showing total rows.
- */
 export interface DataTableProps<T extends Record<string, any>> {
     data: T[];
     columns: ColumnDef<T>[];
@@ -144,7 +134,6 @@ export function DataTable<T extends Record<string, any>>({
         },
     });
 
-    // Helper: render a search filter
     const renderFilter = () => {
         if (enableGlobalSearch) {
             return (
@@ -176,7 +165,6 @@ export function DataTable<T extends Record<string, any>>({
 
     return (
         <div className="w-full">
-            {/* ---- Controls (filter + column visibility) ---- */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 px-2">
                 <div className="flex flex-1 items-center gap-2">
                     {renderFilter()}
@@ -222,32 +210,9 @@ export function DataTable<T extends Record<string, any>>({
                             </DropdownMenuContent>
                         </DropdownMenu>
                     )}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm">
-                                Columns <ChevronDown className="ml-2 h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            {table
-                                .getAllColumns()
-                                .filter((c) => c.getCanHide())
-                                .map((c) => (
-                                    <DropdownMenuCheckboxItem
-                                        key={c.id}
-                                        className="capitalize"
-                                        checked={c.getIsVisible()}
-                                        onCheckedChange={(v) => c.toggleVisibility(!!v)}
-                                    >
-                                        {c.id}
-                                    </DropdownMenuCheckboxItem>
-                                ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
                 </div>
             </div>
 
-            {/* ---- Table ---- */}
             <div className="overflow-x-auto rounded-md border">
                 <Table>
                     {caption && <TableCaption>{caption}</TableCaption>}
@@ -274,10 +239,13 @@ export function DataTable<T extends Record<string, any>>({
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={() => onRowClick?.(row.original)}
-                                    className={onRowClick ? "cursor-pointer hover:bg-muted/50 transition-colors" : ""}
+                                    className={`group transition-all duration-300 border-b ${onRowClick ? "cursor-pointer hover:bg-slate-50/50" : ""}`}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell key={cell.id}>
+                                        <TableCell 
+                                            key={cell.id} 
+                                            className="transition-colors duration-300 group-hover:border-arcipta-blue-primary/40"
+                                        >
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()
@@ -297,7 +265,6 @@ export function DataTable<T extends Record<string, any>>({
                 </Table>
             </div>
 
-            {/* ---- Footer (selection info + pagination) ---- */}
             {showFooter && (
                 <div className="flex flex-col md:flex-row items-center justify-between gap-4 py-4 px-2">
                     <div className="text-muted-foreground text-sm order-2 md:order-1">

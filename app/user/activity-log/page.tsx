@@ -15,7 +15,6 @@ import { ViewActivityLogModal } from "@/components/organisms/activity-log/ViewAc
 import { activityLogsData } from "@/data/activity_log";
 import { userData } from "@/data/users";
 import { type ActivityLog } from "@/constants/activity_log";
-import { Button } from "@/components/ui/button";
 import { 
     Pagination,
     PaginationContent,

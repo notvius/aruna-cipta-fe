@@ -68,20 +68,8 @@ export const mainMenuItems = [
 export const cmsMenuItems = [
     {
         title: "Article",
-        url: "#",
+        url: "/article",
         icon: Newspaper,
-        items: [
-            {
-                title: "Artikel Items",
-                url: "/article",
-                icon: Plus,
-            },
-            {
-                title: "Article Category",
-                url: "/article/category",
-                icon: TableOfContents,
-            },
-        ]
     },
     {
         title: "FAQ",
