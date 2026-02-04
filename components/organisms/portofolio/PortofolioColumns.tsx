@@ -1,133 +1,101 @@
 "use client";
 
-import * as React from "react";
-import { Portofolio } from "@/constants/portofolios";
-import { Checkbox } from "@/components/ui/checkbox";
+import React from "react";
 import { ColumnDef } from "@tanstack/react-table";
-import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { ArrowUpDown } from "lucide-react";
-import { Service } from "@/constants/services";
-import { ViewPortofolioModal } from "./ViewPortofolioModal";
-import { EditPortofolioModal } from "./EditPortofolioModal";
+import { MoreHorizontal, Pencil, Eye, Trash2, Calendar, MonitorPlay, Plus } from "lucide-react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { type Portofolio } from "@/constants/portofolios";
+import { getServices } from "@/utils/service-storage";
 
-export const getPortofolioColumns = (
-    services: Service[]
+export const columns = (
+    onAddNew: () => void,
+    onView: (p: Portofolio) => void,
+    onEdit: (p: Portofolio) => void,
+    onDelete: (p: Portofolio) => void,
+    onPreview: (p: Portofolio) => void
 ): ColumnDef<Portofolio>[] => [
+    { accessorKey: "created_at", header: "Created At", enableHiding: false },
     {
         id: "select",
         header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={(value) =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
-                aria-label="Select all"
-            />
+            <Checkbox checked={table.getIsAllPageRowsSelected()} onCheckedChange={(v) => table.toggleAllPageRowsSelected(!!v)} />
         ),
         cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={(value) =>
-                    row.toggleSelected(!!value)
-                }
-                aria-label="Select row"
-            />
+            <Checkbox checked={row.getIsSelected()} onCheckedChange={(v) => row.toggleSelected(!!v)} />
         ),
-        enableSorting: false,
+        size: 40,
         enableHiding: false,
     },
     {
-        accessorKey: "thumbnail",
-        header: "Thumbnail",
-        cell: ({ row }) => (
-            <img
-                src={row.getValue("thumbnail")}
-                alt={row.getValue("title")}
-                className="rounded-md object-cover h-10 w-16"
-            />
-        ),
-    },
-    {
-        accessorKey: "title",
-        header: "Title",
-        cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                {row.getValue("title")}
-            </div>
-        ),
-    },
-    {
-        accessorKey: "client_name",
-        header: "Client Name",
-        cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                {row.getValue("client_name")}
-            </div>
-        ),
-    },
-    {
-        accessorKey: "year",
-        header: "Year",
-        cell: ({ row }) => (
-            <div className="text-sm text-muted-foreground">
-                {row.getValue("year")}
-            </div>
-        ),
-    },
-    {
-        accessorKey: "category",
-        header: "Category",
+        id: "hybrid_content",
+        header: "Project Information",
+        enableHiding: false,
         cell: ({ row }) => {
-            const rawCategoryIds = row.getValue("category") as (number | string)[];
-
-            if (!Array.isArray(rawCategoryIds) || rawCategoryIds.length === 0) {
-                return <span className="text-muted-foreground">-</span>;
-            }
-
-            const names = rawCategoryIds
-                .map(id => {
-                    const numericId = Number(id);
-                    return services.find(s => Number(s.id) === numericId)?.title;
-                })
-                .filter(Boolean)
-                .join(", ");
-
+            const p = row.original;
+            const services = getServices();
+            const categoryName = services.find(s => Number(s.id) === Number(p.category?.[0]))?.title || "General";
+            
             return (
-                <Badge variant="secondary" className="font-normal">
-                    {names || "Uncategorized"}
-                </Badge>
-            );
-        },
-    },
-    {
-        accessorKey: "created_at",
-        header: "Created At",
-    },
-    {
-        id: "actions",
-        header: "Action",
-        size: 100,
-        enableHiding: false,
-        cell: ({ row, table }) => {
-            const portofolio = row.original;
-            return (
-                <div className="flex items-center gap-1">
-                    <ViewPortofolioModal portofolio={portofolio} />
-                    <EditPortofolioModal
-                        portofolio={portofolio}
-                        onSave={(updated) =>
-                            table.options.meta?.updateRow(
-                                row.index,
-                                updated
-                            )
-                        }
-                    />
+                <div className="flex items-center gap-4 py-3 min-w-[450px]">
+                    <div className="w-28 h-16 rounded-xl overflow-hidden border border-slate-200 shadow-sm shrink-0 bg-slate-100 transition-colors duration-300 group-hover:border-arcipta-blue-primary/50">
+                        <img 
+                            src={p.thumbnail} 
+                            className="w-full h-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110" 
+                            alt={p.title} 
+                        />
+                    </div>
+                    
+                    <div className="flex flex-col gap-1 overflow-hidden">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                            <h4 className="font-bold text-slate-900 truncate text-sm tracking-tight transition-colors duration-300 group-hover:text-arcipta-blue-primary font-orbitron capitalize-none uppercase-none">
+                                {p.title}
+                            </h4>
+                            <span className="text-[10px] font-medium text-slate-800 tracking-tight transition-colors duration-300 group-hover:text-arcipta-blue-primary shrink-0 font-satoshi mt-0.5">
+                                ( <span className="text-slate-800 tracking-tight transition-colors duration-300 group-hover:text-arcipta-blue-primary">{p.year}</span> )
+                            </span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-none">
+                                {p.client_name}
+                            </span>
+                            <Badge 
+                                variant="secondary" 
+                                className="bg-slate-100 text-slate-500 text-[9px] px-1.5 py-0 border-none font-bold uppercase group-hover:bg-arcipta-blue-primary/10 group-hover:text-arcipta-blue-primary transition-colors"
+                            >
+                                {categoryName}
+                            </Badge>
+                        </div>
+                    </div>
                 </div>
             );
         },
+    },
+    {
+        id: "actions",
+        header: "Actions",
+        enableHiding: false,
+        cell: ({ row }) => (
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button 
+                        variant="ghost" 
+                        className="h-8 w-8 p-0 hover:bg-transparent transition-all duration-300 group-hover:text-arcipta-blue-primary"
+                    >
+                        <MoreHorizontal className="h-4 w-4" />
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 font-satoshi shadow-xl border-slate-100">
+                    <DropdownMenuItem onClick={onAddNew}><Plus className="mr-2 h-4 w-4" /> Add New</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onView(row.original)}><Eye className="mr-2 h-4 w-4" /> View Details</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onPreview(row.original)}><MonitorPlay className="mr-2 h-4 w-4 text-orange-500" /> Live Preview</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onEdit(row.original)}><Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit Portofolio</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onDelete(row.original)} className="text-red-600 focus:text-red-600"><Trash2 className="mr-2 h-4 w-4" /> Delete Portofolio</DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
+        ),
     },
 ];

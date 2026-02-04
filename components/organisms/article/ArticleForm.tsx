@@ -89,18 +89,19 @@ export function ArticleForm({ mode, initialData, onClose }: any) {
                     </h1>
                 </div>
                 <div className="flex items-center gap-3 pr-12">
-                    <Button variant="outline" onClick={() => setIsPreviewOpen(true)} className="font-bold bg-arcipta-orange text-white hover:bg-slate-600 hover:text-white h-10 px-4 rounded-lg">
+                    {/* Tombol Preview Ditambahkan di Sini */}
+                    <Button variant="outline" onClick={() => setIsPreviewOpen(true)} className="font-medium bg-arcipta-orange text-white hover:bg-slate-600 hover:text-white h-10 px-4 rounded-lg">
                         <MonitorPlay className="mr-2 h-4 w-4 text-white" /> Live Preview 
                     </Button>
                     <Button 
                         variant="ghost" 
                         onClick={() => onClose()} 
-                        className="font-bold text-black px-4 border border-slate-200 hover:bg-slate-50"
+                        className="font-medium text-black px-4 border border-slate-200 hover:bg-slate-300"
                     >
                         Discard
-                    </Button>
-                    <Button onClick={handleSave} disabled={isSaving} className="bg-arcipta-blue-primary hover:opacity-90 text-white font-bold px-6 shadow-sm">
-                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Save Article
+                    </Button>                    
+                    <Button onClick={handleSave} disabled={isSaving} className="bg-arcipta-blue-primary hover:opacity-90 text-white font-medium px-8 shadow-sm">
+                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Save Case Study
                     </Button>
                 </div>
                 

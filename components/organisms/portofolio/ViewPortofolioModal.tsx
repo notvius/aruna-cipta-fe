@@ -1,232 +1,129 @@
 "use client";
 
-import * as React from "react";
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogTrigger,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Eye, Loader2 } from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { type Portofolio } from "@/constants/portofolios";
-import { type PortofolioOverview } from "@/constants/portofolio_overviews";
-import { type PortofolioContent } from "@/constants/portofolios_contents";
-import { getPortofolioOverviews } from "@/utils/portofolio-overview-storage";
-import { getPortofolioContents } from "@/utils/portofolio-content-storage";
-import { getServices } from "@/utils/service-storage";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { type Portofolio } from "@/constants/portofolios";
+import { getPortofolioContentById } from "@/utils/portofolio-content-storage";
+import { getServices } from "@/utils/service-storage";
+import { Label } from "@/components/ui/label";
 
-interface ViewPortofolioModalProps {
-    portofolio: Portofolio;
-}
+export function ViewPortofolioModal({ portofolio, open, onOpenChange }: { portofolio: Portofolio | null, open: boolean, onOpenChange: (o: boolean) => void }) {
+    if (!portofolio) return null;
+    const services = getServices();
+    const techContent = getPortofolioContentById(portofolio.id);
+    const catName = services.find(s => Number(s.id) === Number(portofolio.category?.[0]))?.title || "General";
 
-export function ViewPortofolioModal({ portofolio }: ViewPortofolioModalProps) {
-    const [overview, setOverview] = React.useState<PortofolioOverview | null>(null);
-    const [content, setContent] = React.useState<PortofolioContent | null>(null);
-    const [categoryName, setCategoryName] = React.useState("");
-    const [isLoading, setIsLoading] = React.useState(false);
-    const [open, setOpen] = React.useState(false);
-
-    React.useEffect(() => {
-        if (open) {
-            setIsLoading(true);
-            // Fetch related data
-            const overviews = getPortofolioOverviews();
-            const contents = getPortofolioContents();
-            const services = getServices();
-
-            const foundOverview = overviews.find(o => o.portofolio_id === portofolio.id);
-            const foundContent = contents.find(c => c.portofolio_id === portofolio.id);
-
-            // Resolve category name
-            const catIds = portofolio.category;
-            const catId = Array.isArray(catIds) ? catIds[0] : catIds;
-            const foundService = services.find(s => String(s.id) === String(catId));
-
-            setOverview(foundOverview || null);
-            setContent(foundContent || null);
-            setCategoryName(foundService?.title || (catId ? `Service ${catId}` : "-"));
-
-            setIsLoading(false);
-        }
-    }, [open, portofolio.id, portofolio.category]);
-
-    function formatDate(date: Date | string | null | undefined): string {
+    const formatFullDate = (date: any) => {
         if (!date) return "—";
-        const parsedDate = date instanceof Date ? date : new Date(date);
-        if (isNaN(parsedDate.getTime())) return "Invalid date";
-
-        return parsedDate.toLocaleDateString("id-ID", {
-            year: "numeric",
-            month: "long",
+        return new Date(date).toLocaleString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
             day: "numeric",
-        });
-    }
+            month: "long",
+            year: "numeric"
+        }) + " WIB";
+    };
 
     return (
-        <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-arcipta-blue-primary hover:text-arcipta-blue-primary/90"
-                >
-                    <Eye className="h-4 w-4" />
-                </Button>
-            </DialogTrigger>
-            <DialogContent className="sm:max-w-[1200px] max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-bold">Portfolio Details</DialogTitle>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[700px] font-satoshi p-0 overflow-hidden border-none shadow-2xl">
+                <DialogHeader className="p-6 pb-0">
+                    <DialogTitle className="text-xl font-bold font-orbitron uppercase tracking-tight text-slate-900">Portfolio Details</DialogTitle>
                 </DialogHeader>
-
-                {isLoading ? (
-                    <div className="flex justify-center py-8">
-                        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 py-6">
-                        {/* Column 1: Image & Meta (4 cols) */}
-                        <div className="lg:col-span-4 space-y-8">
-                            <div className="space-y-3">
-                                <Label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Thumbnail</Label>
-                                <div className="relative aspect-video rounded-xl overflow-hidden shadow-sm border bg-muted">
-                                    <img
-                                        src={portofolio.thumbnail}
-                                        alt={portofolio.title}
-                                        className="w-full h-full object-cover"
-                                    />
-                                </div>
+                
+                <ScrollArea className="max-h-[85vh] w-full">
+                    <div className="p-6 space-y-6">
+                        {/* Header Info */}
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Client Name</p>
+                                <p className="font-bold text-slate-900">{portofolio.client_name}</p>
                             </div>
+                            <div className="space-y-1 text-right">
+                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Category</p>
+                                <Badge className="bg-arcipta-blue-primary">{catName}</Badge>
+                            </div>
+                        </div>
 
-                            <div className="space-y-6 pt-6">
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Client</Label>
-                                        <p className="text-sm font-semibold text-foreground">{portofolio.client_name || "-"}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Year</Label>
-                                        <p className="text-sm font-semibold text-foreground">{portofolio.year || "-"}</p>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Category</Label>
-                                        <div>
-                                            <Badge className="bg-arcipta-blue-primary/10 text-arcipta-blue-primary hover:bg-arcipta-blue-primary/20 border-none px-3 py-1 text-[10px] font-bold">
-                                                {categoryName}
-                                            </Badge>
-                                        </div>
-                                    </div>
+                        {/* Content Card */}
+                        <div className="bg-slate-50 rounded-2xl p-6 border border-slate-100 space-y-4">
+                            <div className="grid grid-cols-1 gap-4">
+                                <div className="space-y-1">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Project Title</p>
+                                    <p className="text-sm font-bold text-slate-900 leading-tight">{portofolio.title}</p>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-1 pt-4 border-dashed">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Created At</Label>
-                                        <p className="text-xs text-foreground font-medium">{formatDate(portofolio.created_at)}</p>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Year / Role</p>
+                                        <p className="text-xs font-medium text-slate-700">{portofolio.year} — {portofolio.role || "Consultant"}</p>
                                     </div>
-                                    <div className="space-y-1 pt-4 border-dashed">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Updated At</Label>
-                                        <p className="text-xs text-foreground font-medium">{formatDate(portofolio.updated_at)}</p>
+                                    <div className="space-y-1 text-right">
+                                        <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">URL Slug Path</p>
+                                        <p className="text-xs font-medium text-arcipta-blue-primary">/portfolio/{portofolio.slug}</p>
+                                    </div>
+                                </div>
+                                
+                                <div className="space-y-2 border-t border-slate-200/60 pt-4">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Thumbnail</p>
+                                    <div className="relative aspect-video w-full overflow-hidden rounded-xl border border-slate-200 shadow-sm bg-white">
+                                        <img src={portofolio.thumbnail} alt="" className="h-full w-full object-cover" />
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 border-t border-slate-200/60 pt-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black uppercase text-red-400 tracking-widest">The Problem</p>
+                                        <p className="text-xs text-slate-500 leading-relaxed italic">"{portofolio.problem || "—"}"</p>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-black uppercase text-green-500 tracking-widest">The Solution</p>
+                                        <p className="text-xs text-slate-600 leading-relaxed">"{portofolio.solution || "—"}"</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 border-t border-slate-200/60 pt-4">
+                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Content Details</p>
+                                    <div className="space-y-4 text-xs text-slate-600">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div><Label className="text-[10px] font-bold text-slate-900">CONTEXT:</Label> <p className="leading-relaxed">{techContent?.context || "—"}</p></div>
+                                            <div><Label className="text-[10px] font-bold text-slate-900">CHALLENGE:</Label> <p className="leading-relaxed">{techContent?.challenge || "—"}</p></div>
+                                        </div>
+                                        
+                                        <div><Label className="text-[10px] font-bold text-slate-900">OUR APPROACH:</Label> <p className="leading-relaxed">{techContent?.approach || "—"}</p></div>
+                                        
+                                        {techContent?.image_process && techContent.image_process.some(img => img !== "") && (
+                                            <div className="grid grid-cols-2 gap-3 pt-2">
+                                                {techContent.image_process.map((img, i) => img && (
+                                                    <div key={i} className="aspect-square rounded-lg overflow-hidden border border-slate-200 bg-white">
+                                                        <img src={img} className="w-full h-full object-cover" alt="" />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                        
+                                        <div className="bg-arcipta-blue-primary/5 p-4 rounded-xl border border-arcipta-blue-primary/10">
+                                            <Label className="text-[10px] font-bold text-arcipta-blue-primary uppercase tracking-widest block mb-1">Business Impact:</Label>
+                                            <p className="font-medium text-slate-900 text-sm">"{techContent?.impact || "—"}"</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Column 2 & 3: Details (8 cols) */}
-                        <div className="lg:col-span-8 space-y-10">
-                            <div className="space-y-2 pb-6 border-b">
-                                <Label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Project Title</Label>
-                                <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border font-semibold">
-                                    {portofolio.title}
-                                </div>
+                        {/* Logs Info */}
+                        <div className="grid grid-cols-1 gap-3 pt-4 pb-2">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-muted-foreground font-bold uppercase tracking-tighter">Created At</span>
+                                <span className="px-2 py-1 rounded-md text-slate-900 font-medium">{formatFullDate(portofolio.created_at)}</span>
                             </div>
-
-                            {/* Overview Section */}
-                            <div className="space-y-6">
-                                <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
-                                    <span className="w-1 h-4 bg-arcipta-blue-primary rounded-full"></span>
-                                    Overview
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
-                                    <div className="md:col-span-2 space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Role</Label>
-                                        <div className="text-sm leading-relaxed text-foreground bg-muted/30 p-4 rounded-lg border italic text-muted-foreground/80 font-medium capitalize">
-                                            {overview?.role || "-"}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Problem</Label>
-                                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                            {overview?.problem || "-"}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Solution</Label>
-                                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                            {overview?.solution || "-"}
-                                        </div>
-                                    </div>
-                                </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-muted-foreground font-bold uppercase tracking-tighter">Last Update At</span>
+                                <span className="text-black px-2 py-1 rounded-md font-medium">{formatFullDate(portofolio.updated_at)}</span>
                             </div>
-
-                            {/* Context Section */}
-                            <div className="space-y-6 pt-6">
-                                <h4 className="text-sm font-semibold text-foreground uppercase tracking-wider flex items-center gap-2">
-                                    <span className="w-1 h-4 bg-arcipta-blue-primary rounded-full"></span>
-                                    Context & Process
-                                </h4>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-8">
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Context</Label>
-                                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                            {content?.context || "-"}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Challenge</Label>
-                                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                            {content?.challenge || "-"}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Approach</Label>
-                                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                            {content?.approach || "-"}
-                                        </div>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Impact</Label>
-                                        <div className="text-sm leading-relaxed whitespace-pre-wrap text-foreground bg-muted/30 p-4 rounded-lg border">
-                                            {content?.impact || "-"}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Process Images */}
-                            {content?.image_process && content.image_process.length > 0 && (content.image_process[0] || content.image_process[1]) && (
-                                <div className="space-y-4 pt-8">
-                                    <Label className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">Process Images</Label>
-                                    <div className="grid grid-cols-2 gap-6">
-                                        {content.image_process.map((img, idx) => img ? (
-                                            <div key={idx} className="relative aspect-[16/10] rounded-xl overflow-hidden border shadow-sm group cursor-zoom-in">
-                                                <img
-                                                    src={img}
-                                                    alt={`Process ${idx + 1}`}
-                                                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                                />
-                                                <div className="absolute inset-0 bg-black/5 group-hover:bg-transparent transition-colors duration-300" />
-                                            </div>
-                                        ) : null)}
-                                    </div>
-                                </div>
-                            )}
-
                         </div>
                     </div>
-
-                )}
+                </ScrollArea>
             </DialogContent>
         </Dialog>
     );
