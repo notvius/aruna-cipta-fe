@@ -3,35 +3,39 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import { MoreHorizontal, Pencil, Trash2, Eye, Plus } from "lucide-react";
 import {
-    ArrowUpDown,
-} from "lucide-react";
+    DropdownMenu,
+    DropdownMenuTrigger,
+    DropdownMenuContent,
+    DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { type Service } from "@/constants/services";
-import { EditServiceModal } from "./EditServiceModal";
-import { ViewServiceModal } from "./ViewServiceModal";
-
-const truncateWords = (text: string | null | undefined, count: number) => {
-    if (!text) return "";
-    const words = text.split(" ");
-    if (words.length <= count) return text;
-    return words.slice(0, count).join(" ") + "...";
-};
 
 const stripHtml = (html: string) => {
+    if (typeof window === "undefined") return html;
     const tmp = document.createElement("DIV");
     tmp.innerHTML = html;
     return tmp.textContent || tmp.innerText || "";
 };
 
-export const columns: ColumnDef<Service>[] = [
+const truncateWords = (text: string, limit: number) => {
+    const words = text.split(/\s+/);
+    if (words.length <= limit) return text;
+    return words.slice(0, limit).join(" ") + "...";
+};
+
+export const getServiceColumns = (
+    onView: (s: Service) => void,
+    onEdit: (s: Service) => void,
+    onDelete: (s: Service) => void,
+    onCreate: () => void
+): ColumnDef<Service>[] => [
     {
         id: "select",
         header: ({ table }) => (
             <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
+                checked={table.getIsAllPageRowsSelected()}
                 onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
                 aria-label="Select all"
             />
@@ -47,43 +51,29 @@ export const columns: ColumnDef<Service>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "featured_image",
-        header: "Image",
-        size: 100,
-        cell: ({ row }) => (
-            <div className="flex items-center gap-2 min-w-[100px]">
-                <img
-                    src={row.getValue("featured_image")}
-                    alt={row.original.title}
-                    className="rounded-md object-cover h-14 w-24 flex-shrink-0"
-                />
-            </div>
-        ),
-    },
-    {
         accessorKey: "title",
-        header: "Title",
-        size: 200,
-        cell: ({ row }) => (
-            <div className="group flex items-center gap-1 justify-between max-w-[200px]">
-                <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                    {truncateWords(row.getValue("title"), 10)}
-                </div>
-            </div>
-        ),
-    },
-    {
-        accessorKey: "content",
-        header: "Content",
-        size: 240,
+        header: "Service Information",
         cell: ({ row }) => {
-            const rawContent = row.getValue("content") as string;
-            const plainText = stripHtml(rawContent);
-
+            const plainText = stripHtml(row.original.content);
+            const truncatedText = truncateWords(plainText, 10);
+            
             return (
-                <div className="group flex items-center gap-1 justify-between max-w-[240px]">
-                    <div className="text-sm text-muted-foreground whitespace-normal break-words">
-                        {truncateWords(plainText, 10)}
+                <div className="flex items-center gap-4 py-2 group/cell cursor-default">
+                    <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 shadow-sm transition-all duration-500">
+                        <img 
+                            src={row.original.featured_image} 
+                            alt={row.original.title} 
+                            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                    </div>
+
+                    <div className="flex flex-col gap-1 min-w-0">
+                        <span className="font-bold text-slate-900 font-satoshi text-sm truncate max-w-[350px] transition-colors duration-300 group-hover:text-arcipta-blue-primary">
+                            {row.original.title}
+                        </span>
+                        <p className="text-slate-500 text-[11px] max-w-[500px] font-medium leading-relaxed">
+                            {truncatedText}
+                        </p>
                     </div>
                 </div>
             );
@@ -91,21 +81,50 @@ export const columns: ColumnDef<Service>[] = [
     },
     {
         accessorKey: "created_at",
-        header: "Created At",
+        header: "Date Created",
+        cell: ({ row }) => {
+            const date = new Date(row.original.created_at);
+            return (
+                <span className="text-[11px] font-bold text-slate-500 uppercase tracking-tight">
+                    {date.toLocaleDateString("id-ID", { day: '2-digit', month: 'short', year: 'numeric' })}
+                </span>
+            );
+        }
     },
     {
         id: "actions",
-        header: "Action",
-        enableHiding: false,
-        cell: ({ row, table }) => {
+        header: () => <div className="text-left w-[100px] ml-[-40px]">Action</div>,
+        cell: ({ row }) => {
             const service = row.original;
             return (
-                <div className="flex items-center gap-2">
-                    <ViewServiceModal service={service} />
-                    <EditServiceModal
-                        service={service}
-                        onSave={(updatedService) => table.options.meta?.updateRow(row.index, updatedService)}
-                    />
+                <div className="flex justify-start w-[100px] ml-[-40px]">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button 
+                                variant="ghost" 
+                                className="h-8 w-8 p-0 rounded-full bg-transparent hover:bg-transparent shadow-none border-none focus-visible:ring-0 group-hover:text-arcipta-blue-primary transition-colors duration-300"
+                            >
+                                <MoreHorizontal className="h-4 w-4 text-slate-400 group-hover:text-arcipta-blue-primary transition-colors duration-300" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 font-satoshi shadow-2xl border-slate-100">
+                            <DropdownMenuItem onClick={onCreate} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                                <Plus className="mr-2 h-4 w-4 text-arcipta-blue-primary" /> Create Service
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onView(service)} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                                <Eye className="mr-2 h-4 w-4 text-blue-500" /> View Details
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => onEdit(service)} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                                <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit Service
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                                onClick={() => onDelete(service)} 
+                                className="rounded-lg py-2.5 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
+                            >
+                                <Trash2 className="mr-2 h-4 w-4" /> Delete Service
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             );
         },
