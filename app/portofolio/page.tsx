@@ -98,7 +98,7 @@ export default function PortofolioPage() {
 
             <div className="mb-4 space-y-1 pt-4">
                 <h2 className="text-2xl font-bold tracking-tight font-orbitron text-slate-900 uppercase">Portfolio Management</h2>
-                <p className="text-sm text-muted-foreground tracking-tight">Manage and Organize Arcipta Portfolio Content</p>
+                <p className="text-sm text-muted-foreground tracking-tight">Manage and Organize Portfolio Content</p>
             </div>
 
             <PortofolioFilter 
