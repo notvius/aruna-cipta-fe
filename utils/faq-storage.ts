@@ -18,7 +18,6 @@ export const getFaqs = (): Faq[] => {
 
     try {
         const parsed = JSON.parse(stored);
-
         return parsed;
     } catch (e) {
         console.error("Failed to parse faqs", e);
@@ -34,5 +33,11 @@ export const saveFaqs = (faqs: Faq[]) => {
 export const addFaq = (newFaq: Faq) => {
     const faqs = getFaqs();
     const updated = [newFaq, ...faqs];
+    saveFaqs(updated);
+};
+
+export const updateFaq = (updatedFaq: Faq) => {
+    const faqs = getFaqs();
+    const updated = faqs.map((f) => (f.id === updatedFaq.id ? updatedFaq : f));
     saveFaqs(updated);
 };
