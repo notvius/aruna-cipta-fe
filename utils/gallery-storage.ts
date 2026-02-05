@@ -45,3 +45,12 @@ export const addGallery = (newGallery: Gallery) => {
     const updated = [newGallery, ...galleries];
     saveGalleries(updated);
 };
+
+
+export const updateGallery = (updatedGallery: Gallery) => {
+    const galleries = getGalleries();
+    const updated = galleries.map((g) => 
+        g.id === updatedGallery.id ? updatedGallery : g
+    );
+    saveGalleries(updated);
+};

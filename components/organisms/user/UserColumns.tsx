@@ -142,9 +142,9 @@ export const columns = ({
                     <DropdownMenuTrigger asChild>
                         <Button 
                             variant="ghost" 
-                            className="h-8 w-8 p-0 hover:bg-slate-100 rounded-full transition-all duration-300 group-hover:text-arcipta-blue-primary"
+                            className="h-8 w-8 p-0 hover:bg-transparent transition-all duration-300 group-hover:text-arcipta-blue-primary"
                         >
-                            <MoreHorizontal className="size-4" />
+                            <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-42 font-satoshi shadow-xl border-slate-100 p-1">
