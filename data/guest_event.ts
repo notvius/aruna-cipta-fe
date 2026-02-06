@@ -1,7 +1,6 @@
-import { type GuestEvent } from "../constants/guest_events";
-export { type GuestEvent } from "../constants/guest_events";
+import { GuestEvent, TrendData } from "@/constants/guest_events";
 
-export const guestEventsData: GuestEvent[] = [
+export const guestEventsMockData: GuestEvent[] = [
     {
         id: 1,
         event_type: "page_view",
@@ -28,50 +27,15 @@ export const guestEventsData: GuestEvent[] = [
         ip_address: "103.21.45.12",
         user_agent: "Chrome / Windows 10",
         created_at: new Date("2025-01-20T09:05:48"),
-    },
-    {
-        id: 4,
-        event_type: "button_click",
-        event_subtype: "whatsapp",
-        page_url: "/",
-        ip_address: "36.78.120.9",
-        user_agent: "Safari / iPhone",
-        created_at: new Date("2025-01-20T10:12:03"),
-    },
-    {
-        id: 5,
-        event_type: "page_view",
-        event_subtype: "article",
-        page_url: "/articles/strategi-digital-marketing-2025",
-        ip_address: "114.5.12.88",
-        user_agent: "Chrome / Android",
-        created_at: new Date("2025-01-20T11:02:45"),
-    },
-    {
-        id: 6,
-        event_type: "read",
-        event_subtype: "article_start",
-        page_url: "/articles/strategi-digital-marketing-2025",
-        ip_address: "114.5.12.88",
-        user_agent: "Chrome / Android",
-        created_at: new Date("2025-01-20T11:03:10"),
-    },
-    {
-        id: 7,
-        event_type: "button_click",
-        event_subtype: "growth_compass",
-        page_url: "/growth-pass",
-        ip_address: "114.5.12.88",
-        user_agent: "Chrome / Android",
-        created_at: new Date("2025-01-20T11:06:00"),
-    },
-    {
-        id: 8,
-        event_type: "input",
-        event_subtype: "service",
-        page_url: "/services",
-        ip_address: "180.252.64.33",
-        user_agent: "Edge / Windows 11",
-        created_at: new Date("2025-01-20T13:21:18"),
-    },
+    }
+];
+
+export const articleTrendData = [
+    { name: "Mon", views: 420, start: 310, finish: 220 },
+    { name: "Tue", views: 580, start: 450, finish: 390 },
+    { name: "Wed", views: 490, start: 400, finish: 310 },
+    { name: "Thu", views: 820, start: 710, finish: 580 },
+    { name: "Fri", views: 740, start: 620, finish: 490 },
+    { name: "Sat", views: 960, start: 840, finish: 710 },
+    { name: "Sun", views: 880, start: 790, finish: 650 },
 ];

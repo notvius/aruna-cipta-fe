@@ -2,89 +2,75 @@
 
 import * as React from "react";
 import { GuestEventDashboard } from "@/components/organisms/guest-event/GuestEventDashboard";
-import {
-    growthPassSummary,
-    growthPassTrendData,
-    growthPassPerformanceData,
-} from "@/data/guest_event_analytics";
-import { guestEventsData } from "@/data/guest_event";
-import { growthPassData } from "@/data/growth_pass";
 import { ColumnDef } from "@tanstack/react-table";
-import { ChartConfig } from "@/components/ui/chart";
+import { type AnalyticsSummaryItem } from "@/constants/guest_events";
+
+const growthPassTrendData = [
+    { name: "Mon", innovate: 45, growth: 30, optimize: 20 },
+    { name: "Tue", innovate: 52, growth: 42, optimize: 35 },
+    { name: "Wed", innovate: 48, growth: 40, optimize: 30 },
+    { name: "Thu", innovate: 70, growth: 65, optimize: 55 },
+    { name: "Fri", innovate: 85, growth: 75, optimize: 60 },
+    { name: "Sat", innovate: 110, growth: 95, optimize: 85 },
+    { name: "Sun", innovate: 95, growth: 80, optimize: 70 },
+];
 
 export default function GrowthPassAnalyticsPage() {
-    const [dateRange, setDateRange] = React.useState("Last 7 Days");
-    const [selectedPass, setSelectedPass] = React.useState("All Passes");
+    const summaryItems: AnalyticsSummaryItem[] = [
+        { 
+            label: "Total Clicks Engagement", 
+            value: "5,421", 
+            trend: "+12.5%", 
+            iconType: "mouse" 
+        },
+        { 
+            label: "Category Ranking", 
+            value: "1. INNOVATE", 
+            trend: "2. GROWTH • 3. OPTIMIZE", 
+            iconType: "chart" 
+        }
+    ];
 
     const performanceColumns: ColumnDef<any>[] = [
-        { accessorKey: "pass", header: "Pass Name" },
-        { accessorKey: "clicks", header: "Total Button Clicks" },
-    ];
-
-    const rawEventsColumns: ColumnDef<any>[] = [
-        {
-            accessorKey: "created_at",
-            header: "Date",
-            cell: ({ row }) => row.original.created_at ? (row.original.created_at as Date).toLocaleString() : "N/A",
+        { 
+            accessorKey: "category", 
+            header: "Category",
+            cell: ({ row }) => <div className="min-w-[150px] font-bold text-blue-600">{row.original.category}</div>
         },
-        { accessorKey: "event_type", header: "Event Type" },
-        { accessorKey: "event_subtype", header: "Subtype" },
-        { accessorKey: "ip_address", header: "IP Address" },
-        { accessorKey: "user_agent", header: "User Agent" },
-        { accessorKey: "page_url", header: "Page URL" },
+        { accessorKey: "total_clicks", header: "Total Clicks" },
+        { accessorKey: "unique_guests", header: "Unique Guests" },
+        { accessorKey: "rate", header: "Engagement Rate" },
     ];
 
-    const trendConfig = {
-        clicks: { label: "Button Clicks", color: "#FF6B35" },
-    } satisfies ChartConfig;
-
-    const filteredPerformance = selectedPass === "All Passes"
-        ? growthPassPerformanceData
-        : growthPassPerformanceData.filter(p => p.pass === selectedPass);
-
-    const filteredRawEvents = guestEventsData.filter(e => {
-        const isGrowth = e.event_subtype === "growth_compass";
-        if (selectedPass === "All Passes") return isGrowth;
-        return isGrowth && e.page_url.includes(selectedPass.toLowerCase());
-    });
+    const performanceData = [
+        { id: 1, category: "INNOVATE", total_clicks: 2450, unique_guests: 1800, rate: "45%" },
+        { id: 2, category: "GROWTH", total_clicks: 1820, unique_guests: 1400, rate: "34%" },
+        { id: 3, category: "OPTIMIZE", total_clicks: 1151, unique_guests: 900, rate: "21%" }
+    ];
 
     return (
-        <GuestEventDashboard
-            header={{
-                title: "Growth Pass Analytics",
-                description: "Monitor growth pass performance and engagement",
-            }}
-            filters={[
-                {
-                    label: "Date Range",
-                    options: ["Last 24 Hours", "Last 7 Days", "Last 30 Days"],
-                    value: dateRange,
-                    onChange: setDateRange,
-                },
-                {
-                    label: "Pass Type",
-                    options: ["All Passes", ...growthPassData.map(p => p.title)],
-                    value: selectedPass,
-                    onChange: setSelectedPass,
-                },
-            ]}
-            summary={growthPassSummary}
-            trendTitle="GROWTH PASS CLICK TREND"
-            trendData={growthPassTrendData}
-            trendConfig={trendConfig}
-            trendDataKeys={["clicks"]}
-            performanceTitle="PASS PERFORMANCE"
-            performanceData={filteredPerformance}
-            performanceColumns={performanceColumns}
-            detailTitle="PASS DETAIL"
-            detailFields={(item) => [
-                { label: "Pass Name", value: item.pass },
-                { label: "Button Clicks", value: item.clicks },
-            ]}
-            detailFunnelSteps={() => []}
-            rawEventsTitle="RAW EVENTS"
-            rawEventsData={filteredRawEvents}
-            rawEventsColumns={rawEventsColumns}
-        />
+        <div className="flex flex-col gap-6 p-0">
+            <GuestEventDashboard
+                header={{
+                    title: "Growth Pass Analytics",
+                    description: "Analysis of click engagement for Innovate, Growth, and Optimize categories",
+                }}
+                summary={summaryItems}
+                trendTitle="GROWTH PASS CLICK TREND"
+                trendData={growthPassTrendData}
+                trendConfig={{
+                    innovate: { label: "Innovate", color: "#3b82f6" },
+                    growth: { label: "Growth", color: "#f97316" },
+                    optimize: { label: "Optimize", color: "#93c5fd" },
+                }}
+                trendDataKeys={["innovate", "growth", "optimize"]}
+                performanceTitle="CATEGORY RANKING DETAILS"
+                performanceData={performanceData}
+                performanceColumns={performanceColumns}
+                rawEventsTitle="GROWTH PASS LOGS"
+                rawEventsData={[]} 
+                rawEventsColumns={[]} 
+            />
+        </div>
     );
 }

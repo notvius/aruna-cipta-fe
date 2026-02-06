@@ -8,5 +8,14 @@ export interface GuestEvent {
     created_at: Date;
 }
 
+export interface AnalyticsSummaryItem {
+    label: string;
+    value: string | number;
+    trend: string;
+    iconType: "eye" | "play" | "check" | "chart" | "wa" | "growth" | "service" | "mouse";
+}
 
-
+export interface TrendData {
+    name: string;
+    [key: string]: string | number;
+}
