@@ -46,7 +46,7 @@ export function ViewPortfolioModal({ portfolio, open, onOpenChange, services }: 
         return `${process.env.NEXT_PUBLIC_ASSET_URL}/${url}`;
     };
 
-    const labelStyle = "text-[10px] font-bold uppercase text-slate-400 tracking-widest mb-1.5 block";
+    const labelStyle = "text-[10px] font-bold uppercase text-black tracking-widest mb-1.5 block";
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -56,23 +56,26 @@ export function ViewPortfolioModal({ portfolio, open, onOpenChange, services }: 
                         <div className="space-y-1">
                             <DialogTitle className="text-xl font-bold uppercase tracking-tight text-slate-900">Portfolio Details</DialogTitle>
                         </div>
-                        <Badge className="bg-arcipta-blue-primary/10 text-arcipta-blue-primary border-none font-bold uppercase tracking-widest text-[9px] px-3 py-1 rounded-full">
-                            {catName}
-                        </Badge>
                     </div>
                 </DialogHeader>
 
                 <ScrollArea className="max-h-[80vh] w-full">
                     <div className="p-8 pt-6 space-y-10">
                         <div className="space-y-6">
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                                <div className="space-y-1 sm:col-span-2">
+                            <div className="grid grid-cols-3 sm:grid-cols-3 gap-5">
+                                <div className="space-y-1">
                                     <span className={labelStyle}>Project Title</span>
                                     <p className="text-lg font-bold text-slate-900 leading-tight uppercase">{portfolio.title}</p>
                                 </div>
                                 <div className="space-y-1">
                                     <span className={labelStyle}>Client Identity</span>
                                     <p className="font-bold text-slate-900 uppercase">{portfolio.client_name}</p>
+                                </div>
+                                <div className="space-y-1">
+                                    <span className={labelStyle}>Service</span>
+                                    <Badge className="bg-arcipta-blue-primary/10 text-arcipta-blue-primary border-none font-bold uppercase tracking-widest text-[9px] px-3 py-1 rounded-full">
+                                        {catName}
+                                    </Badge>
                                 </div>
                             </div>
 
@@ -87,7 +90,7 @@ export function ViewPortfolioModal({ portfolio, open, onOpenChange, services }: 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 bg-slate-50/50 rounded-2xl p-6 border border-slate-100">
                                 <div className="space-y-2">
                                     <span className={cn(labelStyle, "text-red-400")}>The Problem</span>
-                                    <p className="text-xs text-slate-600 leading-relaxed italic">"{portfolio.problem || "—"}"</p>
+                                    <p className="text-xs text-slate-600 leading-relaxed">"{portfolio.problem || "—"}"</p>
                                 </div>
                                 <div className="space-y-2">
                                     <span className={cn(labelStyle, "text-green-500")}>The Solution</span>
@@ -128,7 +131,7 @@ export function ViewPortfolioModal({ portfolio, open, onOpenChange, services }: 
                                 <div className="bg-arcipta-blue-primary/5 p-8 rounded-2xl border border-arcipta-blue-primary/10 relative overflow-hidden">
                                     <div className="absolute top-0 right-0 w-24 h-24 bg-arcipta-blue-primary/5 rounded-full -mr-12 -mt-12" />
                                     <span className={cn(labelStyle, "text-arcipta-blue-primary")}>Key Impact</span>
-                                    <p className="font-bold text-slate-900 text-base italic leading-relaxed">
+                                    <p className="font-bold text-slate-900 text-base leading-relaxed">
                                         "{techContent.impact || "—"}"
                                     </p>
                                 </div>
@@ -137,12 +140,12 @@ export function ViewPortfolioModal({ portfolio, open, onOpenChange, services }: 
 
                         <div className="flex flex-col sm:flex-row justify-between gap-4 py-6 border-t border-slate-100">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Project Registered</span>
-                                <span className="text-xs text-slate-900 font-bold">{formatFullDate(portfolio.created_at)}</span>
+                                <span className={labelStyle}>Created At</span>
+                                <span className="text-xs text-slate-400 font-bold">{formatFullDate(portfolio.created_at)}</span>
                             </div>
                             <div className="flex flex-col gap-1 sm:text-right">
-                                <span className="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Resource Updated</span>
-                                <span className="text-xs text-slate-900 font-bold">{formatFullDate(portfolio.updated_at)}</span>
+                                <span className={labelStyle}>Last Updated At</span>
+                                <span className="text-xs text-slate-400 font-bold">{formatFullDate(portfolio.updated_at)}</span>
                             </div>
                         </div>
                     </div>

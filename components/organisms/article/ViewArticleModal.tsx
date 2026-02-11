@@ -61,7 +61,9 @@ export function ViewArticleModal({ article, open, onOpenChange, categories }: Vi
                             </div>
                             <div className="space-y-1 text-right">
                                 <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest">Category</p>
-                                <p className="font-bold text-slate-900">{catName}</p>
+                                <Badge className={article.category ? 'bg-arcipta-blue-primary text-white' : 'bg-amber-500 text-white'}>
+                                    {catName}
+                                </Badge>
                             </div>
                         </div>
 
