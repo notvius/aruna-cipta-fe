@@ -2,13 +2,13 @@
 
 import * as React from "react";
 import Cookies from "js-cookie";
-import AnalyticsOverviewHeader from "@/components/organisms/dashboard/AnalyticsOverviewHeader";
+import AnalyticsOverviewHeader, { type AnalyticModel } from "@/components/organisms/dashboard/AnalyticsOverviewHeader";
 import { AnalyticsSection } from "@/components/dashboard/AnalyticSection";
 import { type GuestEvent } from "@/constants/guest_events";
 import { models } from "@/constants/item-header-items";
 
 export default function OverviewPage() {
-    const [headerData, setHeaderData] = React.useState(models);
+    const [headerData, setHeaderData] = React.useState<AnalyticModel[]>(models);
     const [articlesData, setArticlesData] = React.useState<any[]>([]);
     const [isLoading, setIsLoading] = React.useState(true);
 

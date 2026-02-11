@@ -109,11 +109,11 @@ export function DataTable<T extends Record<string, any>>({
             globalFilter,
         },
         meta: {
-            updateData: (rowIndex: number, columnId: string, value: any) => {
+            updateData: (rowIndex: number, columnId: string | keyof T, value: any) => {
                 const newData = [...data];
                 newData[rowIndex] = {
                     ...newData[rowIndex],
-                    [columnId]: value,
+                    [columnId as keyof T]: value,
                 };
                 onDataChange?.(newData);
             },

@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 
 import { type LucideIcon } from "lucide-react"
 
-interface AnalyticModel {
+export interface AnalyticModel {
   icons: LucideIcon
   name: string
   summary: number | string
@@ -32,7 +32,7 @@ export default function AnalyticsOverviewHeader({ data }: { data: AnalyticModel[
 function AnalyticCard({
   model,
 }: {
-  model: (typeof models)[number]
+  model: AnalyticModel
 }) {
   const [timeRange, setTimeRange] = React.useState("Last 7 days")
 

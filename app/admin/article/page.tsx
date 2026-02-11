@@ -11,6 +11,7 @@ import { ViewArticleModal } from "@/components/organisms/article/ViewArticleModa
 import { PreviewArticleModal } from "@/components/organisms/article/PreviewArticleModal";
 import { AlertDeleteConfirmation } from "@/components/molecules/AlertDeleteConfirmation";
 import AlertSuccess2 from "@/components/alert-success-2";
+import AlertError2 from "@/components/alert-error-2";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { type Article, type ArticleCategory } from "@/constants/articles";
 
@@ -95,7 +96,7 @@ export default function ArticlePage() {
         };
 
         const categoryId = item.article_category_id || getCatIdValue(item.category);
-        formData.append("article_category_id", categoryId);
+        formData.append("article_category_id", String(categoryId));
 
         try {
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/article/${item.uuid}`, {
