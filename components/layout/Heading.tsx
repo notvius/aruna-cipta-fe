@@ -10,8 +10,8 @@ export default function Heading() {
         const allItems = [
             ...mainMenuItems,
             ...cmsMenuItems,
-            ...(mainMenuItems.flatMap(item => item.items || [])),
-            ...(cmsMenuItems.flatMap(item => item.items || [])),
+            ...(mainMenuItems.flatMap((item: any) => item.items || [])),
+            ...(cmsMenuItems.flatMap((item: any) => item.items || [])),
         ]
 
         if (pathname === "/") return "Overview"
