@@ -15,6 +15,7 @@ import AlertError2 from "@/components/alert-error-2";
 export default function UserPage() {
     const [users, setUsers] = React.useState<User[]>([]);
     const [permissions, setPermissions] = React.useState<Permission[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
     const [viewItem, setViewItem] = React.useState<User | null>(null);
     const [editItem, setEditItem] = React.useState<User | null>(null);
@@ -22,7 +23,6 @@ export default function UserPage() {
     const [rowsToDelete, setRowsToDelete] = React.useState<User[]>([]);
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
-
     const [globalFilter, setGlobalFilter] = React.useState("");
     const [roleFilter, setRoleFilter] = React.useState("all");
     const [dateRange, setDateRange] = React.useState({ start: "", end: "" });
@@ -30,6 +30,7 @@ export default function UserPage() {
     const refreshData = React.useCallback(async () => {
         const token = Cookies.get("token");
         const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+        setIsLoading(true);
         try {
             const [uRes, pRes] = await Promise.all([
                 fetch(`${baseUrl}/user`, { headers: { "Authorization": `Bearer ${token}` } }),
@@ -42,6 +43,8 @@ export default function UserPage() {
             setPermissions(Array.isArray(pData) ? pData : (pData.data || []));
         } catch (err) {
             triggerError("Failed to fetch user data.");
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -69,7 +72,7 @@ export default function UserPage() {
         });
     }, [users, globalFilter, roleFilter, dateRange]);
 
-    const handleUpdateStatus = async (user: User, nextActiveState: boolean) => {
+    const handleUpdateStatus = async (user: User, nextActiveState: number) => {
         const previousUsers = [...users];
         const nextActiveInt = nextActiveState ? 1 : 0;
         setUsers(prev => prev.map(u => u.id === user.id ? ({ ...u, is_active: nextActiveInt } as User) : u));
@@ -77,16 +80,26 @@ export default function UserPage() {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
         const identifier = user.uuid || user.id;
         try {
+            const mappedPermissionIds = (user.permissions || []).map((userPerm: any) => {
+                if (typeof userPerm === 'number') return userPerm;
+                if (typeof userPerm === 'object' && userPerm !== null && userPerm.id) return Number(userPerm.id);
+                if (typeof userPerm === 'string') {
+                    const found = permissions.find(p => `${p.module}.${p.action}` === userPerm);
+                    return found ? Number(found.id) : null;
+                }
+                return null;
+            }).filter(id => id !== null); 
             const res = await fetch(`${baseUrl}/user/${identifier}`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json", "Accept": "application/json", "Authorization": `Bearer ${token}` },
-                body: JSON.stringify({ username: user.username, is_active: nextActiveInt, is_superadmin: user.is_superadmin, permission_ids: (user.permissions || []).map(p => Number(p.id)) })
+                body: JSON.stringify({ username: user.username, is_active: nextActiveInt, is_superadmin: user.is_superadmin, permission_ids: mappedPermissionIds })
             });
-            if (!res.ok) throw new Error("Failed update");
-            triggerSuccess(`${user.username} now ${nextActiveInt === 1 ? "active" : "inactive"}`, true);
-        } catch (err) {
+            const result = await res.json();
+            if (!res.ok) throw new Error(result.message || "Failed update");
+            triggerSuccess(`${user.username} is now ${nextActiveInt === 1 ? "Active" : "Inactive"}`, true);
+        } catch (err: any) {
             setUsers(previousUsers);
-            triggerError("Failed sync.");
+            triggerError(err.message || "Failed sync status.");
         }
     };
 
@@ -105,13 +118,51 @@ export default function UserPage() {
         <div className="w-full relative font-satoshi px-6 pb-10">
             {success && <div className="fixed top-6 right-6 z-[300]"><AlertSuccess2 message={success} onClose={() => setSuccess(null)} /></div>}
             {error && <div className="fixed top-6 right-6 z-[300]"><AlertError2 message={error} onClose={() => setError(null)} /></div>}
-            <div className="mb-4 space-y-1 pt-4">
-                <h2 className="text-2xl font-bold tracking-tight font-orbitron text-slate-900 uppercase">User Management</h2>
-                <p className="text-sm text-muted-foreground">Manage and Organize System Access & User Profiles</p>
+            
+            <div className="mb-4 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold tracking-tight font-orbitron text-slate-900 uppercase">User Management</h2>
+                    <p className="text-sm text-muted-foreground">Manage and Organize System Access & User Profiles</p>
+                </div>
+                <button
+                    onClick={() => { setEditItem(null); setIsCreateOpen(true); }}
+                    className="h-10 px-6 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm transition-all active:scale-95 font-satoshi font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                    <span className="text-lg leading-none">+</span> Create New
+                </button>
             </div>
+
             <UserFilter globalFilter={globalFilter} setGlobalFilter={setGlobalFilter} roleFilter={roleFilter} onRoleChange={setRoleFilter} dateRange={dateRange} onDateChange={(t: any, v: any) => setDateRange(prev => ({ ...prev, [t]: v }))} onReset={() => { setGlobalFilter(""); setRoleFilter("all"); setDateRange({ start: "", end: "" }); }} />
-            <div className="mt-4"><DataTable data={filteredData} columns={columns({ onCreate: () => setIsCreateOpen(true), onView: (u) => setViewItem(u), onEdit: (u) => setEditItem(u), onDeleteSingle: (u) => { setRowsToDelete([u]); setIsDeleteOpen(true); }, onUpdateStatus: handleUpdateStatus })} onAddNew={() => setIsCreateOpen(true)} enableGlobalSearch={false} /></div>
-            <UserFormModal open={isCreateOpen || !!editItem} onOpenChange={(o) => { if (!o) { setIsCreateOpen(false); setEditItem(null); } }} user={editItem} onSuccess={triggerSuccess} onError={triggerError} permissions={permissions} />
+            
+            <div className="mt-4 min-h-[400px]">
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-arcipta-blue-primary"></div>
+                    </div>
+                ) : (
+                    <DataTable 
+                        data={filteredData} 
+                        columns={columns({ 
+                            onCreate: () => setIsCreateOpen(true), 
+                            onView: (u) => setViewItem(u), 
+                            onEdit: (u) => setEditItem(u), 
+                            onDeleteSingle: (u) => { setRowsToDelete([u]); setIsDeleteOpen(true); }, 
+                            onUpdateStatus: handleUpdateStatus 
+                        })} 
+                        enableGlobalSearch={false} 
+                    />
+                )}
+            </div>
+
+            <UserFormModal 
+                open={isCreateOpen || !!editItem} 
+                onOpenChange={(o) => { if (!o) { setIsCreateOpen(false); setEditItem(null); } }} 
+                user={editItem} 
+                onSuccess={triggerSuccess} 
+                onError={triggerError} 
+                permissions={permissions} 
+            />
+
             <ViewUserModal open={!!viewItem} onOpenChange={(o) => !o && setViewItem(null)} user={viewItem} />
             <AlertDeleteConfirmation open={isDeleteOpen} onOpenChange={setIsDeleteOpen} onConfirm={handleConfirmDelete} title="Hapus User" description="Tindakan ini akan menghapus akun user secara permanen." />
         </div>

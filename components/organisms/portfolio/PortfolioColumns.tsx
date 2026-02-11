@@ -48,24 +48,24 @@ export const columns = (
                 const p = row.original;
                 
                 const getCategoryName = () => {
-                    const raw = (p as any).services || (p as any).category || (p as any).category_id;
+                    const raw = (p as any).service_id || (p as any).category_id || p.category || (p as any).services;
                     let targetId: string | number | null = null;
 
                     if (Array.isArray(raw) && raw.length > 0) {
-                        if (typeof raw[0] === 'object' && raw[0] !== null) {
-                            targetId = raw[0].id || raw[0].service_id;
-                        } else {
-                            targetId = raw[0];
-                        }
-                    } else if (raw && typeof raw === 'object') {
+                        targetId = typeof raw[0] === 'object' ? (raw[0].id || raw[0].service_id) : raw[0];
+                    } else if (raw && typeof raw === 'object' && raw !== null) {
                         targetId = raw.id || raw.service_id;
                     } else {
                         targetId = raw;
                     }
+                    
+                    if (!targetId || !services || !Array.isArray(services)) return "General";
 
-                    if (!targetId || !services) return "General";
+                    const match = services.find(s => 
+                        String(s.id) === String(targetId) || 
+                        String(s.service_id) === String(targetId)
+                    );
 
-                    const match = services.find(s => String(s.id) === String(targetId) || String(s.service_id) === String(targetId));
                     return match ? match.title : "General";
                 };
 

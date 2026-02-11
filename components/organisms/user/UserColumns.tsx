@@ -27,7 +27,7 @@ export const columns = ({
     onView: (u: User) => void;
     onEdit: (u: User) => void;
     onDeleteSingle: (u: User) => void;
-    onUpdateStatus: (u: User, active: boolean) => void;
+    onUpdateStatus: (u: User, active: number) => void;
 }): ColumnDef<User>[] => [
     {
         id: "select",
@@ -104,7 +104,7 @@ export const columns = ({
                     <Switch
                         key={`status-${u.id}-${u.is_active}`}
                         checked={isActive}
-                        onCheckedChange={(val) => onUpdateStatus(u, val)}
+                        onCheckedChange={(checked) => onUpdateStatus(u, checked ? 1 : 0)}
                         className="data-[state=checked]:bg-arcipta-blue-primary scale-90"
                     />
                     <Badge
@@ -173,6 +173,7 @@ export const columns = ({
                             <Eye className="mr-2 h-4 w-4 text-blue-500" />
                             View Details
                         </DropdownMenuItem>
+
                         <DropdownMenuItem onClick={() => onEdit(row.original)} className="rounded-lg py-2.5 cursor-pointer font-medium">
                             <Pencil className="mr-2 h-4 w-4 text-amber-500" />
                             Edit User

@@ -166,23 +166,29 @@ export function GalleryFormModal({
                 </div>
 
                 <DialogFooter className="p-6 pt-0 flex gap-2">
-                    <Button 
-                        variant="ghost" 
-                        onClick={() => onOpenChange(false)} 
+                    <Button
+                        variant="ghost"
+                        onClick={() => onOpenChange(false)}
                         disabled={isSaving}
-                        className="rounded-xl font-bold text-[10px] uppercase tracking-widest border border-slate-200 h-10 px-6"
+                        className="rounded-xl font-bold text-[10px] uppercase tracking-widest border border-slate-200 h-10 px-6 flex-1 sm:flex-none"
                     >
                         Cancel
                     </Button>
-                    <Button 
-                        onClick={handleSave} 
-                        disabled={isSaving} 
-                        className="bg-arcipta-blue-primary hover:opacity-90 text-white rounded-xl h-10 px-8 shadow-lg shadow-blue-900/20 font-bold text-[10px] uppercase tracking-widest min-w-[180px] transition-all active:scale-95"
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="bg-slate-900 text-white rounded-xl h-10 px-8 font-bold text-[10px] uppercase tracking-widest min-w-[120px]"
                     >
                         {isSaving ? (
-                            <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> processing...</>
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                            </>
                         ) : (
-                            <>{isEdit ? <Save className="mr-2 h-4 w-4" /> : <PlusCircle className="mr-2 h-4 w-4" />} {isEdit ? "Update Asset" : "Upload Asset"}</>
+                            <>
+                                {isEdit ? <Save className="mr-2 h-4 w-4" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                                {isEdit ? "Update Gallery" : "Publish Gallery"}
+                            </>
                         )}
                     </Button>
                 </DialogFooter>

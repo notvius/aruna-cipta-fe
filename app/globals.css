@@ -24,6 +24,7 @@
 
   --color-arcipta-primary: hsl(17 100% 56%);
   --color-arcipta-blue-primary: #023e7d;
+  --color-arcipta-error: rgb(196, 12, 12);
 
   --color-background: var(--background);
   --color-foreground: var(--foreground);

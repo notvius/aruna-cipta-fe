@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ShieldCheck, LayoutGrid } from "lucide-react";
+import { ShieldCheck, LayoutGrid, Clock } from "lucide-react";
 import { type User } from "@/constants/users";
 import { cn } from "@/lib/utils";
 
@@ -112,7 +112,7 @@ export function ViewUserModal({ open, onOpenChange, user }: ViewProps) {
                                                     </div>
                                                     <div className="flex flex-wrap gap-1.5 pl-5">
                                                         {actions.map((actionName, idx) => (
-                                                            <Badge key={`${moduleName}-${idx}`} variant="secondary" className="bg-white text-[9px] border-slate-200 text-slate-500 font-medium capitalize">
+                                                            <Badge key={`${moduleName}-${idx}`} variant="secondary" className="bg-arcipta-blue-primary/90 text-[9px] text-white font-medium capitalize">
                                                                 {actionName}
                                                             </Badge>
                                                         ))}
@@ -129,6 +129,10 @@ export function ViewUserModal({ open, onOpenChange, user }: ViewProps) {
                             </div>
 
                             <div className="space-y-6">
+                                <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                    <Clock className="h-4 w-4 text-arcipta-blue-primary" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Date</span>
+                                </div>
                                 <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
                                     <div className="space-y-1">
                                         <p className="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Registered At</p>

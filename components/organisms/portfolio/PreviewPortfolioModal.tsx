@@ -105,7 +105,7 @@ export function PreviewPortfolioModal({ open, onOpenChange, data, services, isLo
                                             <p className="text-lg font-bold">{data?.role || "Role not specified"}</p>
                                         </div>
                                         <div className="w-full h-px bg-white/10"></div>
-                                        <p className="text-sm leading-relaxed text-neutral-400 italic">
+                                        <p className="text-sm leading-relaxed text-neutral-400">
                                             This case study focuses on business strategy and problem solving, not just a visual showcase.
                                         </p>
                                     </div>

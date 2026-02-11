@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
-import { Loader2, Save, UserPlus, AlertCircle, Eye, EyeOff } from "lucide-react";
+import { Loader2, Save, PlusCircle, AlertCircle, Eye, EyeOff } from "lucide-react";
 import { type User, type Permission } from "@/constants/users";
 import { cn } from "@/lib/utils";
 
@@ -102,6 +102,7 @@ export function UserFormModal({
         const payload = {
             username: uName,
             is_superadmin: form.isSuper ? 1 : 0,
+            is_active: isEdit ? (user?.is_active ?? 1) : 1,
             permission_ids: selectedPerms.map(id => Number(id)),
             password: form.password || null,
             password_confirmation: form.confirmPassword || null
@@ -258,10 +259,30 @@ export function UserFormModal({
                 </div>
 
                 <DialogFooter className="p-6 pt-0 flex gap-2">
-                    <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-[10px] uppercase border h-11 px-6">Cancel</Button>
-                    <Button onClick={handleSave} disabled={isSaving || isMismatch} className="bg-arcipta-blue-primary text-white rounded-xl h-11 px-8 font-bold text-[10px] uppercase min-w-[150px]">
-                        {isSaving ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : isEdit ? <Save className="mr-2 h-3 w-3" /> : <UserPlus className="mr-2 h-3 w-3" />}
-                        {isSaving ? " Processing..." : isEdit ? " Update User" : " Register User"}
+                    <Button
+                        variant="ghost"
+                        onClick={() => onOpenChange(false)}
+                        disabled={isSaving}
+                        className="rounded-xl font-bold text-[10px] uppercase tracking-widest border border-slate-200 h-10 px-6 flex-1 sm:flex-none"
+                    >
+                        Cancel
+                    </Button>
+                    <Button
+                        onClick={handleSave}
+                        disabled={isSaving}
+                        className="bg-slate-900 text-white rounded-xl h-10 px-8 font-bold text-[10px] uppercase tracking-widest min-w-[120px]"
+                    >
+                        {isSaving ? (
+                            <>
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                Saving...
+                            </>
+                        ) : (
+                            <>
+                                {isEdit ? <Save className="mr-2 h-4 w-4" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                                {isEdit ? "Update User" : "Publish User"}
+                            </>
+                        )}
                     </Button>
                 </DialogFooter>
             </DialogContent>

@@ -37,8 +37,8 @@ export function AlertDeleteConfirmation({
       <AlertDialogContent className="max-w-[92vw] sm:max-w-[400px] p-5 sm:p-6 rounded-2xl">
         <AlertDialogHeader>
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-destructive/10">
-              <Trash2 className="h-6 w-6 text-destructive/80" />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-red-100">
+              <Trash2 className="h-6 w-6 text-red-600" />
             </div>
             <div className="space-y-1 text-center sm:text-left">
               <AlertDialogTitle className="text-lg font-semibold text-slate-900">
@@ -50,10 +50,10 @@ export function AlertDeleteConfirmation({
             </div>
           </div>
         </AlertDialogHeader>
-        
-        <AlertDialogFooter className="mt-6 flex flex-row items-center gap-3">
-          <AlertDialogCancel 
-            disabled={loading} 
+
+        <AlertDialogFooter className="mt-3 flex flex-row items-center gap-3">
+          <AlertDialogCancel
+            disabled={loading}
             className="flex-1 mt-0 h-10 border-slate-200 text-slate-600 hover:bg-slate-50 text-xs sm:text-sm"
           >
             Cancel

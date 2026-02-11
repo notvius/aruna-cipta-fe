@@ -14,22 +14,20 @@ import AlertError2 from "@/components/alert-error-2";
 
 export default function TestimonialPage() {
     const [testimonials, setTestimonials] = React.useState<Testimonial[]>([]);
-
+    const [isLoading, setIsLoading] = React.useState(true);
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
     const [viewItem, setViewItem] = React.useState<Testimonial | null>(null);
     const [editItem, setEditItem] = React.useState<Testimonial | null>(null);
     const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
-
     const [rowsToDelete, setRowsToDelete] = React.useState<Testimonial[]>([]);
-
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
-
     const [globalFilter, setGlobalFilter] = React.useState("");
     const [dateRange, setDateRange] = React.useState({ start: "", end: "" });
 
     const refreshData = React.useCallback(async () => {
         const token = Cookies.get("token");
+        setIsLoading(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/testimonial`, {
                 headers: {
@@ -41,6 +39,8 @@ export default function TestimonialPage() {
             setTestimonials(Array.isArray(result) ? result : result.data || []);
         } catch (err) {
             notifyError("Failed to fetch data from server");
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -54,10 +54,8 @@ export default function TestimonialPage() {
                 item.client_name?.toLowerCase().includes(globalFilter.toLowerCase()) ||
                 item.client_title?.toLowerCase().includes(globalFilter.toLowerCase()) ||
                 item.content?.toLowerCase().includes(globalFilter.toLowerCase());
-
             const itemDate = new Date(item.created_at);
             itemDate.setHours(0, 0, 0, 0);
-
             let matchesDate = true;
             if (dateRange.start) {
                 const start = new Date(dateRange.start);
@@ -108,78 +106,56 @@ export default function TestimonialPage() {
 
     return (
         <div className="w-full relative font-jakarta px-6 pb-10">
-            {success && (
-                <div className="fixed top-6 right-6 z-[200]">
-                    <AlertSuccess2
-                        message={success}
-                        onClose={() => setSuccess(null)}
-                    />
-                </div>
-            )}
-            {error && (
-                <div className="fixed top-6 right-6 z-[200]">
-                    <AlertError2
-                        message={error}
-                        onClose={() => setError(null)}
-                    />
-                </div>
-            )}
+            {success && <div className="fixed top-6 right-6 z-[200]"><AlertSuccess2 message={success} onClose={() => setSuccess(null)} /></div>}
+            {error && <div className="fixed top-6 right-6 z-[200]"><AlertError2 message={error} onClose={() => setError(null)} /></div>}
 
-            <div className="mb-4 space-y-1 pt-4">
-                <h2 className="text-2xl font-bold font-outfit text-slate-900 uppercase">
-                    Testimonial Management
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                    Manage and Organize Client Feedback Content
-                </p>
+            <div className="mb-4 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold font-outfit text-slate-900 uppercase">Testimonial Management</h2>
+                    <p className="text-sm text-muted-foreground">Manage and Organize Client Feedback Content</p>
+                </div>
+                <button
+                    onClick={() => setIsCreateOpen(true)}
+                    className="h-10 px-6 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm transition-all active:scale-95 font-satoshi font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                    <span className="text-lg leading-none">+</span> Create New
+                </button>
             </div>
 
             <TestimonialFilter
-                globalFilter={globalFilter}
-                setGlobalFilter={setGlobalFilter}
-                dateRange={dateRange}
-                onDateChange={(type: 'start' | 'end', val: string) =>
-                    setDateRange((prev) => ({ ...prev, [type]: val }))
-                }
+                globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
+                dateRange={dateRange} onDateChange={(type: 'start' | 'end', val: string) => setDateRange((prev) => ({ ...prev, [type]: val }))}
                 onReset={handleResetFilters}
             />
 
-            <div className="mt-4">
-                <DataTable
-                    data={filteredData}
-                    columns={columns({
-                        onCreate: () => setIsCreateOpen(true),
-                        onView: (t) => setViewItem(t),
-                        onEdit: (t) => setEditItem(t),
-                        onDeleteSingle: (t) => {
-                            setRowsToDelete([t]);
-                            setIsDeleteOpen(true);
-                        },
-                    })}
-                    onAddNew={() => setIsCreateOpen(true)}
-                />
+            <div className="mt-4 min-h-[400px]">
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-arcipta-blue-primary"></div>
+                    </div>
+                ) : (
+                    <DataTable
+                        data={filteredData}
+                        columns={columns({
+                            onCreate: () => setIsCreateOpen(true),
+                            onView: (t) => setViewItem(t),
+                            onEdit: (t) => setEditItem(t),
+                            onDeleteSingle: (t) => { setRowsToDelete([t]); setIsDeleteOpen(true); },
+                        })}
+                        onAddNew={() => setIsCreateOpen(true)}
+                    />
+                )}
             </div>
 
             <TestimonialFormModal
                 open={isCreateOpen || !!editItem}
-                onOpenChange={(open) => {
-                    if (!open) {
-                        setIsCreateOpen(false);
-                        setEditItem(null);
-                    }
-                }}
+                onOpenChange={(open) => { if (!open) { setIsCreateOpen(false); setEditItem(null); } }}
                 testimonial={editItem}
                 onSuccess={notifySuccess}
                 onError={notifyError}
             />
 
-            {viewItem && (
-                <ViewTestimonialModal
-                    open={!!viewItem}
-                    onOpenChange={(open) => !open && setViewItem(null)}
-                    testimonial={viewItem}
-                />
-            )}
+            {viewItem && <ViewTestimonialModal open={!!viewItem} onOpenChange={(open) => !open && setViewItem(null)} testimonial={viewItem} />}
 
             <AlertDeleteConfirmation
                 open={isDeleteOpen}

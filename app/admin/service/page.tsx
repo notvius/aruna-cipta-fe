@@ -14,6 +14,7 @@ import AlertError2 from "@/components/alert-error-2";
 
 export default function ServicePage() {
     const [services, setServices] = React.useState<Service[]>([]);
+    const [isLoading, setIsLoading] = React.useState(true);
     const [isCreateOpen, setIsCreateOpen] = React.useState(false);
     const [viewItem, setViewItem] = React.useState<Service | null>(null);
     const [editItem, setEditItem] = React.useState<Service | null>(null);
@@ -21,12 +22,12 @@ export default function ServicePage() {
     const [rowsToDelete, setRowsToDelete] = React.useState<Service[]>([]);
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
-
     const [globalFilter, setGlobalFilter] = React.useState("");
     const [dateRange, setDateRange] = React.useState({ start: "", end: "" });
 
     const refresh = React.useCallback(async () => {
         const token = Cookies.get("token");
+        setIsLoading(true);
         try {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/service`, {
                 headers: {
@@ -39,6 +40,8 @@ export default function ServicePage() {
             setServices(actualData);
         } catch (err) {
             notifyError("Failed to fetch services from server");
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -51,10 +54,8 @@ export default function ServicePage() {
             const matchesSearch = 
                 item.title.toLowerCase().includes(globalFilter.toLowerCase()) || 
                 item.content.replace(/<[^>]*>?/gm, '').toLowerCase().includes(globalFilter.toLowerCase());
-            
             const itemDate = new Date(item.created_at);
             itemDate.setHours(0, 0, 0, 0);
-
             let matchesDate = true;
             if (dateRange.start) {
                 const start = new Date(dateRange.start);
@@ -66,7 +67,6 @@ export default function ServicePage() {
                 end.setHours(0, 0, 0, 0);
                 if (itemDate > end) matchesDate = false;
             }
-
             return matchesSearch && matchesDate;
         });
     }, [services, globalFilter, dateRange]);
@@ -109,34 +109,42 @@ export default function ServicePage() {
             {success && <div className="fixed top-6 right-6 z-[200]"><AlertSuccess2 message={success} onClose={() => setSuccess(null)} /></div>}
             {error && <div className="fixed top-6 right-6 z-[200]"><AlertError2 message={error} onClose={() => setError(null)} /></div>}
 
-            <div className="mb-4 space-y-1 pt-4">
-                <h2 className="text-2xl font-bold tracking-tight font-outfit text-slate-900 uppercase">
-                    Service Management
-                </h2>
-                <p className="text-sm text-muted-foreground tracking-tight">
-                    Define and manage Arcipta's services
-                </p>
+            <div className="mb-4 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold font-outfit text-slate-900 uppercase">Service Management</h2>
+                    <p className="text-sm text-muted-foreground">Manage and Organize Service</p>
+                </div>
+                <button
+                    onClick={() => setIsCreateOpen(true)}
+                    className="h-10 px-6 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm transition-all active:scale-95 font-satoshi font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                    <span className="text-lg leading-none">+</span> Create New
+                </button>
             </div>
 
             <ServiceFilter 
-                globalFilter={globalFilter}
-                setGlobalFilter={setGlobalFilter}
-                dateRange={dateRange}
-                onDateChange={(type: 'start' | 'end', val: string) => setDateRange((prev) => ({ ...prev, [type]: val }))}
+                globalFilter={globalFilter} setGlobalFilter={setGlobalFilter}
+                dateRange={dateRange} onDateChange={(type: 'start' | 'end', val: string) => setDateRange((prev) => ({ ...prev, [type]: val }))}
                 onReset={handleReset}
             />
 
-            <div className="mt-4"> 
-                <DataTable
-                    data={filteredData}
-                    columns={columns({
-                        onCreate: () => setIsCreateOpen(true),
-                        onView: (t) => setViewItem(t),
-                        onEdit: (t) => setEditItem(t),
-                        onDeleteSingle: (t) => { setRowsToDelete([t]); setIsDeleteOpen(true); },
-                    })}
-                    onAddNew={() => setIsCreateOpen(true)}
-                />
+            <div className="mt-4 min-h-[400px]"> 
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-arcipta-blue-primary"></div>
+                    </div>
+                ) : (
+                    <DataTable
+                        data={filteredData}
+                        columns={columns({
+                            onCreate: () => setIsCreateOpen(true),
+                            onView: (t) => setViewItem(t),
+                            onEdit: (t) => setEditItem(t),
+                            onDeleteSingle: (t) => { setRowsToDelete([t]); setIsDeleteOpen(true); },
+                        })}
+                        onAddNew={() => setIsCreateOpen(true)}
+                    />
+                )}
             </div>
 
             <ServiceFormModal

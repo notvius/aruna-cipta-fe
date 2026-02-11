@@ -78,9 +78,8 @@ export function PortfolioForm({ mode, initialData, onClose, services, isLoading 
         body.append('solution', formData.solution);
         body.append('role', formData.role);
         
-        // Backend mengharapkan category[]
         if (formData.category) {
-            body.append('category[]', formData.category);
+            body.append('service_id', formData.category);
         }
 
         body.append('content[context]', contentData.context);
@@ -229,8 +228,7 @@ export function PortfolioForm({ mode, initialData, onClose, services, isLoading 
                                             <CommandEmpty className="py-6 text-center text-xs text-slate-400 font-bold uppercase tracking-widest">No category found.</CommandEmpty>
                                             <CommandGroup>
                                                 {services.map((s: any) => (
-                                                    <CommandItem key={s.id} onSelect={() => { setFormData({...formData, category: s.id.toString()}); setOpen(false); }}>
-                                                        <Check className={cn("mr-2 h-4 w-4", formData.category === s.id.toString() ? "opacity-100" : "opacity-0")} />
+                                                    <CommandItem key={s.id} onSelect={() => { setFormData({...formData, category: (s.id || s.service_id).toString()}); setOpen(false); }}>                                                        <Check className={cn("mr-2 h-4 w-4", formData.category === s.id.toString() ? "opacity-100" : "opacity-0")} />
                                                         {s.title}
                                                     </CommandItem>
                                                 ))}

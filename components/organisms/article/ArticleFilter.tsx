@@ -37,7 +37,10 @@ export function ArticleFilter({
 
                 <div className="md:col-span-2 space-y-1.5">
                     <p className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Category</p>
-                    <Select value={catFilter} onValueChange={onModuleChange}>
+                        <Select 
+                            value={catFilter || "all"} 
+                            onValueChange={(val) => onModuleChange(val === "all" ? "" : val)}
+                        >
                         <SelectTrigger className={`${elementHeight} rounded-lg border-slate-200 bg-white ${focusStyles}`}>
                             <SelectValue placeholder="All Category" />
                         </SelectTrigger>

@@ -65,7 +65,7 @@ function AnalyticCard({
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-        <CardTitle className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] pt-2">
+        <CardTitle className="text-[11px] font-black text-black uppercase tracking-[0.2em] pt-2">
           {model.name}
         </CardTitle>
       </CardHeader>

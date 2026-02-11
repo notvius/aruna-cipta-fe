@@ -18,23 +18,22 @@ import { type Portfolio } from "@/constants/portfolios";
 export default function PortfolioPage() {
     const [data, setData] = React.useState<Portfolio[]>([]);
     const [services, setServices] = React.useState<any[]>([]);
-
+    const [isLoading, setIsLoading] = React.useState(true);
     const [isFormOpen, setIsFormOpen] = React.useState(false);
     const [isViewOpen, setIsViewOpen] = React.useState(false);
     const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = React.useState(false);
     const [selectedItem, setSelectedItem] = React.useState<Portfolio | null>(null);
-
     const [success, setSuccess] = React.useState<string | null>(null);
     const [error, setError] = React.useState<string | null>(null);
     const [isLoadingDetail, setIsLoadingDetail] = React.useState(false);
-
     const [globalFilter, setGlobalFilter] = React.useState("");
     const [catFilter, setCatFilter] = React.useState("all");
 
     const refreshData = React.useCallback(async () => {
         const token = Cookies.get("token");
         const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+        setIsLoading(true);
         try {
             const [pRes, sRes] = await Promise.all([
                 fetch(`${baseUrl}/portfolio`, { headers: { "Authorization": `Bearer ${token}` } }),
@@ -46,6 +45,8 @@ export default function PortfolioPage() {
             setServices(Array.isArray(sJson) ? sJson : (sJson.data || []));
         } catch (err) {
             triggerError("Failed to fetch portfolios.");
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -89,20 +90,19 @@ export default function PortfolioPage() {
 
     const handleOnCloseForm = (msg: string, isErr: boolean = false) => {
         setIsFormOpen(false);
+        setSelectedItem(null); 
         if (msg) {
             if (isErr === true || msg.toLowerCase().includes('failed')) {
                 triggerError(msg);
             } else {
-                triggerSuccess(msg);
+                triggerSuccess(msg); 
             }
         }
-        refreshData();
     };
 
     const filteredData = React.useMemo(() => {
         return data.filter((item) => {
             const matchesSearch = item.title.toLowerCase().includes(globalFilter.toLowerCase());
-
             const getPortfolioCatId = () => {
                 const rawCategory = (item as any).services || item.category || (item as any).category_id;
                 if (Array.isArray(rawCategory) && rawCategory.length > 0) {
@@ -112,37 +112,31 @@ export default function PortfolioPage() {
                 if (rawCategory && typeof rawCategory === 'object') {
                     return (rawCategory.id || rawCategory.service_id).toString();
                 }
-                return (rawCategory || "").toString();
+                const finalId = rawCategory || (item as any).service_id || "";
+                return finalId.toString();
             };
-
             const portfolioCatId = getPortfolioCatId();
             const matchesCat = catFilter === "all" || portfolioCatId === catFilter;
-
             return matchesSearch && matchesCat;
         });
     }, [data, globalFilter, catFilter]);
 
     return (
         <div className="w-full relative px-6 pb-10 font-satoshi">
-            {success && (
-                <div className="fixed top-6 right-6 z-[300]">
-                    <AlertSuccess2 message={success} onClose={() => setSuccess(null)} />
-                </div>
-            )}
+            {success && <div className="fixed top-6 right-6 z-[300]"><AlertSuccess2 message={success} onClose={() => setSuccess(null)} /></div>}
+            {error && <div className="fixed top-6 right-6 z-[300]"><AlertError2 message={error} onClose={() => setError(null)} /></div>}
 
-            {error && (
-                <div className="fixed top-6 right-6 z-[300]">
-                    <AlertError2 message={error} onClose={() => setError(null)} />
+            <div className="mb-4 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold font-outfit text-slate-900 uppercase">Portfolio Management</h2>
+                    <p className="text-sm text-muted-foreground tracking-tight">Manage and showcase project portfolio works</p>
                 </div>
-            )}
-
-            <div className="mb-8 space-y-1 pt-4">
-                <h2 className="text-2xl font-bold tracking-tight font-outfit text-slate-900 uppercase">
-                    Portfolio Management
-                </h2>
-                <p className="text-sm text-muted-foreground tracking-tight">
-                    Manage and showcase project portfolio works
-                </p>
+                <button
+                    onClick={() => { setSelectedItem(null); setIsFormOpen(true); }}
+                    className="h-10 px-6 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm transition-all active:scale-95 font-satoshi font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                    <span className="text-lg leading-none">+</span> Create New
+                </button>
             </div>
 
             <PortfolioFilter
@@ -151,18 +145,24 @@ export default function PortfolioPage() {
                 services={services} onReset={() => { setGlobalFilter(""); setCatFilter("all"); }}
             />
 
-            <div className="mt-4">
-                <DataTable
-                    data={filteredData}
-                    columns={columns(
-                        () => { setSelectedItem(null); setIsFormOpen(true); },
-                        (p) => handleAction(p, 'view'),
-                        (p) => handleAction(p, 'edit'),
-                        (p) => { setSelectedItem(p); setIsDeleteOpen(true); },
-                        (p) => handleAction(p, 'preview'),
-                        services
-                    )}
-                />
+            <div className="mt-4 min-h-[400px]">
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-arcipta-blue-primary"></div>
+                    </div>
+                ) : (
+                    <DataTable
+                        data={filteredData}
+                        columns={columns(
+                            () => { setSelectedItem(null); setIsFormOpen(true); },
+                            (p) => handleAction(p, 'view'),
+                            (p) => handleAction(p, 'edit'),
+                            (p) => { setSelectedItem(p); setIsDeleteOpen(true); },
+                            (p) => handleAction(p, 'preview'),
+                            services
+                        )}
+                    />
+                )}
             </div>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

@@ -31,8 +31,11 @@ export default function ArticlePage() {
     const [dateRange, setDateRange] = React.useState({ start: "", end: "" });
     const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
 
+    const [isLoading, setIsLoading] = React.useState(true);
+
     const refreshData = React.useCallback(async () => {
         const token = Cookies.get("token");
+        setIsLoading(true);
         try {
             const [artRes, catRes] = await Promise.all([
                 fetch(`${process.env.NEXT_PUBLIC_API_URL}/article`, {
@@ -48,12 +51,16 @@ export default function ArticlePage() {
                     }
                 })
             ]);
+
             const artJson = await artRes.json();
             const catJson = await catRes.json();
             setData(Array.isArray(artJson) ? artJson : (artJson.data || []));
             setCategories(Array.isArray(catJson) ? catJson : (catJson.data || []));
         } catch (err) {
-            console.error("Failed to fetch articles");
+            setError("Failed to fetch articles");
+            setTimeout(() => setError(null), 4000);
+        } finally {
+            setIsLoading(false);
         }
     }, []);
 
@@ -63,7 +70,6 @@ export default function ArticlePage() {
         return data.filter((item) => {
             const title = item.title || "";
             const matchesSearch = title.toLowerCase().includes(globalFilter.toLowerCase());
-            const matchesCat = catFilter === "all" || item.article_category_id?.toString() === catFilter;
 
             const rawDate = item.created_at || item.updated_at;
             const itemDate = rawDate ? new Date(rawDate).setHours(0, 0, 0, 0) : null;
@@ -76,7 +82,13 @@ export default function ArticlePage() {
                 (!end || itemDate <= end)
             );
 
-            return matchesSearch && matchesCat && matchesDate;
+            const matchesCategory = 
+                !catFilter || 
+                catFilter === "all" || 
+                String(item.article_category_id) === String(catFilter) ||
+                String(item.category?.id) === String(catFilter);
+
+            return matchesSearch && matchesCategory && matchesDate;
         });
     }, [data, globalFilter, catFilter, dateRange]);
 
@@ -89,6 +101,7 @@ export default function ArticlePage() {
         formData.append("title", item.title);
         formData.append("excerpt", item.excerpt || "");
         formData.append("content", item.content || "");
+        
         const getCatIdValue = (c: any): string => {
             if (Array.isArray(c)) return getCatIdValue(c[0]);
             if (c && typeof c === 'object') return (c.id || c.article_category_id || c.category_id || "").toString();
@@ -107,13 +120,11 @@ export default function ArticlePage() {
             if (res.ok) {
                 setSuccess(`Article visibility updated to ${newStatus === "1" ? "Published" : "Draft"}.`);
                 refreshData();
-                setTimeout(() => setSuccess(null), 3000);
             } else {
                 const result = await res.json();
                 throw new Error(result.message || "Failed to update article status");
             }
         } catch (err: any) {
-            console.error("Status update failed:", err);
             setError(err.message || "An error occurred while updating status");
             setTimeout(() => setError(null), 4000);
         }
@@ -142,9 +153,8 @@ export default function ArticlePage() {
             setRowsToDelete([]);
             setSuccess("Article deleted successfully.");
             refreshData();
-            setTimeout(() => setSuccess(null), 3000);
         } catch (err) {
-            console.error("Delete failed");
+            setError("Delete failed");
         }
     };
 
@@ -161,13 +171,22 @@ export default function ArticlePage() {
                 </div>
             )}
 
-            <div className="mb-4 space-y-1 pt-4">
-                <h2 className="text-2xl font-bold tracking-tight font-orbitron text-slate-900 uppercase">
-                    Article Management
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                    Manage and Organize Article Content
-                </p>
+            <div className="mb-4 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="space-y-1">
+                    <h2 className="text-2xl font-bold tracking-tight font-orbitron text-slate-900 uppercase">
+                        Article Management
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                        Manage and Organize Article Content
+                    </p>
+                </div>
+                
+                <button
+                    onClick={() => { setSelectedItem(null); setIsFormOpen(true); }}
+                    className="h-10 px-6 bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm transition-all active:scale-95 font-satoshi font-bold text-xs uppercase tracking-widest flex items-center justify-center gap-2"
+                >
+                    <span className="text-lg leading-none">+</span> Create New
+                </button>
             </div>
 
             <ArticleFilter
@@ -178,21 +197,26 @@ export default function ArticlePage() {
                 categories={categories}
             />
 
-            <div className="mt-4">
-                <DataTable
-                    data={filteredData}
-                    columns={columns(
-                        () => { setSelectedItem(null); setIsFormOpen(true); },
-                        (a) => { setSelectedItem(a); setIsViewOpen(true); },
-                        (a) => { setSelectedItem(a); setIsFormOpen(true); },
-                        (a) => { setRowsToDelete([a]); setIsDeleteOpen(true); },
-                        (a) => { setSelectedItem(a); setIsPreviewOpen(true); },
-                        handleToggleStatus,
-                        categories
-                    )}
-                    onAddNew={() => { setSelectedItem(null); setIsFormOpen(true); }}
-                    enableGlobalSearch={false}
-                />
+            <div className="mt-4 min-h-[400px]">
+                {isLoading ? (
+                    <div className="flex items-center justify-center py-20">
+                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-arcipta-blue-primary"></div>
+                    </div>
+                ) : (
+                    <DataTable
+                        data={filteredData}
+                        columns={columns(
+                            () => { setSelectedItem(null); setIsFormOpen(true); },
+                            (a) => { setSelectedItem(a); setIsViewOpen(true); },
+                            (a) => { setSelectedItem(a); setIsFormOpen(true); },
+                            (a) => { setRowsToDelete([a]); setIsDeleteOpen(true); },
+                            (a) => { setSelectedItem(a); setIsPreviewOpen(true); },
+                            handleToggleStatus,
+                            categories
+                        )}
+                        enableGlobalSearch={false}
+                    />
+                )}
             </div>
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
