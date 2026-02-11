@@ -8,15 +8,13 @@ import {
     BriefcaseBusiness,
     Star,
     TableOfContents,
-    Handshake,
-    Plus
+    Handshake
 } from "lucide-react"
-import { title } from "process"
 
 export const mainMenuItems = [
     {
         title: "Overview",
-        url: "/",
+        url: "/admin/overview",
         icon: LayoutDashboard,
     },
     {
@@ -26,13 +24,15 @@ export const mainMenuItems = [
         items: [
             {
                 title: "User Management",
-                url: "/user",
+                url: "/admin/user",
                 icon: User,
+                module: "users"
             },
             {
                 title: "Activity Log",
-                url: "/user/activity-log",
+                url: "/admin/user/activity-log",
                 icon: User,
+                module: "activity-logs"
             }
         ]
     },
@@ -43,23 +43,27 @@ export const mainMenuItems = [
         items: [
             {
                 title: "Article Analytics",
-                url: "/guest-event/article",
+                url: "/admin/guest-event/article",
                 icon: ChartNoAxesColumnDecreasing,
+                module: "guest-events"
             },
             {
                 title: "Growth Pass Analytics",
-                url: "/guest-event/growth-pass",
+                url: "/admin/guest-event/growth-pass",
                 icon: ChartNoAxesColumnDecreasing,
+                module: "guest-events"
             },
             {
                 title: "Service Analytics",
-                url: "/guest-event/service",
+                url: "/admin/guest-event/service",
                 icon: ChartNoAxesColumnDecreasing,
+                module: "guest-events"
             },
             {
                 title: "WhatsApp Analytics",
-                url: "/guest-event/whatsapp",
+                url: "/admin/guest-event/whatsapp",
                 icon: ChartNoAxesColumnDecreasing,
+                module: "guest-events"
             },
         ]
     },
@@ -68,32 +72,38 @@ export const mainMenuItems = [
 export const cmsMenuItems = [
     {
         title: "Article",
-        url: "/article",
+        url: "/admin/article",
         icon: Newspaper,
+        module: "articles"
     },
     {
         title: "FAQ",
-        url: "/faq",
+        url: "/admin/faq",
         icon: TableOfContents,
+        module: "faqs"
     },
     {
         title: "Gallery",
-        url: "/gallery",
+        url: "/admin/gallery",
         icon: BookImage,
+        module: "galleries"
     },
     {
-        title: "Portofolio",
-        url: "/portofolio",
+        title: "Portfolio",
+        url: "/admin/portfolio",
         icon: BriefcaseBusiness,
+        module: "portfolios"
     },
     {
         title: "Services",
-        url: "/service",
+        url: "/admin/service",
         icon: Handshake,
+        module: "services"
     },
     {
         title: "Testimonial",
-        url: "/testimonial",
+        url: "/admin/testimonial",
         icon: Star,
+        module: "testimonials"
     },
 ]

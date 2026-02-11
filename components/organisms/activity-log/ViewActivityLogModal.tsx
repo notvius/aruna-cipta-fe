@@ -1,55 +1,134 @@
 "use client";
 
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import * as React from "react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { type ActivityLog } from "@/constants/activity_log";
+import { cn } from "@/lib/utils";
 
-export function ViewActivityLogModal({ open, onOpenChange, log }: { open: boolean, onOpenChange: (o: boolean) => void, log: ActivityLog | null }) {
+interface ViewProps {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    log: ActivityLog | null;
+}
+
+export function ViewActivityLogModal({ open, onOpenChange, log }: ViewProps) {
     if (!log) return null;
+
+    const getStatusColor = (action: string) => {
+        const a = action.toLowerCase();
+        if (a.includes("create")) return "bg-arcipta-blue-primary";
+        if (a.includes("update")) return "bg-amber-500";
+        if (a.includes("delete")) return "bg-red-500";
+        return "bg-slate-500";
+    };
+
+    const formatFullDate = (date: any) => {
+        if (!date) return "—";
+        return new Date(date).toLocaleString("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+        }) + " WIB";
+    };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[600px] font-satoshi">
-                <DialogHeader>
-                    <DialogTitle className="text-xl font-bold font-orbitron">Activity Logs Details</DialogTitle>
+            <DialogContent className="sm:max-w-[550px] font-satoshi p-0 overflow-hidden border-none shadow-2xl bg-white">
+                <DialogHeader className="p-6 pb-0">
+                    <DialogTitle className="text-xl font-bold font-orbitron uppercase text-slate-900">
+                        Activity Log Details
+                    </DialogTitle>
                 </DialogHeader>
-                
-                <div className="grid gap-6 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-1">
-                            <p className="text-[10px] font-black uppercase text-muted-foreground">Action Type</p>
-                            <Badge className={log.action === 'created' ? 'bg-arcipta-blue-primary' : log.action === 'deleted' ? 'bg-red-600' : 'bg-amber-500'}>
-                                {log.action.toUpperCase()}
-                            </Badge>
-                        </div>
-                        <div className="space-y-1 text-right">
-                            <p className="text-[10px] font-black uppercase text-muted-foreground">Module Target</p>
-                            <p className="font-bold text-slate-900">{log.target_type}</p>
-                        </div>
-                    </div>
 
-                    <div className="bg-slate-950 rounded-2xl p-5 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 p-3 text-[10px] font-mono text-slate-500 uppercase tracking-tighter">Raw Meta Data</div>
-                        <ScrollArea className="h-[200px] w-full mt-2">
-                            <pre className="text-xs font-mono text-blue-400 leading-relaxed">
-                                {JSON.stringify({
-                                    id: log.id,
-                                    target_id: log.target_id,
-                                    ip_address: log.ip_address,
-                                    user_agent: log.user_agent,
-                                    timestamp: log.created_at
-                                }, null, 4)}
-                            </pre>
-                        </ScrollArea>
-                    </div>
+                <ScrollArea className="max-h-[85vh] w-full">
+                    <div className="p-6 space-y-8">
+                        <div className="flex items-center gap-5">
+                            <div className={cn(
+                                "h-14 w-14 rounded-2xl border flex items-center justify-center shrink-0 shadow-sm bg-slate-50 border-slate-200 text-slate-600 font-orbitron font-bold text-lg"
+                            )}>
+                                {log.user?.username?.charAt(0).toUpperCase() || "S"}
+                            </div>
+                            <div className="space-y-1">
+                                <h2 className="text-lg font-bold text-slate-900">
+                                    {log.user?.username || "System"}
+                                </h2>
+                                <div className="flex gap-2">
+                                    <Badge className={cn("uppercase text-[9px] tracking-widest", getStatusColor(log.action))}>
+                                        {log.action}
+                                    </Badge>
+                                    <Badge variant="outline" className="uppercase text-[9px] tracking-widest text-slate-500 border-slate-200">
+                                        {log.target_type}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </div>
 
-                    <div className="grid grid-cols-1 gap-2 border-t pt-4">
-                        <div className="flex justify-between items-center text-xs">
-                            <span className="text-muted-foreground font-bold uppercase tracking-tighter">Device Info</span>
-                            <span className="bg-muted px-2 py-1 rounded-md max-w-[350px] truncate">{log.user_agent}</span>
+                        <div className="space-y-6 pt-6 border-t border-slate-100">
+                            <div className="grid grid-cols-1 gap-6">
+                                <div className="space-y-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Target Context</p>
+                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase">Target ID</span>
+                                                <span className="text-xs font-mono font-bold text-slate-700">{log.target_id}</span>
+                                            </div>
+                                            {log.target_uuid && (
+                                                <div className="flex justify-between items-center border-t border-slate-100 pt-3">
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase">Target UUID</span>
+                                                    <span className="text-[10px] font-mono text-slate-500">{log.target_uuid}</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1 pt-2">
+                                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Connection Details</p>
+                                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase">IP Address</span>
+                                                <span className="text-xs font-mono font-bold text-slate-700">{log.ip_address}</span>
+                                            </div>
+                                            <div className="space-y-2 border-t border-slate-100 pt-3">
+                                                <p className="text-[9px] font-bold text-slate-400 uppercase">User Agent</p>
+                                                <p className="text-[10px] leading-relaxed text-slate-500 font-mono break-all line-clamp-3">
+                                                    {log.user_agent}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-4 bg-slate-50 p-5 rounded-2xl border border-slate-100 mt-2">
+                                        <div className="space-y-1">
+                                            <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">Created At</p>
+                                            <p className="text-xs font-semibold text-slate-700">{formatFullDate(log.created_at)}</p>
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-[9px] font-bold uppercase text-slate-400 tracking-wider">Last Sync / Update</p>
+                                            <p className="text-xs font-semibold text-slate-700">{formatFullDate(log.updated_at)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </ScrollArea>
+                <div className="p-4 border-t border-slate-50 bg-slate-50/30 flex justify-end">
+                    <button
+                        onClick={() => onOpenChange(false)}
+                        className="px-6 py-2.5 text-[11px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-800 transition-colors"
+                    >
+                        Close Details
+                    </button>
                 </div>
             </DialogContent>
         </Dialog>

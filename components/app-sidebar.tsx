@@ -11,15 +11,6 @@ import { SidebarMenuList } from "@/components/sidebar/SidebarMenuList"
 import { SidebarUser } from "@/components/sidebar/SidebarUser"
 import { mainMenuItems, cmsMenuItems } from "@/constants/sidebar-items"
 
-// Mock user data - in a real app this would likely come from auth props or context
-const data = {
-    user: {
-        name: "Username",
-        email: "user@example.com",
-        avatar: "https://github.com/shadcn.png",
-    },
-}
-
 export function AppSidebar() {
     return (
         <Sidebar collapsible="icon">
@@ -39,7 +30,7 @@ export function AppSidebar() {
                 />
             </SidebarContent>
             <SidebarFooter>
-                <SidebarUser user={data.user} />
+                <SidebarUser />
             </SidebarFooter>
         </Sidebar>
     )

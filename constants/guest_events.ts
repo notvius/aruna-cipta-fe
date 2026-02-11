@@ -1,11 +1,13 @@
 export interface GuestEvent {
-    id: number;
+    id: number | string;
+    uuid?: string;
     event_type: string;
     event_subtype: string;
     page_url: string;
     ip_address: string;
     user_agent: string;
-    created_at: Date;
+    created_at: string | Date;
+    updated_at: string | Date;
 }
 
 export interface AnalyticsSummaryItem {

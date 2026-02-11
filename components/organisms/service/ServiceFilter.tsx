@@ -33,7 +33,6 @@ export function ServiceFilter({
                     </div>
                 </div>
 
-                {/* Date Range */}
                 <div className="md:col-span-6 grid grid-cols-2 gap-3">
                     <div className="space-y-1.5">
                         <p className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Start Date</p>
@@ -55,7 +54,6 @@ export function ServiceFilter({
                     </div>
                 </div>
 
-                {/* Reset */}
                 <div className="md:col-span-2">
                     <Button 
                         className={`${elementHeight} w-full bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm transition-all active:scale-95`} 

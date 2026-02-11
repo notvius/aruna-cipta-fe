@@ -6,7 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Eye, Trash2, Plus, Circle } from "lucide-react";
+import { MoreHorizontal, Pencil, Eye, Trash2, PlusCircle, Circle } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -27,7 +27,7 @@ export const columns = ({
     onView: (u: User) => void;
     onEdit: (u: User) => void;
     onDeleteSingle: (u: User) => void;
-    onUpdateStatus: (index: number, active: boolean) => void;
+    onUpdateStatus: (u: User, active: boolean) => void;
 }): ColumnDef<User>[] => [
     {
         id: "select",
@@ -47,12 +47,15 @@ export const columns = ({
                 />
             </div>
         ),
-        size: 30, 
-        enableHiding: false,
+        size: 30,
     },
     {
         id: "user_identity",
-        header: () => <div className="pl-0 font-bold text-slate-900">User Identity</div>,
+        header: () => (
+            <div className="pl-0 font-bold text-slate-900">
+                User Identity
+            </div>
+        ),
         size: 300,
         cell: ({ row }) => {
             const u = row.original;
@@ -62,22 +65,22 @@ export const columns = ({
                 <div className="flex items-center gap-3 py-3 pl-0 group/cell">
                     <div className={cn(
                         "h-11 w-11 rounded-full border flex items-center justify-center shrink-0 transition-all duration-300",
-                        u.is_superadmin 
-                            ? "bg-arcipta-blue-primary/10 border-arcipta-blue-primary/20 text-arcipta-blue-primary group-hover/cell:bg-arcipta-blue-primary/20" 
-                            : "bg-slate-100 border-slate-200 text-slate-500 group-hover/cell:border-arcipta-blue-primary/40 group-hover/cell:bg-arcipta-blue-primary/5"
+                        u.is_superadmin === 1
+                            ? "bg-arcipta-blue-primary/10 border-arcipta-blue-primary/20 text-arcipta-blue-primary"
+                            : "bg-slate-100 border-slate-200 text-slate-500"
                     )}>
                         <span className="font-bold text-xs font-orbitron">{initial}</span>
                     </div>
 
                     <div className="flex flex-col gap-0.5">
-                        <h4 className="font-bold text-slate-900 text-sm tracking-tight transition-colors duration-300 group-hover/cell:text-arcipta-blue-primary">
+                        <h4 className="font-bold text-slate-900 text-sm tracking-tight group-hover/cell:text-arcipta-blue-primary transition-colors">
                             {u.username}
                         </h4>
                         <p className={cn(
-                            "text-[9px] font-black uppercase tracking-[0.2em] leading-none transition-colors duration-300",
-                            u.is_superadmin ? "text-arcipta-blue-primary" : "text-slate-400 group-hover/cell:text-slate-500"
+                            "text-[9px] font-black uppercase tracking-[0.2em] leading-none",
+                            u.is_superadmin === 1 ? "text-arcipta-blue-primary" : "text-slate-400"
                         )}>
-                            AS {u.is_superadmin ? "SUPERADMIN" : "ADMIN"}
+                            AS {u.is_superadmin === 1 ? "SUPERADMIN" : "ADMIN"}
                         </p>
                     </div>
                 </div>
@@ -86,23 +89,30 @@ export const columns = ({
     },
     {
         accessorKey: "is_active",
-        header: () => <div className="font-bold text-slate-900">Status</div>,
+        header: () => (
+            <div className="font-bold text-slate-900">
+                Status
+            </div>
+        ),
         size: 150,
         cell: ({ row }) => {
-            const isActive = row.original.is_active;
+            const u = row.original;
+            const isActive = u.is_active === 1;
+
             return (
                 <div className="flex items-center gap-3">
                     <Switch
+                        key={`status-${u.id}-${u.is_active}`}
                         checked={isActive}
-                        onCheckedChange={(val) => onUpdateStatus(row.index, val)}
+                        onCheckedChange={(val) => onUpdateStatus(u, val)}
                         className="data-[state=checked]:bg-arcipta-blue-primary scale-90"
                     />
-                    <Badge 
-                        variant="outline" 
+                    <Badge
+                        variant="outline"
                         className={cn(
                             "px-2.5 py-0.5 rounded-full border font-bold text-[9px] uppercase tracking-wider gap-1.5 transition-all duration-300",
-                            isActive 
-                                ? "bg-emerald-50 text-emerald-600 border-emerald-200" 
+                            isActive
+                                ? "bg-emerald-50 text-emerald-600 border-emerald-200"
                                 : "bg-slate-50 text-slate-400 border-slate-200"
                         )}
                     >
@@ -115,16 +125,20 @@ export const columns = ({
     },
     {
         accessorKey: "created_at",
-        header: () => <div className="font-bold text-slate-900">Activity Log</div>,
+        header: () => (
+            <div className="font-bold text-slate-900">
+                Activity Log
+            </div>
+        ),
         size: 180,
         cell: ({ row }) => {
             const date = new Date(row.original.created_at);
             return (
-                <div className="flex flex-col gap-0.5 min-w-[140px] group/log">
-                    <span className="text-[11px] font-bold text-slate-700 font-satoshi transition-colors duration-300 group-hover/cell:text-slate-900">
+                <div className="flex flex-col gap-0.5 min-w-[140px]">
+                    <span className="text-[11px] font-bold text-slate-700 font-satoshi">
                         {date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })}
                     </span>
-                    <span className="text-[10px] text-slate-400 uppercase font-bold transition-colors duration-300 group-hover/cell:text-slate-500">
+                    <span className="text-[10px] text-slate-400 uppercase font-bold">
                         {date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })} WIB
                     </span>
                 </div>
@@ -133,35 +147,42 @@ export const columns = ({
     },
     {
         id: "actions",
-        header: () => <div className="pl-2 font-bold text-slate-900">Actions</div>,
+        header: () => (
+            <div className="pl-2 font-bold text-slate-900">
+                Actions
+            </div>
+        ),
         size: 100,
-        enableHiding: false,
         cell: ({ row }) => (
-            <div className="flex justify-start items-center pl-2">
+            <div className="flex justify-start items-center pl-2 min-w-[80px]">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button 
-                            variant="ghost" 
-                            className="h-8 w-8 p-0 hover:bg-transparent transition-all duration-300 group-hover:text-arcipta-blue-primary"
+                        <Button
+                            variant="ghost"
+                            className="h-8 w-8 p-0 hover:bg-slate-100 transition-all duration-300 rounded-full group-hover/row:text-arcipta-blue-primary"
                         >
                             <MoreHorizontal className="h-4 w-4" />
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-42 font-satoshi shadow-xl border-slate-100 p-1">
-                        <DropdownMenuItem onClick={onCreate} className="cursor-pointer">
-                            <Plus className="mr-2 h-4 w-4" /> Add New 
+                    <DropdownMenuContent align="end" className="w-52 rounded-2xl shadow-2xl border-slate-100 p-1.5 font-jakarta bg-white">
+                        <DropdownMenuItem onClick={onCreate} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                            <PlusCircle className="mr-2 h-4 w-4 text-emerald-500" />
+                            Add New
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onView(row.original)} className="cursor-pointer">
-                            <Eye className="mr-2 h-4 w-4" /> View Details
+                        <DropdownMenuItem onClick={() => onView(row.original)} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                            <Eye className="mr-2 h-4 w-4 text-blue-500" />
+                            View Details
                         </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => onEdit(row.original)} className="cursor-pointer">
-                            <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit User
+                        <DropdownMenuItem onClick={() => onEdit(row.original)} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                            <Pencil className="mr-2 h-4 w-4 text-amber-500" />
+                            Edit User
                         </DropdownMenuItem>
-                        <DropdownMenuItem 
-                            onClick={() => onDeleteSingle(row.original)} 
-                            className="text-red-600 focus:text-red-600 cursor-pointer"
+                        <DropdownMenuItem
+                            onClick={() => onDeleteSingle(row.original)}
+                            className="rounded-lg py-2.5 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
                         >
-                            <Trash2 className="mr-2 h-4 w-4" /> Delete User
+                            <Trash2 className="mr-2 h-4 w-4" />
+                            Delete User
                         </DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

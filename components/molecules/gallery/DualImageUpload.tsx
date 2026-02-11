@@ -2,12 +2,12 @@
 
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, ImagePlus, X } from "lucide-react";
+import { Upload, Loader2, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DualImageUploadProps {
     values: string[];
-    onChange: (values: string[]) => void;
+    onChange: (previews: string[], files: (File | null)[]) => void;
     className?: string;
 }
 
@@ -16,6 +16,7 @@ export function DualImageUpload({ values, onChange, className }: DualImageUpload
     const fileInputRef2 = React.useRef<HTMLInputElement>(null);
     const [loading1, setLoading1] = React.useState(false);
     const [loading2, setLoading2] = React.useState(false);
+    const [files, setFiles] = React.useState<(File | null)[]>([null, null]);
 
     const image1 = values[0] || "";
     const image2 = values[1] || "";
@@ -24,8 +25,8 @@ export function DualImageUpload({ values, onChange, className }: DualImageUpload
         const file = e.target.files?.[0];
         if (!file) return;
 
-        if (file.size > 2 * 1024 * 1024) {
-            alert("Kegedean bro, maksimal 2MB ya untuk gambar proses.");
+        if (file.size > 10 * 1024 * 1024) {
+            alert("File terlalu besar, maksimal 10MB.");
             return;
         }
 
@@ -34,10 +35,15 @@ export function DualImageUpload({ values, onChange, className }: DualImageUpload
 
         const reader = new FileReader();
         reader.onloadend = () => {
-            const newValues = [...values];
-            while (newValues.length <= index) newValues.push("");
-            newValues[index] = reader.result as string;
-            onChange(newValues);
+            const newPreviews = [...values];
+            while (newPreviews.length <= index) newPreviews.push("");
+            newPreviews[index] = reader.result as string;
+
+            const newFiles = [...files];
+            newFiles[index] = file;
+
+            setFiles(newFiles);
+            onChange(newPreviews, newFiles);
             setLoading(false);
         };
         reader.readAsDataURL(file);

@@ -13,12 +13,7 @@ import {
     type SortingState,
     type VisibilityState,
 } from "@tanstack/react-table";
-import { ArrowUpDown, Search, Trash2} from "lucide-react";
-import {
-    InputGroup,
-    InputGroupAddon,
-    InputGroupInput,
-} from "@/components/ui/input-group";
+import { ArrowUpDown, Trash2 } from "lucide-react";
 
 import { RowData } from "@tanstack/react-table";
 
@@ -32,12 +27,10 @@ declare module "@tanstack/react-table" {
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
-    DropdownMenuCheckboxItem,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
     Table,
     TableBody,
@@ -75,27 +68,25 @@ export function DataTable<T extends Record<string, any>>({
     data,
     columns,
     caption,
-    filterColumn,
     showFooter = true,
     onDataChange,
-    searchPlaceholder = "Search here...",
-    enableGlobalSearch = true,
     sortOptions,
     onDeleteSelected,
-    onAddNew,
     onRowClick,
 }: DataTableProps<T>) {
-    const [sorting, setSorting] = React.useState<SortingState>([
-        {
-            id: "created_at",
-            desc: true,
-        }
-    ]);
+    const hasCreatedAt = React.useMemo(() =>
+        columns.some(col =>
+            (col as any).accessorKey === "created_at" || col.id === "created_at"
+        ), [columns]);
+
+    const [sorting, setSorting] = React.useState<SortingState>(
+        hasCreatedAt ? [{ id: "created_at", desc: true }] : []
+    );
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const [globalFilter, setGlobalFilter] = React.useState("");
-    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({
-        created_at: false,
-    });
+    const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>(
+        hasCreatedAt ? { created_at: false } : {}
+    );
     const [rowSelection, setRowSelection] = React.useState({});
 
     const table = useReactTable({
@@ -134,40 +125,10 @@ export function DataTable<T extends Record<string, any>>({
         },
     });
 
-    const renderFilter = () => {
-        if (enableGlobalSearch) {
-            return (
-                <InputGroup className="w-full md:max-w-sm">
-                    <InputGroupAddon>
-                        <Search className="size-4" />
-                    </InputGroupAddon>
-                    <InputGroupInput
-                        placeholder={searchPlaceholder}
-                        value={globalFilter ?? ""}
-                        onChange={(e) => setGlobalFilter(e.target.value)}
-                    />
-                </InputGroup>
-            );
-        }
-
-        if (!filterColumn) return null;
-        const column = table.getColumn(filterColumn as string);
-        if (!column) return null;
-        return (
-            <Input
-                placeholder={`Filter ${String(filterColumn)}...`}
-                value={(column.getFilterValue() as string) ?? ""}
-                onChange={(e) => column.setFilterValue(e.target.value)}
-                className="w-full md:max-w-sm"
-            />
-        );
-    };
-
     return (
         <div className="w-full">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 px-2">
                 <div className="flex flex-1 items-center gap-2">
-                    {renderFilter()}
                     {onDeleteSelected && (
                         <Button
                             size="sm"
@@ -239,12 +200,12 @@ export function DataTable<T extends Record<string, any>>({
                                     key={row.id}
                                     data-state={row.getIsSelected() && "selected"}
                                     onClick={() => onRowClick?.(row.original)}
-                                    className={`group transition-all duration-300 border-b ${onRowClick ? "cursor-pointer hover:bg-slate-50/50" : ""}`}
+                                    className={`group/row transition-all duration-300 border-b ${onRowClick ? "cursor-pointer hover:bg-slate-50/50" : ""}`}
                                 >
                                     {row.getVisibleCells().map((cell) => (
-                                        <TableCell 
-                                            key={cell.id} 
-                                            className="transition-colors duration-300 group-hover:border-arcipta-blue-primary/40"
+                                        <TableCell
+                                            key={cell.id}
+                                            className="transition-colors duration-300 group-hover/row:border-arcipta-blue-primary/40"
                                         >
                                             {flexRender(
                                                 cell.column.columnDef.cell,

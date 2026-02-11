@@ -9,38 +9,37 @@ import {
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { ShieldCheck, Calendar, UserCircle, Circle } from "lucide-react";
+import { ShieldCheck, LayoutGrid } from "lucide-react";
 import { type User } from "@/constants/users";
-import { permissionsData } from "@/data/permissions";
-import { getUserPermissions } from "@/utils/user-permission-storage";
 import { cn } from "@/lib/utils";
 
 interface ViewProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    user: User;
+    user: User | null;
 }
 
 export function ViewUserModal({ open, onOpenChange, user }: ViewProps) {
-    const [userPermissions, setUserPermissions] = React.useState<number[]>([]);
-
-    React.useEffect(() => {
-        if (open && user) {
-            const allPerms = getUserPermissions();
-            const filtered = allPerms
-                .filter((p) => p.user_id === user.id && p.is_allowed)
-                .map((p) => p.permission_id);
-            setUserPermissions(filtered);
-        }
-    }, [open, user]);
+    if (!user) return null;
 
     const groupedPermissions = React.useMemo(() => {
-        return permissionsData.reduce((acc, curr) => {
-            if (!acc[curr.module]) acc[curr.module] = [];
-            acc[curr.module].push(curr);
-            return acc;
-        }, {} as Record<string, typeof permissionsData>);
-    }, []);
+        const rawPerms = Array.isArray(user.permissions) ? user.permissions : [];
+        const groups: Record<string, string[]> = {};
+
+        rawPerms.forEach((perm: any) => {
+            if (typeof perm === "string" && perm.includes(".")) {
+                const [moduleName, actionName] = perm.split(".");
+                if (!groups[moduleName]) groups[moduleName] = [];
+                groups[moduleName].push(actionName);
+            } 
+            else if (typeof perm === "object" && perm !== null && perm.module) {
+                if (!groups[perm.module]) groups[perm.module] = [];
+                groups[perm.module].push(perm.action);
+            }
+        });
+
+        return groups;
+    }, [user.permissions]);
 
     const formatFullDate = (date: any) => {
         if (!date) return "—";
@@ -53,134 +52,92 @@ export function ViewUserModal({ open, onOpenChange, user }: ViewProps) {
         }) + " WIB";
     };
 
-    if (!user) return null;
-
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-[800px] font-satoshi p-0 overflow-hidden border-none shadow-2xl bg-white">
+            <DialogContent className="sm:max-w-[700px] font-satoshi p-0 overflow-hidden border-none shadow-2xl bg-white">
                 <DialogHeader className="p-6 pb-0">
-                    <DialogTitle className="text-xl font-bold font-orbitron uppercase tracking-tight text-slate-900">
+                    <DialogTitle className="text-xl font-bold font-orbitron uppercase text-slate-900">
                         User Account Details
                     </DialogTitle>
                 </DialogHeader>
 
-                <ScrollArea className="max-h-[85vh] w-full">
+                <ScrollArea className="max-h-[80vh] w-full">
                     <div className="p-6 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex items-center gap-4">
-                                <div className={cn(
-                                    "h-16 w-16 rounded-full border flex items-center justify-center shrink-0 shadow-sm",
-                                    user.is_superadmin 
-                                        ? "bg-arcipta-blue-primary/10 border-arcipta-blue-primary/20 text-arcipta-blue-primary" 
-                                        : "bg-slate-100 border-slate-200 text-slate-500"
-                                )}>
-                                    <span className="font-bold text-xl font-orbitron">
-                                        {user.username?.charAt(0).toUpperCase()}
-                                    </span>
-                                </div>
-                                <div className="space-y-0.5 overflow-hidden">
-                                    <p className="text-[10px] font-black  uppercase text-muted-foreground tracking-widest leading-none">Username</p>
-                                    <p className="text-xl font-bold text-arcipta-blue-primary truncate">{user.username}</p>
-                                </div>
+                        <div className="flex items-center gap-6">
+                            <div className={cn(
+                                "h-20 w-20 rounded-full border flex items-center justify-center shrink-0 text-2xl font-bold font-orbitron shadow-sm",
+                                Number(user.is_superadmin) === 1 
+                                    ? "bg-arcipta-blue-primary/10 border-arcipta-blue-primary/20 text-arcipta-blue-primary" 
+                                    : "bg-slate-100 border-slate-200 text-slate-500"
+                            )}>
+                                {user.username?.charAt(0).toUpperCase()}
                             </div>
-                            
-                            <div className="flex md:justify-end items-center gap-3">
-                                <div className="text-right space-y-1">
-                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Role</p>
-                                    <Badge 
-                                        variant={user.is_superadmin ? "default" : "outline"} 
-                                        className={cn(
-                                            "font-bold uppercase tracking-widest text-[9px] px-3 py-1 bg-arcipta-blue-primary text-white",
-                                        )}
-                                    >
-                                        {user.is_superadmin ? "Superadmin" : "Admin"}
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-bold text-slate-900">{user.username}</h2>
+                                <div className="flex gap-2">
+                                    <Badge className="bg-arcipta-blue-primary uppercase text-[9px] tracking-widest">
+                                        {Number(user.is_superadmin) === 1 ? "Superadmin" : "Admin"}
                                     </Badge>
-                                </div>
-                                <div className="h-8 w-[1px] bg-slate-200 mx-1 hidden md:block" />
-                                <div className="text-right space-y-1">
-                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Current Status</p>
-                                    <Badge className={cn(
-                                        "font-bold uppercase tracking-widest text-[9px] px-3 py-1 gap-1.5",
-                                        user.is_active ? "bg-emerald-500 text-white" : "bg-red-100 text-red-600 shadow-none border-none"
+                                    <Badge variant="outline" className={cn(
+                                        "uppercase text-[9px] tracking-widest", 
+                                        Number(user.is_active) === 1 ? "text-emerald-600 border-emerald-200" : "text-red-600 border-red-200"
                                     )}>
-                                        <Circle className={cn("size-1.5 fill-current", user.is_active && "animate-pulse")} />
-                                        {user.is_active ? "Active" : "Inactive"}
+                                        {Number(user.is_active) === 1 ? "Active Account" : "Inactive Account"}
                                     </Badge>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
-
-                            <div className="md:col-span-7 space-y-4 bg-muted/30 p-5 rounded-2xl border border-dashed border-border/80">
-                                <div className="flex items-center gap-2 border-b border-border/50 pb-3 mb-2">
-                                    <ShieldCheck className="h-5 w-5 text-arcipta-blue-primary" />
-                                    <span className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Module Access</span>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                            <div className="space-y-4">
+                                <div className="flex items-center gap-2 text-muted-foreground mb-2">
+                                    <ShieldCheck className="h-4 w-4 text-arcipta-blue-primary" />
+                                    <span className="text-[10px] font-bold uppercase tracking-widest">Authorized Modules</span>
                                 </div>
-
-                                {user.is_superadmin ? (
-                                    <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                                        <Badge variant="outline" className="text-arcipta-blue-primary border-arcipta-blue-primary bg-arcipta-blue-primary/10 px-4 py-1 text-sm font-bold">
-                                            FULL ACCESS GRANTED
-                                        </Badge>
-                                        <p className="text-[11px] text-muted-foreground max-w-[200px] leading-relaxed">
-                                            Superadmin users have override access to all platform modules and data management.
+                                
+                                {Number(user.is_superadmin) === 1 ? (
+                                    <div className="p-4 bg-emerald-50/50 rounded-xl border border-emerald-100">
+                                        <p className="text-xs text-emerald-700 font-medium">
+                                            Full Override Access: User can access all system modules.
                                         </p>
                                     </div>
                                 ) : (
-                                    <div className="grid grid-cols-1 gap-5 overflow-y-auto max-h-[300px] pr-2 custom-scrollbar">
-                                        {Object.entries(groupedPermissions).map(([module, perms]) => (
-                                            <div key={module} className="space-y-2">
-                                                <p className="text-[10px] font-black uppercase text-arcipta-blue-primary/60 tracking-tight">
-                                                    {module.replace(/_/g, " ")}
-                                                </p>
-                                                <div className="flex flex-wrap gap-2">
-                                                    {perms.map((perm) => {
-                                                        const hasPerm = userPermissions.includes(perm.id);
-                                                        return (
-                                                            <Badge
-                                                                key={perm.id}
-                                                                variant={hasPerm ? "default" : "outline"}
-                                                                className={cn(
-                                                                    "text-[9px] py-0.5 px-2.5 capitalize font-bold tracking-tight",
-                                                                    hasPerm ? "bg-arcipta-blue-primary/80" : "opacity-40 line-through decoration-muted-foreground"
-                                                                )}
-                                                            >
-                                                                {perm.action}
+                                    <div className="space-y-4">
+                                        {Object.keys(groupedPermissions).length > 0 ? (
+                                            Object.entries(groupedPermissions).map(([moduleName, actions]) => (
+                                                <div key={moduleName} className="bg-slate-50/50 p-3 rounded-xl border border-slate-100 space-y-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <LayoutGrid className="size-3 text-slate-400" />
+                                                        <p className="text-[10px] font-black uppercase text-slate-600 tracking-tight">{moduleName}</p>
+                                                    </div>
+                                                    <div className="flex flex-wrap gap-1.5 pl-5">
+                                                        {actions.map((actionName, idx) => (
+                                                            <Badge key={`${moduleName}-${idx}`} variant="secondary" className="bg-white text-[9px] border-slate-200 text-slate-500 font-medium capitalize">
+                                                                {actionName}
                                                             </Badge>
-                                                        );
-                                                    })}
+                                                        ))}
+                                                    </div>
                                                 </div>
+                                            ))
+                                        ) : (
+                                            <div className="p-4 bg-slate-50 rounded-xl border border-dashed border-slate-200 text-center">
+                                                <p className="text-xs text-slate-400 italic">No module permissions assigned.</p>
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 )}
                             </div>
 
-                            <div className="md:col-span-5 space-y-6">
-                                <div className="bg-slate-50 rounded-2xl p-5 border border-slate-100 space-y-4">
-                                    <div className="space-y-4">
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <Calendar className="size-3" />
-                                                <span className="text-[10px] font-bold uppercase tracking-tight">Created At</span>
-                                            </div>
-                                            <p className="text-xs font-semibold text-slate-700 pl-5">{formatFullDate(user.created_at)}</p>
-                                        </div>
-                                        <div className="space-y-1">
-                                            <div className="flex items-center gap-2 text-muted-foreground">
-                                                <UserCircle className="size-3" />
-                                                <span className="text-[10px] font-bold uppercase tracking-tight">Last Update</span>
-                                            </div>
-                                            <p className="text-xs font-semibold text-slate-700 pl-5">{formatFullDate(user.updated_at)}</p>
-                                        </div>
+                            <div className="space-y-6">
+                                <div className="bg-slate-50 p-5 rounded-2xl border border-slate-100 space-y-4">
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Registered At</p>
+                                        <p className="text-xs font-semibold text-slate-700">{formatFullDate(user.created_at)}</p>
                                     </div>
-                                </div>
-                                
-                                <div className="p-1">
-                                    <p className="text-[10px] text-muted-foreground leading-relaxed">
-                                        Note: Superadmin accounts have unrestricted access to all modules and system configurations.
-                                    </p>
+                                    <div className="space-y-1">
+                                        <p className="text-[9px] font-bold uppercase text-slate-400 tracking-widest">Last Profile Update</p>
+                                        <p className="text-xs font-semibold text-slate-700">{formatFullDate(user.updated_at)}</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

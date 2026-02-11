@@ -29,12 +29,16 @@ export function GalleryCard({ item, onAdd, onView, onEdit, onDelete, onToggleSta
         year: '2-digit'
     });
 
+    const imageUrl = item.image_url 
+        ? `${item.image_url}?t=${new Date(item.updated_at).getTime()}` 
+        : "/images/placeholder-gallery.jpg";
+
     return (
         <div className="group relative font-satoshi">
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[2.5rem] bg-slate-100 border border-slate-200 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-900/10 group-hover:-translate-y-1">
+            <div className="relative aspect-[4/3] w-full overflow-hidden  bg-slate-100 border border-slate-200 transition-all duration-500 group-hover:shadow-2xl group-hover:shadow-blue-900/10 group-hover:-translate-y-1">
                 
                 <motion.img 
-                    src={item.file_path} 
+                    src={imageUrl} 
                     alt={item.alt_text || "Gallery image"}
                     className="absolute inset-0 object-cover w-full h-full"
                     whileHover={{ scale: 1.08 }}
@@ -63,7 +67,7 @@ export function GalleryCard({ item, onAdd, onView, onEdit, onDelete, onToggleSta
                                 <MoreHorizontal className="size-6" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52 rounded-2xl shadow-2xl border-slate-100 p-1.5 font-satoshi">
+                        <DropdownMenuContent align="end" className="w-52 rounded-2xl shadow-2xl border-slate-100 p-1.5 font-satoshi bg-white">
                             <DropdownMenuItem onClick={onAdd} className="rounded-lg py-2.5 cursor-pointer font-medium">
                                 <PlusCircle className="mr-2 h-4 w-4 text-emerald-500" /> Add New Asset
                             </DropdownMenuItem>

@@ -26,6 +26,10 @@ export function ViewGalleryModal({ open, onOpenChange, gallery }: ViewProps) {
         }) + " WIB";
     };
 
+    const imageUrl = gallery.image_url 
+        ? `${gallery.image_url}?t=${new Date(gallery.updated_at).getTime()}` 
+        : "/images/placeholder-gallery.jpg";
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[750px] font-satoshi p-0 overflow-hidden border-none shadow-2xl bg-white">
@@ -39,30 +43,28 @@ export function ViewGalleryModal({ open, onOpenChange, gallery }: ViewProps) {
                     <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
                         
                         <div className="space-y-3">
-                            <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-0.5">Media Preview</p>
+                            <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none ml-0.5">Media Preview</p>
                             <div className="relative aspect-[4/3] rounded-[2rem] overflow-hidden border border-slate-100 bg-slate-50 shadow-inner">
                                 <img
-                                    src={gallery.file_path}
+                                    src={imageUrl}
                                     alt={gallery.alt_text || "Preview"}
                                     className="w-full h-full object-cover"
+                                    key={gallery.updated_at}
                                 />
                             </div>
                         </div>
 
-                        {/* Kolom Kanan: Details */}
                         <div className="flex flex-col gap-6">
-                            {/* Caption Section */}
                             <div className="space-y-2">
-                                <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-0.5">Caption</p>
+                                <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none ml-0.5">Caption</p>
                                 <h3 className="text-base font-bold text-arcipta-blue-primary leading-relaxed">
                                     {gallery.caption || "Untitled Asset"}
                                 </h3>
                             </div>
 
-                            {/* Status & Alt Text Section */}
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-0.5">Status</p>
+                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Status</p>
                                     <div className={cn(
                                         "w-fit px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
                                         gallery.is_published 
@@ -73,23 +75,22 @@ export function ViewGalleryModal({ open, onOpenChange, gallery }: ViewProps) {
                                     </div>
                                 </div>
                                 <div className="space-y-2">
-                                    <p className="text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] ml-0.5">Alt Text</p>
+                                    <p className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Alt Text</p>
                                     <p className="text-sm font-medium text-slate-600 truncate">
                                         {gallery.alt_text || "—"}
                                     </p>
                                 </div>
                             </div>
 
-                            {/* Metadata Section */}
                             <div className="space-y-4 pt-6 border-t border-slate-100">
                                 <div className="flex justify-between items-center px-1">
-                                    <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Created At</span>
+                                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Created At</span>
                                     <span className="font-semibold text-slate-700 text-[11px]">
                                         {formatFullDate(gallery.created_at)}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center px-1">
-                                    <span className="text-slate-400 font-bold uppercase tracking-widest text-[9px]">Last Update</span>
+                                    <span className="text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none">Last Update</span>
                                     <span className="font-semibold text-slate-700 text-[11px]">
                                         {formatFullDate(gallery.updated_at)}
                                     </span>

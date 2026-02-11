@@ -8,7 +8,7 @@ import { type Service } from "@/constants/services";
 interface ViewProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    service: Service;
+    service: Service | null;
 }
 
 export function ViewServiceModal({ open, onOpenChange, service }: ViewProps) {
@@ -25,7 +25,11 @@ export function ViewServiceModal({ open, onOpenChange, service }: ViewProps) {
         }) + " WIB";
     };
 
-    const labelStyle = "text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] leading-none mb-3 block";
+    const imageUrl = service.image_url 
+        ? `${service.image_url}?t=${new Date(service.updated_at).getTime()}` 
+        : "/images/placeholder.jpg";
+
+    const labelStyle = "text-[10px] font-black uppercase text-muted-foreground tracking-widest leading-none";
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -39,29 +43,35 @@ export function ViewServiceModal({ open, onOpenChange, service }: ViewProps) {
                 <ScrollArea className="max-h-[85vh] w-full">
                     <div className="p-8">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-start">
-                            
-                            {/* Kolom Kiri: Visual & Timestamps */}
                             <div className="space-y-8">
                                 <div className="space-y-2">
                                     <span className={labelStyle}>Featured Image</span>
-                                    <div className="relative aspect-video rounded-[2.5rem] overflow-hidden border border-slate-100 bg-slate-50 shadow-sm">
+                                    <div className="mt-1 relative aspect-video rounded-[2.5rem] overflow-hidden border border-slate-100 bg-slate-50 shadow-sm">
                                         <img
-                                            src={service.featured_image}
+                                            src={imageUrl}
                                             alt={service.title}
                                             className="w-full h-full object-cover"
                                         />
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 gap-3 border-t border-slate-100 pt-6 text-[11px]">
+                                <div className="grid grid-cols-1 gap-3 border-t border-slate-100 pt-4 pb-2 text-[11px]">
                                     <div className="flex justify-between items-center">
-                                        <span className="text-muted-foreground font-bold uppercase tracking-tighter">Created At</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-muted-foreground font-bold uppercase tracking-tighter">
+                                                Created At
+                                            </span>
+                                        </div>
                                         <span className="font-medium text-black">
                                             {formatFullDate(service.created_at)}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">
-                                        <span className="text-muted-foreground font-bold uppercase tracking-tighter">Last Update At</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="text-muted-foreground font-bold uppercase tracking-tighter">
+                                                Last Update At
+                                            </span>
+                                        </div>
                                         <span className="font-medium text-black">
                                             {formatFullDate(service.updated_at)}
                                         </span>
@@ -69,28 +79,26 @@ export function ViewServiceModal({ open, onOpenChange, service }: ViewProps) {
                                 </div>
                             </div>
 
-                            {/* Kolom Kanan: Title & Content Container */}
                             <div className="space-y-8 h-full">
                                 <div className="space-y-1">
                                     <span className={labelStyle}>Service Title</span>
-                                    <h3 className="text-2xl font-bold font-orbitron uppercase tracking-tighter text-arcipta-blue-primary">
+                                    <h3 className="mt-1 text-2xl font-bold font-orbitron uppercase tracking-tighter text-arcipta-blue-primary leading-tight">
                                         {service.title}
                                     </h3>
                                 </div>
 
-                                <div className="space-y-3">
+                                <div className="space-y-3 mb-1">
                                     <span className={labelStyle}>Content</span>
-                                    <div className="bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm h-fit">
+                                    <div className=" bg-slate-50 p-8 rounded-[1rem] border border-slate-100 shadow-sm h-fit">
                                         <div className="prose prose-sm prose-slate max-w-none 
                                             prose-p:leading-relaxed prose-p:text-slate-600
                                             prose-strong:text-slate-900 prose-strong:font-bold
-                                            prose-ul:list-disc prose-ol:list-decimal"
+                                            prose-ul:list-disc prose-ol:list-decimal font-jakarta"
                                             dangerouslySetInnerHTML={{ __html: service.content || "<i>No description provided</i>" }}
                                         />
                                     </div>
                                 </div>
                             </div>
-
                         </div>
                     </div>
                 </ScrollArea>

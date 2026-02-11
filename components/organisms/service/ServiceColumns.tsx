@@ -3,7 +3,7 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
-import { MoreHorizontal, Pencil, Trash2, Eye, Plus } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2, Eye, PlusCircle } from "lucide-react";
 import {
     DropdownMenu,
     DropdownMenuTrigger,
@@ -25,12 +25,17 @@ const truncateWords = (text: string, limit: number) => {
     return words.slice(0, limit).join(" ") + "...";
 };
 
-export const getServiceColumns = (
-    onView: (s: Service) => void,
-    onEdit: (s: Service) => void,
-    onDelete: (s: Service) => void,
-    onCreate: () => void
-): ColumnDef<Service>[] => [
+export const columns = ({
+    onCreate,
+    onView,
+    onEdit,
+    onDeleteSingle,
+}: {
+    onCreate: () => void;
+    onView: (t: Service) => void;
+    onEdit: (t: Service) => void;
+    onDeleteSingle: (t: Service) => void;
+}): ColumnDef<Service>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -54,16 +59,21 @@ export const getServiceColumns = (
         accessorKey: "title",
         header: "Service Information",
         cell: ({ row }) => {
+            const service = row.original;
             const plainText = stripHtml(row.original.content);
             const truncatedText = truncateWords(plainText, 10);
+            const imageUrl = service.image_url 
+                ? `${service.image_url}?t=${new Date(service.updated_at).getTime()}` 
+                : "/images/placeholder.jpg";
             
             return (
                 <div className="flex items-center gap-4 py-2 group/cell cursor-default">
                     <div className="relative h-20 w-28 shrink-0 overflow-hidden rounded-2xl border border-slate-100 bg-slate-50 shadow-sm transition-all duration-500">
                         <img 
-                            src={row.original.featured_image} 
+                            src={imageUrl} 
                             alt={row.original.title} 
                             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110"
+                            key={service.updated_at}
                         />
                     </div>
 
@@ -93,40 +103,41 @@ export const getServiceColumns = (
     },
     {
         id: "actions",
-        header: () => <div className="text-left w-[100px] ml-[-40px]">Action</div>,
-        cell: ({ row }) => {
-            const service = row.original;
-            return (
-                <div className="flex justify-start w-[100px] ml-[-40px]">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                className="h-8 w-8 p-0 rounded-full bg-transparent hover:bg-transparent shadow-none border-none focus-visible:ring-0 group-hover:text-arcipta-blue-primary transition-colors duration-300"
-                            >
-                                <MoreHorizontal className="h-4 w-4 text-slate-400 group-hover:text-arcipta-blue-primary transition-colors duration-300" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52 rounded-2xl p-1.5 font-satoshi shadow-2xl border-slate-100">
-                            <DropdownMenuItem onClick={onCreate} className="rounded-lg py-2.5 cursor-pointer font-medium">
-                                <Plus className="mr-2 h-4 w-4 text-arcipta-blue-primary" /> Create Service
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onView(service)} className="rounded-lg py-2.5 cursor-pointer font-medium">
-                                <Eye className="mr-2 h-4 w-4 text-blue-500" /> View Details
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => onEdit(service)} className="rounded-lg py-2.5 cursor-pointer font-medium">
-                                <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit Service
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                                onClick={() => onDelete(service)} 
-                                className="rounded-lg py-2.5 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
-                            >
-                                <Trash2 className="mr-2 h-4 w-4" /> Delete Service
-                            </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
-            );
-        },
+        header: () => <div className="pl-2 font-bold text-slate-900 font-outfit uppercase tracking-wider text-[11px]">Actions</div>,
+        enableHiding: false,
+        cell: ({ row }) => (
+            <div className="flex justify-start items-center pl-2 min-w-[80px]">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button 
+                            variant="ghost" 
+                            className="h-8 w-8 p-0 hover:bg-slate-100 transition-all duration-300 rounded-full group-hover/row:text-arcipta-blue-primary"
+                        >
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-52 rounded-2xl shadow-2xl border-slate-100 p-1.5 font-jakarta bg-white">
+                        <DropdownMenuItem onClick={onCreate} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                            <PlusCircle className="mr-2 h-4 w-4 text-emerald-500" /> Add New
+                        </DropdownMenuItem>
+                        
+                        <DropdownMenuItem onClick={() => onView(row.original)} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                            <Eye className="mr-2 h-4 w-4 text-blue-500" /> View Details
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onClick={() => onEdit(row.original)} className="rounded-lg py-2.5 cursor-pointer font-medium">
+                            <Pencil className="mr-2 h-4 w-4 text-amber-500" /> Edit Service
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem 
+                            onClick={() => onDeleteSingle(row.original)} 
+                            className="rounded-lg py-2.5 text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer font-medium"
+                        >
+                            <Trash2 className="mr-2 h-4 w-4" /> Delete Service
+                        </DropdownMenuItem>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+        ),
     },
 ];

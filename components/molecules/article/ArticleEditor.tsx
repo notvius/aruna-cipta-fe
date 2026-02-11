@@ -15,8 +15,7 @@ export function ArticleEditor({ title, setTitle, excerpt, setExcerpt, content, s
     return (
         <div className="flex-1 overflow-y-auto scrollbar-none py-8 md:py-12">
             <div className="mx-auto max-w-[900px] min-h-screen bg-white shadow-lg border rounded-sm p-8 md:p-16 flex flex-col gap-6">
-                
-                {/* Title area */}
+
                 <div className="border-b border-slate-100 pb-2">
                     <Editor
                         value={title}
@@ -44,7 +43,6 @@ export function ArticleEditor({ title, setTitle, excerpt, setExcerpt, content, s
                     />
                 </div>
 
-                {/* Sub Title area */}
                 <div className="border-b border-slate-100 pb-2">
                     <Editor
                         value={excerpt}
@@ -72,7 +70,6 @@ export function ArticleEditor({ title, setTitle, excerpt, setExcerpt, content, s
                     />
                 </div>
 
-                {/* Content area */}
                 <div className="flex-1 min-h-[600px]">
                     <Editor
                         value={content}
