@@ -8,7 +8,11 @@ export interface Portfolio {
     slug: string; 
     client_name: string;
     year: string;
-    category: number[];
+    service_id: number;
+    service?: {
+        id: number;
+        title: string;
+    };
     problem: string;
     solution: string;
     role: string;

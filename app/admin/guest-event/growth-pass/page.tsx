@@ -92,14 +92,11 @@ export default function GrowthPassAnalyticsPage() {
     const performanceData = React.useMemo(() => {
         const categories = ["innovate", "growth", "optimize"];
         return categories.map(cat => {
-            const catEvents = events.filter(e => e.event_subtype === cat);
-            const uniqueGuests = new Set(catEvents.map(e => e.ip_address)).size;
+            const catEvents = events.filter(e => e.event_subtype === cat)
             return {
                 id: cat,
                 category: cat.toUpperCase(),
                 total_clicks: catEvents.length,
-                unique_guests: uniqueGuests,
-                rate: events.length > 0 ? `${Math.round((catEvents.length / events.length) * 100)}%` : "0%"
             };
         }).sort((a, b) => b.total_clicks - a.total_clicks);
     }, [events]);
@@ -111,8 +108,6 @@ export default function GrowthPassAnalyticsPage() {
             cell: ({ row }) => <div className="min-w-[150px] font-bold text-blue-600">{row.original.category}</div>
         },
         { accessorKey: "total_clicks", header: "Total Clicks" },
-        { accessorKey: "unique_guests", header: "Unique Guests" },
-        { accessorKey: "rate", header: "Share" },
     ];
 
     const rawEventsColumns: ColumnDef<any>[] = [

@@ -8,6 +8,7 @@ import { MoreHorizontal, Pencil, Eye, Trash2, MonitorPlay, PlusCircle } from "lu
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { type Portfolio } from "@/constants/portfolios";
+import { type Service } from "@/constants/services";
 
 export const columns = (
     onAddNew: () => void,
@@ -47,28 +48,20 @@ export const columns = (
             cell: ({ row }) => {
                 const p = row.original;
                 
-                const getCategoryName = () => {
-                    const raw = (p as any).service_id || (p as any).category_id || p.category || (p as any).services;
-                    let targetId: string | number | null = null;
-
-                    if (Array.isArray(raw) && raw.length > 0) {
-                        targetId = typeof raw[0] === 'object' ? (raw[0].id || raw[0].service_id) : raw[0];
-                    } else if (raw && typeof raw === 'object' && raw !== null) {
-                        targetId = raw.id || raw.service_id;
-                    } else {
-                        targetId = raw;
+                const getServiceTitle = () => {
+                    if (p.service && typeof p.service === 'object') {
+                        return (p.service as any).title || (p.service as any).name;
                     }
-                    
-                    if (!targetId || !services || !Array.isArray(services)) return "General";
+                    const sId = p.service_id || p.service_id;
+                    if (sId) {
+                        const found = services.find(s => String(s.id) === String(sId));
+                        if (found) return found.title;
+                    }
 
-                    const match = services.find(s => 
-                        String(s.id) === String(targetId) || 
-                        String(s.service_id) === String(targetId)
-                    );
-
-                    return match ? match.title : "General";
+                    return "General";
                 };
 
+                const serviceTitle = getServiceTitle();
                 const imageUrl = p.thumbnail_url
                     ? `${p.thumbnail_url}?t=${new Date(p.updated_at).getTime()}`
                     : (p.thumbnail?.startsWith('http') ? p.thumbnail : `${process.env.NEXT_PUBLIC_ASSET_URL}/${p.thumbnail}`);
@@ -94,7 +87,7 @@ export const columns = (
                             <div className="flex items-center gap-2">
                                 <span className="text-[10px] font-bold text-slate-600 uppercase tracking-widest leading-none">{p.client_name}</span>
                                 <Badge variant="secondary" className="bg-slate-100 text-slate-500 text-[9px] px-1.5 py-0 border-none font-bold uppercase shrink-0 h-4">
-                                    {getCategoryName()}
+                                    {getServiceTitle()}
                                 </Badge>
                             </div>
                         </div>

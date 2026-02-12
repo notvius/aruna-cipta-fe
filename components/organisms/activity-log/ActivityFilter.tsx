@@ -12,7 +12,7 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
 
     const handleReset = () => {
         setGlobalFilter("");
-        table.getColumn("target_type")?.setFilterValue("");
+        table.getColumn("target_type")?.setFilterValue("all");
         table.getColumn("created_at")?.setFilterValue({ start: "", end: "" });
 
         const dateInputs = document.querySelectorAll('input[type="date"]');
@@ -28,7 +28,7 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder="Search action or module..."
-                            value={globalFilter}
+                            value={globalFilter ?? ""}
                             onChange={(e) => setGlobalFilter(e.target.value)}
                             className={`pl-10 h-10 rounded-lg border-slate-200 bg-white ${focusStyles}`}
                         />
@@ -39,10 +39,10 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
                     <p className="text-[10px] font-bold text-slate-400 uppercase ml-1 tracking-widest">Module</p>
                     <Select
                         value={(table.getColumn("target_type")?.getFilterValue() as string) || "all"}
-                        onValueChange={(val) => table.getColumn("target_type")?.setFilterValue(val === "all" ? "" : val)}
+                        onValueChange={(val) => table.getColumn("target_type")?.setFilterValue(val)}
                     >
-                        <SelectTrigger className={`h-10 rounded-lg border-slate-200 bg-white ${focusStyles}`}>
-                            <SelectValue placeholder="All" />
+                        <SelectTrigger className={`h-10 rounded-lg border-slate-200 bg-white bg-solid ${focusStyles}`}>
+                            <SelectValue placeholder="All Modules" />
                         </SelectTrigger>
                         <SelectContent className="bg-white border-slate-200 shadow-xl rounded-xl">
                             <SelectItem value="all" className="text-xs font-medium focus:bg-slate-50">All Modules</SelectItem>
@@ -51,6 +51,7 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
                             <SelectItem value="user" className="text-xs font-medium focus:bg-slate-50">User</SelectItem>
                             <SelectItem value="testimonial" className="text-xs font-medium focus:bg-slate-50">Testimonial</SelectItem>
                             <SelectItem value="service" className="text-xs font-medium focus:bg-slate-50">Service</SelectItem>
+                            <SelectItem value="portfolio" className="text-xs font-medium focus:bg-slate-50">Portfolio</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -62,8 +63,9 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
                             type="date"
                             className={`h-10 rounded-lg border-slate-200 bg-white ${focusStyles}`}
                             onChange={(e) => {
+                                const val = e.target.value;
                                 const current = table.getColumn("created_at")?.getFilterValue() as any || {};
-                                table.getColumn("created_at")?.setFilterValue({ ...current, start: e.target.value });
+                                table.getColumn("created_at")?.setFilterValue({ ...current, start: val });
                             }}
                         />
                     </div>
@@ -73,8 +75,9 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
                             type="date"
                             className={`h-10 rounded-lg border-slate-200 bg-white ${focusStyles}`}
                             onChange={(e) => {
+                                const val = e.target.value;
                                 const current = table.getColumn("created_at")?.getFilterValue() as any || {};
-                                table.getColumn("created_at")?.setFilterValue({ ...current, end: e.target.value });
+                                table.getColumn("created_at")?.setFilterValue({ ...current, end: val });
                             }}
                         />
                     </div>
@@ -82,6 +85,7 @@ export function ActivityFilter({ table, globalFilter, setGlobalFilter }: { table
 
                 <div className="md:col-span-2 flex gap-2">
                     <Button
+                        type="button"
                         className="h-10 w-full bg-arcipta-blue-primary hover:bg-arcipta-blue-primary/90 text-white rounded-lg shadow-sm"
                         onClick={handleReset}
                     >

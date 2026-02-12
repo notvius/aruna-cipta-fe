@@ -73,10 +73,10 @@ export function GuestEventDashboard({
                                 <SelectValue placeholder="Select range" />
                             </div>
                         </SelectTrigger>
-                        <SelectContent className="rounded-xl border-slate-200 shadow-xl overflow-hidden">
-                            <SelectItem value="1d" className="text-xs font-medium focus:bg-arcipta-blue-primary/5 focus:text-arcipta-blue-primary cursor-pointer">1 Day</SelectItem>
-                            <SelectItem value="1w" className="text-xs font-medium focus:bg-arcipta-blue-primary/5 focus:text-arcipta-blue-primary cursor-pointer">1 Week</SelectItem>
-                            <SelectItem value="1m" className="text-xs font-medium focus:bg-arcipta-blue-primary/5 focus:text-arcipta-blue-primary cursor-pointer">1 Month</SelectItem>
+                        <SelectContent className="rounded-xl border-slate-200 shadow-xl overflow-hidden bg-white opacity-100">
+                            <SelectItem value="1d" className="text-xs font-medium focus:bg-arcipta-blue-primary/5 focus:text-arcipta-blue-primary cursor-pointer bg-white">1 Day</SelectItem>
+                            <SelectItem value="1w" className="text-xs font-medium focus:bg-arcipta-blue-primary/5 focus:text-arcipta-blue-primary cursor-pointer bg-white">1 Week</SelectItem>
+                            <SelectItem value="1m" className="text-xs font-medium focus:bg-arcipta-blue-primary/5 focus:text-arcipta-blue-primary cursor-pointer bg-white">1 Month</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

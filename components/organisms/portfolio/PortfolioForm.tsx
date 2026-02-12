@@ -3,13 +3,10 @@
 import * as React from "react";
 import Cookies from "js-cookie";
 import { Button } from "@/components/ui/button";
-import { Save, Loader2, X, Briefcase, FileText, MonitorPlay, Type, User, Calendar, Tag, Layers, Star, Check, ChevronsUpDown } from "lucide-react";
+import { Save, Loader2, X, Briefcase, FileText, MonitorPlay, Type, User, Calendar, Tag, Layers, Star, ChevronsUpDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import AlertError2 from "@/components/alert-error-2";
 import { ImageUpload } from "@/components/molecules/gallery/ImageUpload";
 import { DualImageUpload } from "@/components/molecules/gallery/DualImageUpload";
 import { cn } from "@/lib/utils";
@@ -19,33 +16,35 @@ export function PortfolioForm({ mode, initialData, onClose, services, isLoading 
     const [isSaving, setIsSaving] = React.useState(false);
     const [error, setError] = React.useState<string | null>(null);
     const [isPreviewOpen, setIsPreviewOpen] = React.useState(false);
-    const [open, setOpen] = React.useState(false);
-    const [searchQuery, setSearchQuery] = React.useState("");
 
     const [formData, setFormData] = React.useState({
-        title: "", client_name: "", year: "", category: "", role: "", problem: "", solution: "", thumbnail: "", thumbnailFile: null as File | null
+        title: initialData?.title || "", 
+        client_name: initialData?.client_name || "", 
+        year: initialData?.year || "", 
+        service_id: (initialData?.service_id || initialData?.service?.id)?.toString() || "", 
+        role: initialData?.role || "", 
+        problem: initialData?.problem || "", 
+        solution: initialData?.solution || "", 
+        thumbnail: initialData?.thumbnail_url || "", 
+        thumbnailFile: null as File | null
     });
 
     const [contentData, setContentData] = React.useState({
-        context: "", challenge: "", approach: "", impact: "", image_process: ["", ""], processFiles: [null, null] as (File | null)[]
+        context: initialData?.content?.context || "", 
+        challenge: initialData?.content?.challenge || "", 
+        approach: initialData?.content?.approach || "", 
+        impact: initialData?.content?.impact || "", 
+        image_process: initialData?.content?.image_urls || ["", ""], 
+        processFiles: [null, null] as (File | null)[]
     });
 
     React.useEffect(() => {
-        if (mode === "edit" && initialData) {
-            const getInitialCat = () => {
-                const raw = initialData.services || initialData.category || initialData.category_id;
-                if (Array.isArray(raw) && raw.length > 0) {
-                    return typeof raw[0] === 'object' ? String(raw[0].id || raw[0].service_id) : String(raw[0]);
-                }
-                if (raw && typeof raw === 'object') return String(raw.id || raw.service_id);
-                return String(raw || "");
-            };
-
+        if (initialData) {
             setFormData({
                 title: initialData.title || "",
                 client_name: initialData.client_name || "",
                 year: initialData.year || "",
-                category: getInitialCat(),
+                service_id: (initialData.service_id || initialData.service?.id)?.toString() || "",
                 role: initialData.role || "",
                 problem: initialData.problem || "",
                 solution: initialData.solution || "",
@@ -58,54 +57,77 @@ export function PortfolioForm({ mode, initialData, onClose, services, isLoading 
                 challenge: initialData.content?.challenge || "",
                 approach: initialData.content?.approach || "",
                 impact: initialData.content?.impact || "",
-                image_process: initialData.content?.thumbnail_urls || initialData.content?.image_urls || ["", ""],
+                image_process: initialData.content?.image_urls || ["", ""],
                 processFiles: [null, null]
             });
         }
-    }, [initialData, mode]);
+    }, [initialData]);
 
     const handleSave = async () => {
-        const token = Cookies.get("token");
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
-        setIsSaving(true);
+        if (!formData.title || !formData.client_name || !formData.year || !formData.service_id || !formData.role || !formData.problem || !formData.solution) {
+            return setError("Please fill in all required fields.");
+        }
+        if (!formData.thumbnail && !formData.thumbnailFile) return setError("Thumbnail image is required.");
+
         setError(null);
-        
+        setIsSaving(true);
+
+        const token = Cookies.get("token");
         const body = new FormData();
-        body.append('title', formData.title);
-        body.append('client_name', formData.client_name);
-        body.append('year', formData.year);
-        body.append('problem', formData.problem);
-        body.append('solution', formData.solution);
-        body.append('role', formData.role);
         
-        if (formData.category) {
-            body.append('service_id', formData.category);
+        console.log("Service ID State:", formData.service_id);
+
+        body.set('title', formData.title);
+        body.set('client_name', formData.client_name);
+        body.set('year', formData.year);
+        body.set('service_id', formData.service_id);
+        body.set('role', formData.role);
+        body.set('problem', formData.problem);
+        body.set('solution', formData.solution);
+        
+        if (formData.thumbnailFile) {
+            body.set('thumbnail', formData.thumbnailFile);
         }
 
-        body.append('content[context]', contentData.context);
-        body.append('content[challenge]', contentData.challenge);
-        body.append('content[approach]', contentData.approach);
-        body.append('content[impact]', contentData.impact);
+        body.set('content[context]', contentData.context);
+        body.set('content[challenge]', contentData.challenge);
+        body.set('content[approach]', contentData.approach);
+        body.set('content[impact]', contentData.impact);
 
-        if (formData.thumbnailFile) body.append('thumbnail', formData.thumbnailFile);
-        contentData.processFiles.forEach(file => {
+        contentData.processFiles.forEach((file) => {
             if (file) body.append('content[images][]', file);
         });
 
-        let url = `${baseUrl}/portfolio`;
         if (mode === "edit") {
-            url = `${baseUrl}/portfolio/${initialData.uuid}`;
-            body.append('_method', 'PUT');
+            body.set('_method', 'PUT');
         }
+
+        console.log("Service ID FormData:", body.get('service_id'));
+
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+        const url = mode === "edit" ? `${baseUrl}/portfolio/${initialData.uuid}` : `${baseUrl}/portfolio`;
 
         try {
             const res = await fetch(url, {
                 method: "POST",
-                headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" },
+                headers: { 
+                    "Authorization": `Bearer ${token}`, 
+                    "Accept": "application/json" 
+                },
                 body
             });
-            if (!res.ok) throw new Error("Failed to save data");
-            onClose(mode === "edit" ? "Updated!" : "Created!");
+
+            const result = await res.json();
+
+            if (!res.ok) {
+                if (res.status === 422 && result.errors) {
+                    const firstErr = Object.values(result.errors)[0] as string[];
+                    throw new Error(firstErr[0]);
+                }
+                throw new Error(result.message || "Failed to save data");
+            }
+
+            onClose(mode === "edit" ? "Portfolio updated successfully!" : "Portfolio created successfully!");
         } catch (err: any) {
             setError(err.message);
         } finally {
@@ -142,6 +164,11 @@ export function PortfolioForm({ mode, initialData, onClose, services, isLoading 
             <main className="flex flex-1 overflow-hidden bg-slate-50/50">
                 <div className="flex-1 overflow-y-auto p-12 scrollbar-none">
                     <div className="max-w-4xl mx-auto space-y-12 pb-20">
+                        {error && (
+                            <div className="bg-red-50 text-red-500 p-4 rounded-xl text-xs font-bold uppercase tracking-widest border border-red-100">
+                                {error}
+                            </div>
+                        )}
                         <div className="bg-white p-10 rounded-3xl border border-slate-200/60 shadow-sm space-y-8">
                             <div className="flex items-center gap-3 text-arcipta-blue-primary font-bold uppercase text-[10px] tracking-widest border-b border-arcipta-blue-primary/10 pb-4">
                                 <Briefcase className="size-4" /> Brief Overview
@@ -211,32 +238,28 @@ export function PortfolioForm({ mode, initialData, onClose, services, isLoading 
                             </div>
                         </div>
                         <div className="space-y-3">
-                            <Label className={labelStyles}><Tag className="size-3.5" /> Industry Category</Label>
-                            <Popover open={open} onOpenChange={setOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button variant="outline" className="w-full justify-between rounded-xl h-11 border-slate-200 bg-white">
-                                        <span className="truncate">
-                                            {formData.category ? services.find((s: any) => String(s.id) === formData.category || String(s.service_id) === formData.category)?.title : "Select Category"}
-                                        </span>
-                                        <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-[290px] p-0 z-[200] bg-white border-slate-100 shadow-xl rounded-xl">
-                                    <Command>
-                                        <CommandInput placeholder="Search category..." value={searchQuery} onValueChange={setSearchQuery} />
-                                        <CommandList className="scrollbar-none">
-                                            <CommandEmpty className="py-6 text-center text-xs text-slate-400 font-bold uppercase tracking-widest">No category found.</CommandEmpty>
-                                            <CommandGroup>
-                                                {services.map((s: any) => (
-                                                    <CommandItem key={s.id} onSelect={() => { setFormData({...formData, category: (s.id || s.service_id).toString()}); setOpen(false); }}>                                                        <Check className={cn("mr-2 h-4 w-4", formData.category === s.id.toString() ? "opacity-100" : "opacity-0")} />
-                                                        {s.title}
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </PopoverContent>
-                            </Popover>
+                            <Label className={labelStyles}><Tag className="size-3.5" /> Pick Service</Label>
+                            <div className="relative">
+                                <select
+                                    value={formData.service_id}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setFormData(prev => ({ ...prev, service_id: val }));
+                                    }}
+                                    className={cn(
+                                        "w-full appearance-none rounded-xl h-11 bg-white border border-slate-200 px-4 pr-10 font-bold text-sm focus:outline-none focus:ring-1 focus:ring-arcipta-blue-primary/40 focus:border-arcipta-blue-primary/40 transition-all",
+                                        !formData.service_id && "text-slate-400"
+                                    )}
+                                >
+                                    <option value="" disabled>Select Service Category...</option>
+                                    {services.map((s: any) => (
+                                        <option key={s.id} value={s.id.toString()}>
+                                            {s.title}
+                                        </option>
+                                    ))}
+                                </select>
+                                <ChevronsUpDown className="absolute right-3 top-3.5 h-4 w-4 opacity-50 pointer-events-none text-slate-500" />
+                            </div>
                         </div>
                         <div className="space-y-4 pt-6 mt-6 border-t border-slate-100">
                             <Label className={labelStyles}><Star className="size-3.5" /> Featured Thumbnail</Label>

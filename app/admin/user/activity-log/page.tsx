@@ -93,15 +93,23 @@ export default function ActivityLogPage() {
         { accessorKey: "action" },
         {
             accessorKey: "target_type",
-            filterFn: (row, id, value) => value === "all" ? true : row.getValue(id) === value
+            filterFn: (row, id, value) => {
+                if (!value || value === "all") return true;
+                const rowValue = String(row.getValue(id)).toLowerCase();
+                return rowValue.includes(value.toLowerCase());
+            }
         },
         {
             accessorKey: "created_at",
             filterFn: (row, id, value: { start: string; end: string }) => {
-                const date = new Date(row.getValue(id)).setHours(0, 0, 0, 0);
+                const rowDate = new Date(row.getValue(id)).getTime();
                 const start = value?.start ? new Date(value.start).setHours(0, 0, 0, 0) : null;
                 const end = value?.end ? new Date(value.end).setHours(23, 59, 59, 999) : null;
-                return (!start || date >= start) && (!end || date <= end);
+
+                if (start && end) return rowDate >= start && rowDate <= end;
+                if (start) return rowDate >= start;
+                if (end) return rowDate <= end;
+                return true;
             }
         }
     ], []);

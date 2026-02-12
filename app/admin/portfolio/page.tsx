@@ -14,6 +14,7 @@ import AlertSuccess2 from "@/components/alert-success-2";
 import AlertError2 from "@/components/alert-error-2";
 import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { type Portfolio } from "@/constants/portfolios";
+import { Loader2 } from "lucide-react";
 
 export default function PortfolioPage() {
     const [data, setData] = React.useState<Portfolio[]>([]);
@@ -36,15 +37,20 @@ export default function PortfolioPage() {
         setIsLoading(true);
         try {
             const [pRes, sRes] = await Promise.all([
-                fetch(`${baseUrl}/portfolio`, { headers: { "Authorization": `Bearer ${token}` } }),
-                fetch(`${baseUrl}/service`, { headers: { "Authorization": `Bearer ${token}` } })
+                fetch(`${baseUrl}/portfolio`, { 
+                    headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" } 
+                }),
+                fetch(`${baseUrl}/service`, { 
+                    headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" } 
+                })
             ]);
             const pJson = await pRes.json();
             const sJson = await sRes.json();
             setData(Array.isArray(pJson) ? pJson : (pJson.data || []));
             setServices(Array.isArray(sJson) ? sJson : (sJson.data || []));
         } catch (err) {
-            triggerError("Failed to fetch portfolios.");
+            setError("Failed to fetch portfolios.");
+            setTimeout(() => setError(null), 4000);
         } finally {
             setIsLoading(false);
         }
@@ -53,17 +59,6 @@ export default function PortfolioPage() {
     React.useEffect(() => {
         refreshData();
     }, [refreshData]);
-
-    const triggerSuccess = (msg: string) => {
-        setSuccess(msg);
-        setTimeout(() => setSuccess(null), 3000);
-        refreshData();
-    };
-
-    const triggerError = (msg: string) => {
-        setError(msg);
-        setTimeout(() => setError(null), 3000);
-    };
 
     const handleAction = async (p: Portfolio, mode: 'view' | 'edit' | 'preview') => {
         setSelectedItem(p);
@@ -76,55 +71,74 @@ export default function PortfolioPage() {
         const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
         try {
             const res = await fetch(`${baseUrl}/portfolio/${p.uuid}`, {
-                headers: { "Authorization": `Bearer ${token}` }
+                headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" }
             });
             const json = await res.json();
             const fullData = json.data || json;
             setSelectedItem(fullData);
         } catch (err) {
-            triggerError("Failed to fetch project details.");
+            setError("Failed to fetch project details.");
+            setTimeout(() => setError(null), 4000);
         } finally {
             setIsLoadingDetail(false);
         }
     };
 
-    const handleOnCloseForm = (msg: string, isErr: boolean = false) => {
+    const handleOnCloseForm = (msg?: string) => {
         setIsFormOpen(false);
         setSelectedItem(null); 
         if (msg) {
-            if (isErr === true || msg.toLowerCase().includes('failed')) {
-                triggerError(msg);
+            setSuccess(msg);
+            setTimeout(() => setSuccess(null), 3000);
+            refreshData();
+        }
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!selectedItem) return;
+        const token = Cookies.get("token");
+        const baseUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
+        try {
+            const res = await fetch(`${baseUrl}/portfolio/${selectedItem.uuid}`, {
+                method: "DELETE",
+                headers: { "Authorization": `Bearer ${token}`, "Accept": "application/json" }
+            });
+            if (res.ok) {
+                setSuccess("Portfolio deleted successfully.");
+                setTimeout(() => setSuccess(null), 3000);
+                setIsDeleteOpen(false);
+                setSelectedItem(null);
+                refreshData();
             } else {
-                triggerSuccess(msg); 
+                throw new Error("Failed to delete");
             }
+        } catch (err) {
+            setError("Delete failed");
+            setTimeout(() => setError(null), 4000);
         }
     };
 
     const filteredData = React.useMemo(() => {
         return data.filter((item) => {
             const matchesSearch = item.title.toLowerCase().includes(globalFilter.toLowerCase());
-            const getPortfolioCatId = () => {
-                const rawCategory = (item as any).services || item.category || (item as any).category_id;
-                if (Array.isArray(rawCategory) && rawCategory.length > 0) {
-                    const first = rawCategory[0];
-                    return (typeof first === 'object' ? (first.id || first.service_id) : first).toString();
-                }
-                if (rawCategory && typeof rawCategory === 'object') {
-                    return (rawCategory.id || rawCategory.service_id).toString();
-                }
-                const finalId = rawCategory || (item as any).service_id || "";
-                return finalId.toString();
-            };
-            const portfolioCatId = getPortfolioCatId();
-            const matchesCat = catFilter === "all" || portfolioCatId === catFilter;
+            const sId = item.service_id || (item.service as any)?.id || "";
+            const matchesCat = catFilter === "all" || String(sId) === String(catFilter);
             return matchesSearch && matchesCat;
         });
     }, [data, globalFilter, catFilter]);
 
     return (
         <div className="w-full relative px-6 pb-10 font-satoshi">
-            {success && <div className="fixed top-6 right-6 z-[300]"><AlertSuccess2 message={success} onClose={() => setSuccess(null)} /></div>}
-            {error && <div className="fixed top-6 right-6 z-[300]"><AlertError2 message={error} onClose={() => setError(null)} /></div>}
+            {success && (
+                <div className="fixed top-6 right-6 z-[300] animate-in fade-in slide-in-from-right-4 duration-300">
+                    <AlertSuccess2 message={success} onClose={() => setSuccess(null)} />
+                </div>
+            )}
+            {error && (
+                <div className="fixed top-6 right-6 z-[300] animate-in fade-in slide-in-from-right-4 duration-300">
+                    <AlertError2 message={error} onClose={() => setError(null)} />
+                </div>
+            )}
 
             <div className="mb-4 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1">
@@ -167,24 +181,29 @@ export default function PortfolioPage() {
 
             <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
                 <DialogContent className="fixed inset-0 z-[150] h-screen w-screen !max-w-none !translate-x-0 !translate-y-0 border-none p-0 bg-white rounded-none">
-                    <VisuallyHidden.Root><DialogTitle>Portfolio Form</DialogTitle></VisuallyHidden.Root>
-                    <PortfolioForm
-                        mode={selectedItem?.id ? "edit" : "create"}
-                        initialData={selectedItem}
-                        isLoading={isLoadingDetail}
-                        onClose={handleOnCloseForm}
-                        services={services}
-                    />
+                    <VisuallyHidden.Root><DialogTitle>Portfolio Editor</DialogTitle></VisuallyHidden.Root>
+                    {isLoadingDetail ? (
+                        <div className="flex h-full w-full items-center justify-center">
+                            <Loader2 className="animate-spin h-8 w-8 text-arcipta-blue-primary" />
+                        </div>
+                    ) : (
+                        <PortfolioForm
+                            mode={selectedItem?.id ? "edit" : "create"}
+                            initialData={selectedItem} 
+                            onClose={handleOnCloseForm}
+                            services={services}
+                        />
+                    )}
                 </DialogContent>
             </Dialog>
 
             <ViewPortfolioModal portfolio={selectedItem} open={isViewOpen} onOpenChange={setIsViewOpen} services={services} />
-            <PreviewPortfolioModal open={isPreviewOpen} onOpenChange={setIsPreviewOpen} data={selectedItem} content={selectedItem?.content} services={services} isLoading={isLoadingDetail} />
+            <PreviewPortfolioModal open={isPreviewOpen} onOpenChange={setIsPreviewOpen} data={selectedItem} content={selectedItem?.content} services={services} />
 
             <AlertDeleteConfirmation
                 open={isDeleteOpen}
                 onOpenChange={setIsDeleteOpen}
-                onConfirm={refreshData}
+                onConfirm={handleConfirmDelete}
                 title="Hapus Portfolio"
                 description="Tindakan ini akan menghapus data portfolio secara permanen dari database."
             />
